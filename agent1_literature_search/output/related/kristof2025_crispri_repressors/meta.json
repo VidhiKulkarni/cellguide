@@ -1,0 +1,57 @@
+{
+  "title": "Engineering novel CRISPRi repressors for highly efficient mammalian gene regulation",
+  "authors": [
+    "Andrew Kristof",
+    "Krithika Karunakaran",
+    "Christopher Allen",
+    "Paula Mizote",
+    "Sophie Briggs",
+    "Zixin Jian",
+    "Patrick Nash",
+    "John Blazeck"
+  ],
+  "doi": "10.1186/s13059-025-03640-4",
+  "journal": "Genome Biology",
+  "year": 2025,
+  "pub_date": "2025-06-12",
+  "paperclip_id": "PMC12164210",
+  "pmc_id": "PMC12164210",
+  "pmid": "40506744",
+  "source": "pmc",
+  "article_type": "research-article",
+  "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12164210/",
+  "doi_url": "https://doi.org/10.1186/s13059-025-03640-4",
+  "paperclip_url": "https://paperclip.gxl.ai/citations/papers/PMC12164210",
+  "abstract": "CRISPR interference (CRISPRi), the repurposing of the RNA-guided endonuclease dCas9 as a programmable transcriptional repressor, allows highly specific repression (knockdown) of gene expression. CRISPRi platforms can often have incomplete knockdown, performance variability across cell lines and gene targets, and inconsistencies dependent on the guide RNA sequence employed. Here, we explore the combination of novel repressor domains with strong Krüppel-associated box (KRAB) repressors, screening > 100 bipartite and tripartite fusion proteins for their ability to reduce gene expression as CRISPRi effectors. We show that these novel repressor fusions have reduced dependence on guide RNA sequences, better slow cell growth when used to knock down expression of essential genes, and function in either fusion or scaffold modalities. Furthermore, we isolate and characterize a particularly effective CRISPRi platform, dCas9-ZIM3(KRAB)-MeCP2(t), which shows improved gene repression of endogenous targets both at the transcript and protein level across several cell lines and when deployed in genome-wide screens. We posit that these novel repressor fusions can enhance the reproducibility and utility of CRISPRi in mammalian cells.",
+  "local_files": {
+    "fulltext": "excerpt.md",
+    "fulltext_kind": "excerpt",
+    "source_total_lines": 1114,
+    "excerpt_source": "assembled from /papers/PMC12164210/sections/*.lines",
+    "fetch_issue": "The flat content.lines file returned 'ERR: vsh: Slab service unavailable for PMC12164210' on all read attempts (cat --full, head -300, head -600); the section files were readable, so the excerpt was assembled from them. Section files contained each line duplicated; duplicates were removed.",
+    "sections_included": [
+      "Abstract (Background / Results / Conclusions)",
+      "Results: Screening, constructing, and isolating potent CRISPRi repressors",
+      "Results: Evaluating novel repressor efficacy across different genetic loci and targeting modalities",
+      "Results: dCas9-KOX1(KRAB)-MeCP2(t) outperforms existing CRISPRi tools for assessing gene essentiality",
+      "Results: Gene knockdown using scaffold-based repressor recruitment",
+      "Results: Investigating domain order and necessity",
+      "Results: Highly efficient knockdown of endogenous loci with dCas9-ZIM3(KRAB)-MeCP2(t)",
+      "Results: dCas9-ZIM3(KRAB)-MeCP2(t) improves essential gene discovery at library scales",
+      "Results: Characterization of protein-protein linkers",
+      "Discussion",
+      "Conclusions",
+      "Methods: Plasmid construction for CRISPRi repressors and sgRNAs",
+      "Methods: CRISPRi screening library preparation and titer estimation",
+      "Methods: Genome-wide CRISPRi screening",
+      "Methods: NGS library preparation and analysis"
+    ],
+    "sections_omitted": [
+      "Methods: Cell culture, CRISPRi reporter knockdown assays, Repressor domain library screening, Lentivirus production, Transductions and stable cell line generation, Cell proliferation assays, RT-qPCR gene expression analysis, Intracellular staining, Surface receptor staining, Software, Statistics and reproducibility",
+      "References, Acknowledgements",
+      "Supplementary tables/figures (Additional Files 1-3)",
+      "Peer Review File"
+    ]
+  },
+  "relevance": "Quantifies the two axes a cell-context guide score must model: guide-sequence-dependent variance in CRISPRi knockdown (9-guide TSS-tiling panel, 'strong' vs 'weak' guides for CD81/CD151) and cell-context dependence (MAX-containing effectors work in HEK293T but fail in A549/HCT116/HeLa, attributed to cell-line-specific MYC/MXD cofactor abundance); also shows residual per-guide variation attributed to local chromatin architecture, and measures neighbor-gene spreading (SYVN1 + 5 neighbors) as an off-target/specificity readout."
+}
