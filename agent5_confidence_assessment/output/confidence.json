@@ -2,57 +2,55 @@
   {
     "gene": "AIRE",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.3,
+    "confidence": "medium",
+    "confidence_numeric": 0.55,
     "issues": [
       "single guide - no within-gene replication",
-      "ATAC 0.163 is within 1.7x of the 0.1 cutoff",
-      "ATAC replicate GSM7256892 = 0.032 -> gate flips to FAIL",
-      "specificity never assessed (null in all 199 rows)",
-      "in-sample: Ito thresholds tuned on these same guides",
-      "indel_pct = replicate 1 (91.0), paper's indel_avg = 78.2"
+      "sequence_efficacy 0.61 underpredicts 91% indel",
+      "passes Ito gate only via ATAC 0.163 (in-sample threshold)",
+      "specificity never evaluated",
+      "cell_type unlabeled in results.csv (actually primary human CD8+ T cells)"
     ],
-    "rationale": "The gate passed and the guide edited at 91%, but that pass depends entirely on choosing ATAC replicate GSM6896554; under the other replicate in the same supplementary table this guide fails ATAC>=0.1. A correct prediction reached through a coin-flip input is not evidence the metric works."
+    "rationale": "Direction is right and the guide passes the full Ito rule, but a single guide cannot distinguish a working score from luck, and the score materially underpredicts the observed 91% indel. No off-target assessment exists for this or any other guide."
   },
   {
     "gene": "ARID1A",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.45,
+    "confidence": "high",
+    "confidence_numeric": 0.68,
     "issues": [
-      "guide 1 rejected by DeepSpCas9 58.4 vs cutoff 60, yet edited 93%",
-      "threshold near-miss false negative",
-      "specificity never assessed",
-      "in-sample threshold tuning",
-      "T cells only; cell_type null"
+      "only 2 guides",
+      "ATAC (0.438, 0.519) is non-discriminating here - both guides high",
+      "specificity never evaluated",
+      "Ito thresholds fit and tested on this same 205-guide set"
     ],
-    "rationale": "Both guides edit efficiently (93%, 85%) and sequence_efficacy ranks them highly, so the ranking signal is sound here. But one was excluded by a 1.6-point DeepSpCas9 shortfall, showing the hard cutoff discards good guides for no biological reason."
+    "rationale": "Both guides show high sequence scores and high measured indel (93%, 85%), so the ranking signal is internally consistent. Confidence is capped below 0.7 because accessibility contributes nothing separable here and off-target risk is entirely unassessed."
   },
   {
     "gene": "BACH2",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.2,
+    "confidence_numeric": 0.25,
     "issues": [
-      "guide with CHOPCHOP 0.07 / DeepSpCas9 19.5 still edited 53.5%",
-      "sequence score / indel strongly discordant",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "sequence_efficacy severely underpredicts: 0.13 score -> 53.5% indel",
+      "DeepSpCas9 19.5 guide outperforms the DeepSpCas9 42.1 guide",
+      "rank inversion between the gene's two guides",
+      "specificity never evaluated"
     ],
-    "rationale": "The lower-scoring of the two guides (sequence_efficacy 0.13, bottom of the entire dataset) out-edited the higher-scoring one, 53.5% vs 39.5%. The metric's ordering is inverted at this locus."
+    "rationale": "The score ranks the two BACH2 guides in the wrong order - the guide with much worse DeepSpCas9 (19.5 vs 42.1) and worse CHOPCHOP (0.07 vs 0.17) achieved higher indel (53.5% vs 39.5%). This is a direct local failure of the ranking value the metric recommends."
   },
   {
     "gene": "BATF3",
     "cell_type": null,
     "confidence": "medium",
-    "confidence_numeric": 0.48,
+    "confidence_numeric": 0.58,
     "issues": [
-      "single guide - no within-gene replication",
-      "specificity never assessed",
-      "in-sample threshold tuning",
-      "T cells only; cell_type null"
+      "single guide",
+      "no negative control guide for this gene",
+      "specificity never evaluated",
+      "in-sample threshold evaluation"
     ],
-    "rationale": "Gate passed with ATAC 0.806, eight times the cutoff, so this call is robust to ATAC replicate choice and normalization, and the guide edited at 70%. Confidence is capped by the unassessed specificity term and the single-guide sample."
+    "rationale": "A single concordant guide (seq 0.63, ATAC 0.806, 70% indel) passing the Ito rule. Consistent but unreplicated, and it contributes nothing to distinguishing the sequence term from the accessibility term."
   },
   {
     "gene": "CD83",
@@ -60,115 +58,116 @@
     "confidence": "low",
     "confidence_numeric": 0.15,
     "issues": [
-      "two guides share ATAC 0.062 but edited 88.75% vs 0.0%",
-      "accessibility cannot explain within-locus variance",
-      "sequence score / indel strongly discordant",
-      "zero-inflated indel (0.0 may be assay failure)",
-      "specificity never assessed"
+      "identical ATAC (0.062) for guides with 88.75% and 0.0% indel",
+      "worst-scoring guide by DeepSpCas9 (29.2) had the highest indel (88.75%)",
+      "accessibility term has zero discriminating power at this locus",
+      "0.0% indel may be assay failure, not biology"
     ],
-    "rationale": "Both guides have identical accessibility and near-identical sequence_efficacy (0.281 vs 0.268), yet one edits at 88.75% and the other at 0%. This is the cleanest demonstration in the dataset that the score has no resolution at the within-locus level, which is exactly the level at which a user picks a guide."
+    "rationale": "Two guides share the same ATAC signal but span the entire outcome range (0% to 88.75%), so accessibility cannot explain anything here, and the sequence term ranks them backwards. This gene is a clean counterexample to both scored components."
   },
   {
     "gene": "CDKN2B",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.35,
+    "confidence_numeric": 0.3,
     "issues": [
-      "all three guides highly accessible (ATAC 0.60-0.81) but indel 1.5/70/0",
-      "accessibility uninformative at this locus",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "high ATAC (0.62, 0.604) guides gave 1.5% and 0.0% indel",
+      "accessibility anti-predictive at this locus",
+      "two of three guides are near-zero outcomes",
+      "specificity never evaluated"
     ],
-    "rationale": "Open chromatin across all three guides yet outcomes span 0-70%, so the entire discriminative burden falls on the sequence term. The gate call was correct only because CHOPCHOP separated the guides, not because of the cell-context component."
+    "rationale": "All three guides sit in open chromatin (ATAC 0.60-0.81) yet two produced essentially no editing, so the accessibility term is uninformative-to-misleading here. Only the sequence score separates the working guide, and it does so weakly."
   },
   {
     "gene": "CDKN2C",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence_numeric": 0.22,
     "issues": [
-      "best-editing guide (81%) has the lowest ATAC in the gene (0.0155)",
-      "ATAC anti-correlated with outcome here",
-      "gene name collides with whitespace-padded duplicate 'CDKN2C '",
-      "specificity never assessed"
+      "81% indel at ATAC 0.0155 (~2 read counts, lowest bin)",
+      "0% indel at higher ATAC 0.0387",
+      "accessibility inverted relative to outcome",
+      "gene name also appears as 'CDKN2C ' with trailing whitespace - split record"
     ],
-    "rationale": "The guide with 81% indel sits at ATAC 0.0155, roughly one sixth of the cutoff, while the guide at ATAC 0.352 edited at 62% and the one at 0.0387 edited at 0%. Accessibility runs backwards against outcome at this locus."
+    "rationale": "The best-performing guide (81% indel) has the lowest ATAC signal in the gene, directly inverting the accessibility premise. Gene-level aggregation is additionally corrupted by a trailing-whitespace duplicate key in results.csv."
   },
   {
     "gene": "CDKN2C ",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence_numeric": 0.1,
     "issues": [
-      "gene name has trailing whitespace - phantom duplicate of CDKN2C",
-      "no gene-name normalization anywhere in the pipeline",
-      "single guide",
-      "specificity never assessed"
+      "data hygiene bug - trailing whitespace creates a phantom gene",
+      "should be merged with CDKN2C",
+      "any per-gene aggregation downstream is silently wrong",
+      "single guide"
     ],
-    "rationale": "This is not a real gene; it is CDKN2C with a trailing space that survived ingestion untouched, splitting one locus into two records. Any downstream gene-level grouping, provenance link or per-gene aggregation will silently mis-handle it."
+    "rationale": "This is not a real gene entry; it is CDKN2C with a trailing space that Agent 4 never normalized. Its existence means gene-level grouping, ranking, and any Agent 6/7 aggregation over this table is quietly incorrect."
   },
   {
     "gene": "CTBP1",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.42,
+    "confidence": "low",
+    "confidence_numeric": 0.28,
     "issues": [
-      "sole gate pass had indel 51.5%, within replicate noise of the 50% label boundary",
-      "binary >50% ground-truth label is brittle near the cutoff",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "highest ATAC guide (0.167) gave 0% indel",
+      "highest CHOPCHOP guide (0.93) gave only 15% indel",
+      "both components rank the 4 guides poorly",
+      "specificity never evaluated"
     ],
-    "rationale": "The ATAC gate correctly blocked a high-CHOPCHOP guide that only reached 15% indel, which is a genuine save. But the one guide counted as a true positive edited at 51.5%, so its TP status rests on a 1.5-point margin against an arbitrary threshold."
+    "rationale": "Neither component orders CTBP1's four guides correctly: the most accessible guide failed completely and the highest CHOPCHOP guide underperformed badly. Only the DeepSpCas9=12.7 guide is correctly predicted to fail."
   },
   {
     "gene": "DEK",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence_numeric": 0.25,
     "issues": [
-      "both guides edited ~55% despite bottom-quartile sequence scores",
-      "sequence score / indel strongly discordant",
-      "specificity never assessed"
+      "both guides scored low (seq 0.38, 0.19) but achieved ~55% indel",
+      "systematic underprediction",
+      "low ATAC (0.023, 0.039) yet good editing",
+      "specificity never evaluated"
     ],
-    "rationale": "sequence_efficacy of 0.38 and 0.19 predicted failure, yet both guides edited at 56% and 55.5%. The metric would have discarded two working guides at this locus."
+    "rationale": "Both guides are predicted poor by sequence and accessibility yet both edited at ~55-56%. If used prospectively the metric would have discarded two usable guides at this locus."
   },
   {
     "gene": "DGKQ",
     "cell_type": null,
     "confidence": "medium",
-    "confidence_numeric": 0.45,
+    "confidence_numeric": 0.5,
     "issues": [
       "single guide",
-      "specificity never assessed",
-      "in-sample threshold tuning",
-      "T cells only; cell_type null"
+      "passes Ito gate but only 57% indel (near the 50% efficiency boundary)",
+      "ATAC 1.29 is far above threshold yet outcome is mid-range",
+      "specificity never evaluated"
     ],
-    "rationale": "Gate passed with ATAC 1.29, far above the cutoff and therefore robust to replicate and normalization choices, and indel was 57%. Only marginally above the >50% boundary, and a single guide gives no internal replication."
+    "rationale": "Concordant in sign but weak in magnitude - a guide in highly open chromatin with good sequence scores returned only a mid-range 57% indel. Single-guide evidence with no replication."
   },
   {
     "gene": "DNAJC24",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence_numeric": 0.2,
     "issues": [
-      "guide with CHOPCHOP 0.04 / DeepSpCas9 37.4 edited 66.5%",
-      "sequence score / indel strongly discordant",
-      "specificity never assessed"
+      "rank inversion: seq 0.30 guide -> 0% indel, seq 0.21 guide -> 66.5% indel",
+      "both guides low ATAC, opposite outcomes",
+      "n=2, both mispredicted",
+      "specificity never evaluated"
     ],
-    "rationale": "The guide the metric ranks lowest at this locus (sequence_efficacy 0.207) is the one that worked, at 66.5% indel, while the higher-ranked guide gave 0%. Ordering is inverted."
+    "rationale": "The metric orders the two guides backwards and both accessibility values are low despite one guide editing at 66.5%. No component provides usable signal at this locus."
   },
   {
     "gene": "DNMT3A",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.3,
     "issues": [
-      "all three guides fail and all three are predicted to fail - concordant but uninformative",
-      "DNMT3A is in Ito's prospective validation set, yet none of these guides work",
-      "zero-inflated indel (two guides at exactly 0.0)",
-      "specificity never assessed"
+      "all three guides failed (19%, 0%, 0%)",
+      "DNMT3A is one of Ito's 5 PROSPECTIVE validation genes - these are the training-set guides, not the validated ones",
+      "confirms results.csv is Ito's discovery set, not a held-out set",
+      "no positive example to test ranking against"
     ],
-    "rationale": "The metric correctly predicts failure for all three guides (indel 19%, 0%, 0%), which is real concordance. But agreement on an all-negative locus carries much less information than a discriminating call, and none of these are the DNMT3A guides Ito prospectively validated."
+    "rationale": "The score correctly predicts failure for all three guides, but this gene exposes a structural problem: Ito's successful DNMT3A guides came from their prospective design round and are absent from this table, so Agent 4 benchmarked only the discovery set from which the thresholds were derived."
   },
   {
     "gene": "DOT1L",
@@ -176,75 +175,77 @@
     "confidence": "low",
     "confidence_numeric": 0.28,
     "issues": [
-      "guide with CHOPCHOP 0.91 rejected by DeepSpCas9 53.9, edited 75%",
-      "second guide rejected by DeepSpCas9 59.1 vs cutoff 60",
-      "threshold near-miss false negatives",
-      "specificity never assessed"
+      "highest indel guide (75%) has lowest DeepSpCas9 (53.9) of the three",
+      "ATAC essentially constant (0.031-0.054) across a 0-75% outcome range",
+      "accessibility non-discriminating",
+      "specificity never evaluated"
     ],
-    "rationale": "The best-editing guide (75%) was rejected despite a near-top CHOPCHOP score of 0.91, and another was rejected by a 0.9-point DeepSpCas9 shortfall. The AND-gate structure means a single component can veto strong evidence from the others."
+    "rationale": "Outcomes span 0-75% while ATAC varies only between 0.031 and 0.054, so accessibility cannot separate them, and the sequence term ranks the best guide last. Low trust in any DOT1L recommendation."
   },
   {
     "gene": "DPH1",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence_numeric": 0.3,
     "issues": [
-      "ATAC gate false negative: 87% indel rejected at ATAC 0.0697",
-      "second guide at ATAC 0.697 (10x cutoff) edited only 47.5%",
-      "accessibility wrong in both directions at the same locus",
-      "specificity never assessed"
+      "accessibility inverted: ATAC 0.0697 -> 87% indel, ATAC 0.697 -> 47.5% indel",
+      "10x ATAC difference in the wrong direction",
+      "n=2",
+      "specificity never evaluated"
     ],
-    "rationale": "The guide with low accessibility edited at 87% and the guide with ten-fold higher accessibility edited at 47.5%. Accessibility is not merely uninformative here, it is actively misleading in both directions within a single gene."
+    "rationale": "The two guides differ tenfold in accessibility and the less accessible one edited nearly twice as well. Sequence score gets the ordering right, which is the only reason this is not scored lower."
   },
   {
     "gene": "DPH2",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.32,
     "issues": [
-      "concordant all-negative locus - low information",
-      "zero-inflated indel (both guides exactly 0.0, may be assay failure)",
-      "specificity never assessed"
+      "both guides 0% indel despite ATAC above threshold (0.116, 0.093)",
+      "possible amplicon/assay failure rather than true inefficiency",
+      "no positive example at this locus",
+      "specificity never evaluated"
     ],
-    "rationale": "Both guides scored low and both gave 0% indel, so the metric is correct. Exact 0.0 values cannot be distinguished from amplicon or ICE failure, so this concordance may be partly artifactual."
+    "rationale": "Both guides sit at or near the ATAC>=0.1 cutoff yet produced zero editing, which the accessibility term cannot explain. Uniform zeros also raise the possibility of a locus-level assay failure that the score does not model."
   },
   {
     "gene": "DPH5",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence": "medium",
+    "confidence_numeric": 0.42,
     "issues": [
-      "both efficient guides rejected, by two different gate components",
-      "ATAC gate false negative: 75% indel rejected at ATAC 0.031",
-      "CHOPCHOP gate false negative: 84% indel rejected at CHOPCHOP 0.10",
-      "specificity never assessed"
+      "both guides edited well (84%, 75%) despite 16x ATAC difference (0.492 vs 0.031)",
+      "accessibility irrelevant at this locus",
+      "CHOPCHOP inverted (0.1 -> 84%, 0.8 -> 75%)",
+      "specificity never evaluated"
     ],
-    "rationale": "Both DPH5 guides edited well (84% and 75%) and the rule rejected both, one on accessibility and one on CHOPCHOP. A gene where every working guide is filtered out is a total failure of the selection rule, not a marginal one."
+    "rationale": "Both guides work, so a user would not be harmed, but the accessibility term would have wrongly deprioritized the ATAC=0.031 guide that still achieved 75% indel. The components disagree with each other and with the outcome ordering."
   },
   {
     "gene": "DUSP22",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.45,
+    "confidence": "low",
+    "confidence_numeric": 0.1,
     "issues": [
-      "whole locus refractory (max indel 17.5%) - possible unmodeled locus-level confounder",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "all 5 guides failed (1.0-17.5% indel) despite strong sequence scores",
+      "DeepSpCas9 80.7 / CHOPCHOP 0.97 guide gave 1.0% indel",
+      "one guide passes ATAC>=0.1 and still failed",
+      "strong locus-level confounder not modeled by any component"
     ],
-    "rationale": "This is the ATAC term's single best save: a guide with DeepSpCas9 80.7 and CHOPCHOP 0.97, near the top of the dataset, gave 1.0% indel and was correctly blocked by ATAC 0.0232. Confidence is still capped because all five guides underperform, suggesting a locus-level factor the score does not represent."
+    "rationale": "This is the clearest evidence of an unmodeled gene-level confounder: the single best-scoring guide in the entire DUSP22 set (DeepSpCas9 80.7, CHOPCHOP 0.97) produced 1% indel, and all five guides failed. Something locus-specific - copy number, amplicon design, or essentiality - dominates, and the score has no term for it."
   },
   {
     "gene": "EHMT1",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.28,
+    "confidence_numeric": 0.22,
     "issues": [
-      "guide with DeepSpCas9 30.7 edited 54%",
-      "guide with DeepSpCas9 68.3 edited 45.5%",
-      "sequence score / indel discordant",
-      "specificity never assessed"
+      "highest DeepSpCas9 guide (68.3) at lowest ATAC (0.0155) gave 45.5% indel",
+      "lowest DeepSpCas9 guide (30.7) gave the highest indel (54%)",
+      "rank inversion across all three guides",
+      "specificity never evaluated"
     ],
-    "rationale": "The lowest DeepSpCas9 guide outperformed the highest one at this locus. Three guides give no consistent ordering."
+    "rationale": "The sequence term orders EHMT1's three guides almost exactly backwards relative to measured indel. Accessibility adds nothing, spanning only 0.0155-0.116."
   },
   {
     "gene": "EHMT2",
@@ -252,36 +253,38 @@
     "confidence": "low",
     "confidence_numeric": 0.22,
     "issues": [
-      "guide with CHOPCHOP 0.04 edited 55%",
-      "sequence score / indel discordant",
-      "specificity never assessed"
+      "highest indel guide (55%) has CHOPCHOP 0.04 - near the bottom of the scale",
+      "ATAC 0.108 (passes cutoff) vs 0.0697 gives no useful separation",
+      "rank inversion",
+      "specificity never evaluated"
     ],
-    "rationale": "All three guides fail CHOPCHOP badly (0.04-0.09) yet outcomes range 3-55%, so the score cannot separate them. The best-editing guide is one the metric ranks lowest."
+    "rationale": "The best guide by measured indel scores worst on CHOPCHOP, so the recommended ranking value fails at this locus. Accessibility values cluster too tightly to discriminate."
   },
   {
     "gene": "FHL2",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.25,
     "issues": [
-      "concordant but low-information (four of five guides under 16% indel)",
-      "zero-inflated indel (two guides exactly 0.0)",
-      "specificity never assessed"
+      "all 5 guides below ATAC threshold - accessibility term contributes no ranking information",
+      "best guide (40.5% indel) has the lowest ATAC (0.031)",
+      "no guide exceeds 40.5% indel",
+      "specificity never evaluated"
     ],
-    "rationale": "Five guides all score modestly and mostly fail, which the metric gets right. The one partial exception (40.5% indel) is not resolved by the score, and correctness on an almost-uniformly-negative locus is weak evidence."
+    "rationale": "Every FHL2 guide is in closed chromatin by Ito's cutoff, so accessibility is a constant and cannot rank anything; within that set it is inverted. Sequence ordering is only loosely correct and no guide reaches the 50% efficiency bar."
   },
   {
     "gene": "FOXM1",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.22,
+    "confidence_numeric": 0.18,
     "issues": [
-      "ATAC gate false negative: 64.5% indel rejected at ATAC 0.0232",
-      "guide with DeepSpCas9 25.7 edited 59%",
-      "all four guides ATAC 0.0155-0.031, no discrimination",
-      "specificity never assessed"
+      "ATAC constant-low (0.0155-0.031) across a 2.5-64.5% outcome range",
+      "DeepSpCas9 25.7 guide gave 59% indel; DeepSpCas9 50.4 guide gave 2.5%",
+      "severe rank inversion",
+      "specificity never evaluated"
     ],
-    "rationale": "Accessibility is essentially constant and below cutoff across all four guides while indel spans 2.5-64.5%, so the cell-context term contributes nothing but a blanket veto. It vetoed the second-best guide at the locus."
+    "rationale": "Accessibility is effectively constant across four guides whose outcomes span 2.5% to 64.5%, and the sequence term inverts the top and bottom guides. Neither scored component is usable at this locus."
   },
   {
     "gene": "FOXO1",
@@ -289,318 +292,324 @@
     "confidence": "low",
     "confidence_numeric": 0.2,
     "issues": [
-      "ATAC 0.523 guide edited 3.5%; ATAC 0.062 guide edited 56%",
-      "accessibility anti-correlated with outcome across the locus",
-      "specificity never assessed"
+      "accessibility strongly anti-correlated: ATAC 0.523 -> 3.5% indel, ATAC 0.0542 -> 47% indel",
+      "ATAC 0.968 -> 55% vs ATAC 0.062 -> 56% (no separation)",
+      "4 guides, accessibility uninformative or inverted in 3",
+      "specificity never evaluated"
     ],
-    "rationale": "The two most accessible guides (ATAC 0.523 and 0.968) gave the poorest and a middling result, while the least accessible gave 56%. Across four guides accessibility trends the wrong way."
+    "rationale": "FOXO1 is a direct counterexample to the accessibility premise: the most open guide edited worst (3.5%) and a nearly closed guide edited at 47%. The combined score's ATAC weight actively degrades the ranking here."
   },
   {
     "gene": "FOXO3",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.12,
+    "confidence_numeric": 0.25,
     "issues": [
-      "95.5% indel - highest-editing guide in the gene set - fails all three gate components",
-      "triple false negative",
+      "95.5% indel - among the highest in the dataset - at ATAC 0.0232 (near-lowest bin)",
+      "would be rejected by the Ito accessibility gate",
       "single guide",
-      "specificity never assessed"
+      "specificity never evaluated"
     ],
-    "rationale": "At 95.5% indel this is among the most efficient guides in the entire 199-guide benchmark, and the rule rejects it on DeepSpCas9 (58.4), CHOPCHOP (0.24) and ATAC (0.0232) simultaneously. If the metric cannot recognise the best guide in the dataset, its recall failure is structural rather than incidental."
+    "rationale": "The single FOXO3 guide achieved 95.5% editing while sitting in essentially closed chromatin, meaning the accessibility gate would have discarded one of the best guides in the entire benchmark. Strong single-point evidence against the ATAC filter."
   },
   {
     "gene": "FURIN",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.35,
+    "confidence": "medium",
+    "confidence_numeric": 0.5,
     "issues": [
-      "gate pass at ATAC 0.147 flips to FAIL under replicate GSM7256892 (0.0426)",
-      "ATAC within 1.5x of cutoff",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "correct ordering but one guide at 0% indel",
+      "accessibility separates the working guide only weakly (0.147 vs 0.0697/0.0852)",
+      "0% outcome may be assay failure",
+      "specificity never evaluated"
     ],
-    "rationale": "The passing guide edited at 84.75% and the two rejected guides gave 0% and 21%, so the ordering is right. The pass itself is replicate-dependent: the second ATAC sample in the same table puts this guide at less than half the cutoff."
+    "rationale": "The score ranks the three FURIN guides in the correct order and the top guide edited at 84.75%. Confidence is limited by a complete-failure guide whose cause is unmodeled and by unassessed off-target risk."
   },
   {
     "gene": "GATA6",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence_numeric": 0.28,
     "issues": [
-      "gate false positive: passed all three components, indel 36%",
-      "DeepSpCas9 78.95 and CHOPCHOP 0.72 both near top of dataset",
-      "ATAC 0.132 flips to 0.0213 under replicate GSM7256892",
+      "passes the full Ito rule (DeepSpCas9 79.0, CHOPCHOP 0.72, ATAC 0.132) but only 36% indel",
+      "false positive of the high-precision gate",
       "single guide",
-      "specificity never assessed"
+      "specificity never evaluated"
     ],
-    "rationale": "This guide has near-best-in-dataset sequence scores and passes the accessibility gate, and still underperforms at 36% indel. It is one of only four false positives, and its gate pass would additionally vanish under the alternative ATAC replicate."
+    "rationale": "This guide satisfies every threshold in Ito's validated rule and still fell well short of the 50% efficiency definition. It is one of the 4 false positives that produce the gate's 0.862 precision, and with n=1 there is no way to tell whether GATA6 is systematically hard."
   },
   {
     "gene": "HDAC1",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.35,
+    "confidence": "low",
+    "confidence_numeric": 0.25,
     "issues": [
+      "CHOPCHOP 0.72 and DeepSpCas9 55.7 yet only 7% indel",
+      "sequence score badly overpredicts",
       "single guide",
-      "concordant negative - low information",
-      "specificity never assessed"
+      "specificity never evaluated"
     ],
-    "rationale": "Correctly rejected (7% indel), though the rejection came from ATAC 0.0387 while CHOPCHOP was 0.72, so the call hinges on the least reliable component. One guide, one direction, limited evidence."
+    "rationale": "A guide with a good CHOPCHOP score returned 7% editing, a large overprediction by the recommended ranking value. Single-guide evidence with no way to attribute the failure."
   },
   {
     "gene": "HDAC2",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence_numeric": 0.22,
     "issues": [
-      "DeepSpCas9 17.5 (near dataset minimum) yet 56.5% indel",
-      "sequence score / indel strongly discordant",
-      "single guide",
-      "specificity never assessed"
+      "DeepSpCas9 17.5 (very low) yet 56.5% indel",
+      "sequence score badly underpredicts",
+      "ATAC 0.0155 would also reject it",
+      "single guide"
     ],
-    "rationale": "sequence_efficacy of 0.37 driven by a DeepSpCas9 score of 17.5 predicts near-total failure; the guide edited at 56.5%. This is a direct miss by the component the metric now recommends ranking on."
+    "rationale": "Both scored components would have rejected a guide that edited at 56.5%. This is a false-negative that the high-precision/low-recall gate is structurally prone to produce."
   },
   {
     "gene": "HDAC8",
     "cell_type": null,
     "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence_numeric": 0.45,
     "issues": [
       "single guide",
-      "concordant negative - low information",
-      "specificity never assessed"
+      "correctly predicted low (seq 0.15 -> 10.5% indel)",
+      "only tests the negative direction",
+      "specificity never evaluated"
     ],
-    "rationale": "Low scores across the board and 10.5% indel, so the metric is correct. A single concordant negative is weak evidence for the metric's discriminative value."
+    "rationale": "The score correctly identifies a poor guide, but correctly predicting failure is the easier half of the problem and one guide provides no evidence about ranking among usable candidates."
   },
   {
     "gene": "HIVEP3",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.33,
+    "confidence": "high",
+    "confidence_numeric": 0.66,
     "issues": [
-      "gate pass at ATAC 0.116 flips to FAIL under replicate GSM7256892 (0.0853)",
-      "ATAC within 1.2x of cutoff",
       "single guide",
-      "specificity never assessed"
+      "specificity never evaluated",
+      "in-sample threshold evaluation",
+      "ATAC 0.116 is only ~2 read counts above the 0.1 cutoff"
     ],
-    "rationale": "Strong outcome (84% indel) with strong sequence scores (DeepSpCas9 75.9, CHOPCHOP 0.89), so the sequence term alone would have found this guide. The accessibility gate adds nothing here except replicate-dependent fragility."
+    "rationale": "Strong concordance - sequence_efficacy 0.824 and DeepSpCas9 75.9 predicting 84% measured indel, passing the full rule. Unreplicated, and its gate pass rests on an ATAC value barely above a noise-sensitive threshold."
   },
   {
     "gene": "HNRNPH1",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.18,
+    "confidence": "medium",
+    "confidence_numeric": 0.55,
     "issues": [
-      "both guides edited ~80% and both were rejected",
-      "one rejected by CHOPCHOP 0.17, one by DeepSpCas9 50.2",
-      "double false negative despite ATAC well above cutoff (0.236, 0.201)",
-      "specificity never assessed"
+      "both guides edited well (82%, 79%) but neither passes the Ito gate",
+      "CHOPCHOP 0.17 guide achieved 82% indel",
+      "gate would reject two good guides",
+      "specificity never evaluated"
     ],
-    "rationale": "Both guides edit at 82% and 79% with accessibility comfortably above the cutoff, and the sequence components reject both. The metric would return no usable guide for a gene where both tested guides work well."
+    "rationale": "Both guides work well, so the outcome is favorable, but the CHOPCHOP>=0.3 condition would have rejected the better of the two. Evidence that the gate's recall problem has real cost."
   },
   {
     "gene": "ID2",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.2,
+    "confidence_numeric": 0.12,
     "issues": [
-      "ATAC 1.75 and 2.39 (17-24x cutoff) yet indel 73.5% and 0%",
-      "accessibility saturated and uninformative",
-      "specificity never assessed"
+      "ATAC 2.39 (24x the threshold) gave 0% indel",
+      "ATAC 1.75 gave 73.5% indel - same locus, both wide open",
+      "accessibility has no explanatory power at maximal openness",
+      "specificity never evaluated"
     ],
-    "rationale": "Both guides sit deep in open chromatin and the accessibility term saturates at 1.0 for both, yet one edits at 73.5% and the other at 0%. Saturation at ATAC>=0.1 destroys any discrimination the signal might carry at the high end."
+    "rationale": "Both ID2 guides are in extremely open chromatin yet one edited at 73.5% and the other not at all, so accessibility saturates and stops carrying information exactly where the score treats it as maximally favorable. The min(1, atac/0.1) normalization makes these two guides indistinguishable on that term."
   },
   {
     "gene": "KDM1A",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.28,
+    "confidence_numeric": 0.3,
     "issues": [
-      "guide with DeepSpCas9 41.7 / CHOPCHOP 0.20 edited 52.4%",
-      "ATAC 0.345 guide edited 47.5%, ATAC 0.031 guide edited 42%",
-      "accessibility uninformative across five guides",
-      "specificity never assessed"
+      "ATAC 0.345 guide (47.5%) underperforms ATAC 0.0232 guide (52.4%)",
+      "5 guides, none exceed 52.4% indel",
+      "accessibility inverted at the top of the range",
+      "specificity never evaluated"
     ],
-    "rationale": "Across five guides spanning ATAC 0.00775-0.345 there is no relationship between accessibility and indel, and the sequence ordering is only loosely correct. The gene's best guide (52.4%) is one the rule rejects."
+    "rationale": "The sequence term is roughly directionally correct across five guides but accessibility is inverted between the two best performers. No KDM1A guide clears the 50% bar convincingly, so all recommendations here are marginal."
   },
   {
     "gene": "KEAP1",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.35,
+    "confidence": "medium",
+    "confidence_numeric": 0.4,
     "issues": [
-      "ATAC gate false negative at 0.0968 vs cutoff 0.1 - guide edited 93.5%",
-      "sharpest threshold brittleness case in the dataset (0.3% below cutoff)",
-      "guide with DeepSpCas9 39.7 edited 87%",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "best guide (93.5% indel) FAILS the gate on ATAC 0.0968 vs 0.1 cutoff - a ~1 read-count margin",
+      "87% indel guide has DeepSpCas9 39.7 (would be rejected)",
+      "9 guides give the best within-gene evidence in the dataset",
+      "specificity never evaluated"
     ],
-    "rationale": "With nine guides this is the best-sampled locus and sequence_efficacy does track outcome reasonably. But the single best guide (93.5% indel) was vetoed by an ATAC value of 0.0968 against a cutoff of 0.1 - a 3-parts-in-1000 miss on a quantized, replicate-unstable measurement, which is not a defensible decision boundary."
+    "rationale": "With 9 guides KEAP1 shows the sequence term working in aggregate, but it also contains the single most damaging threshold artifact in the benchmark: the top guide at 93.5% indel is rejected because its ATAC is 0.0968 rather than 0.1, a difference of roughly one sequencing read. The cutoff is being applied at a precision the measurement does not support."
   },
   {
     "gene": "KLF2",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.18,
+    "confidence_numeric": 0.08,
     "issues": [
-      "all six guides in highly open chromatin (ATAC 0.79-3.4) yet four gave <1% indel",
-      "strongest counterexample to the accessibility premise",
-      "all six rejected by CHOPCHOP",
-      "specificity never assessed"
+      "all 6 guides in wide-open chromatin (ATAC 0.79-3.4)",
+      "three of six gave 0-0.5% indel despite maximal accessibility",
+      "ATAC 3.4 -> 0% indel; ATAC 1.63 -> 0.5% indel",
+      "accessibility term is maximally wrong at this locus"
     ],
-    "rationale": "KLF2 is maximally accessible across all six guides - ATAC up to 3.4, thirty-four times the cutoff - and four of six guides edit at 0-0.5%. If open chromatin were sufficient for efficient RNP editing, this locus should be uniformly easy; it is not."
+    "rationale": "KLF2 is the strongest counterexample to the project's central premise in the entire dataset: every guide sits in highly accessible chromatin, the accessibility term saturates at 1.0 for all six, and half of them produced essentially no editing. Any score that weights accessibility positively will confidently recommend guides that do not work here."
   },
   {
     "gene": "MAF",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.5,
+    "confidence": "high",
+    "confidence_numeric": 0.66,
     "issues": [
       "single guide",
-      "specificity never assessed",
-      "in-sample threshold tuning",
-      "T cells only; cell_type null"
+      "specificity never evaluated",
+      "in-sample threshold evaluation",
+      "no failing guide at this locus for contrast"
     ],
-    "rationale": "Gate passed with ATAC 0.364 (3.6x cutoff, robust to replicate choice), top-decile sequence scores, and 89% indel. This is one of the cleanest supporting cases in the benchmark, limited only by being a single guide and by the universal specificity gap."
+    "rationale": "Excellent concordance: sequence_efficacy 0.832, DeepSpCas9 76.4, CHOPCHOP 0.90, ATAC 0.364, measured 89% indel, passing every threshold comfortably. Unreplicated and off-target-unassessed, which caps confidence."
   },
   {
     "gene": "MSC",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.2,
+    "confidence": "medium",
+    "confidence_numeric": 0.5,
     "issues": [
-      "both efficient guides rejected by the DeepSpCas9 cutoff",
-      "one rejected at DeepSpCas9 58.86 vs cutoff 60 - near-miss",
-      "specificity never assessed"
+      "both guides edited well (70%, 66%) but neither passes the Ito gate",
+      "better-performing guide has the LOWER DeepSpCas9 (43.7 vs 58.9)",
+      "rank inversion",
+      "specificity never evaluated"
     ],
-    "rationale": "Both guides edit well (70% and 66%) with accessibility above cutoff, and both are rejected on DeepSpCas9, one by 1.1 points. The rule returns nothing usable for a gene where both tested guides work."
+    "rationale": "Both guides are usable but the sequence term orders them backwards and the gate would reject both. Outcome-favorable, ranking-unfavorable."
   },
   {
     "gene": "MTA2",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.25,
+    "confidence": "medium",
+    "confidence_numeric": 0.45,
     "issues": [
-      "ATAC gate false negative: 74.75% indel rejected at ATAC 0.0658",
-      "all four guides ATAC 0.062-0.0852, no discrimination",
-      "specificity never assessed"
+      "best guide (74.75% indel) correctly top-ranked by sequence score",
+      "but its ATAC 0.0658 would fail the gate",
+      "one guide at 0% indel with mid-range scores",
+      "specificity never evaluated"
     ],
-    "rationale": "Accessibility is nearly constant across all four guides yet indel spans 0-74.75%, so the ATAC term acts only as a uniform veto and removes the one guide that works. The sequence term does correctly rank that guide first."
+    "rationale": "The sequence term correctly identifies the best of four MTA2 guides, which is the behavior the metric claims. The accessibility gate would nonetheless discard that guide, again showing the two components pulling in opposite directions."
   },
   {
     "gene": "PCBP4",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.3,
     "issues": [
       "single guide",
-      "concordant negative - low information",
-      "specificity never assessed"
+      "0.5% indel with mid-range sequence score (0.41)",
+      "modest overprediction",
+      "specificity never evaluated"
     ],
-    "rationale": "Predicted to fail and gave 0.5% indel. Correct, but a single negative call provides little evidence about discriminative performance."
+    "rationale": "One guide with an unremarkable score that failed almost completely. Too little information to judge the metric, and the failure is unexplained by any component."
   },
   {
     "gene": "PRDM1",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.15,
+    "confidence_numeric": 0.25,
     "issues": [
-      "gate false positive: passed all three components, indel 5.0%",
-      "ATAC gate false negative: 52.5% indel rejected at ATAC 0.0697",
-      "gate pass ATAC 0.108 flips to 0.0213 under replicate GSM7256892",
-      "PRDM1 is in Ito's prospective validation set yet the rule inverts here",
-      "one PRDM1 guide silently dropped in the 205->199 attrition",
-      "specificity never assessed"
+      "the only guide passing the full Ito rule gave 5% indel - a gate false positive",
+      "lowest-scoring guide (DeepSpCas9 26.5) gave 52% indel",
+      "PRDM1 is one of Ito's prospective validation genes; these training-set guides behave oppositely",
+      "severe rank inversion"
     ],
-    "rationale": "The rule's single gate pass at this locus edited at 5% while a guide it rejected edited at 52.5% - the prediction is exactly backwards. That this happens at a gene Ito et al. used for prospective validation makes the in-sample precision figure harder to trust."
+    "rationale": "The guide the metric most confidently recommends (passes all three thresholds) is the worst performer at 5% indel, while the guide with the lowest DeepSpCas9 score edited at 52%. Ito reported their prospectively designed PRDM1 guides all worked, which underscores that this table is the discovery set and its apparent gate performance is not out-of-sample."
   },
   {
     "gene": "PRDM2",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.25,
+    "confidence_numeric": 0.08,
     "issues": [
-      "guide with the dataset's highest ATAC (6.32) gave 1.0% indel",
-      "accessibility maximally wrong at this locus",
-      "specificity never assessed"
+      "ATAC 6.32 - the highest in the entire dataset - gave 1% indel",
+      "all three guides failed (1%, 1%, 3.5%)",
+      "accessibility maximally overpredicts",
+      "unmodeled locus-level confounder"
     ],
-    "rationale": "The most accessible target region in the entire benchmark (ATAC 6.32, sixty-three times the cutoff) yielded 1% editing. The sequence term correctly predicts failure for all three guides, so the concordance credit belongs entirely to sequence, not cell context."
+    "rationale": "The most accessible target site in the whole benchmark produced 1% editing. Combined with KLF2 and ID2, this shows the accessibility term's failures are concentrated precisely at high ATAC values where the score is most confident."
   },
   {
     "gene": "PTEN",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.18,
+    "confidence": "medium",
+    "confidence_numeric": 0.42,
     "issues": [
-      "four ATAC-driven false negatives (87.5%, 86%, 70%, 82.5% indel all rejected)",
-      "eight of ten guides edit >60% across ATAC 0.0155-0.116",
-      "two guides rejected by DeepSpCas9 near-miss despite 92.5% and 80% indel",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "10 guides, mostly high indel at LOW ATAC (0.0155-0.0697)",
+      "only 1 of 10 passes the Ito gate; 8 guides above 60% indel would be rejected",
+      "accessibility gate would discard 92.5%, 87.5%, 86%, 82.5%, 80% indel guides",
+      "specificity never evaluated"
     ],
-    "rationale": "PTEN is the most heavily sampled locus (10 guides) and is the metric's worst failure: the gene edits efficiently almost everywhere while nearly all its targets sit below the ATAC cutoff, producing four accessibility-driven false negatives on guides editing at 70-87.5%. A single accessible locus-wide gate is simply the wrong model for this gene."
+    "rationale": "PTEN has the largest guide set and shows the sequence term working reasonably, but it is a systematic indictment of the accessibility gate: five guides editing above 80% sit in nominally closed chromatin and would all be filtered out. Recall loss here is not a rounding error, it is most of the usable guides."
   },
   {
     "gene": "RAD54L",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.28,
     "issues": [
       "single guide",
-      "concordant negative - low information",
-      "specificity never assessed"
+      "0.5% indel despite ATAC 0.132 above threshold",
+      "accessibility overpredicts",
+      "specificity never evaluated"
     ],
-    "rationale": "CHOPCHOP 0.08 predicted failure and indel was 0.5%. Correct but uninformative as a single negative call."
+    "rationale": "An accessible target with a weak sequence score that failed entirely. Consistent with the sequence term dominating, but a single guide proves little."
   },
   {
     "gene": "RAG1",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.22,
+    "confidence": "medium",
+    "confidence_numeric": 0.48,
     "issues": [
-      "ATAC gate false negative: 65% indel rejected at ATAC 0.0775",
-      "sequence components both passed (DeepSpCas9 70.3, CHOPCHOP 0.49)",
       "single guide",
-      "specificity never assessed"
+      "good outcome (65% indel) but fails the ATAC gate at 0.0775",
+      "would be a false negative of the Ito rule",
+      "specificity never evaluated"
     ],
-    "rationale": "Both sequence components cleared their thresholds comfortably and the guide edited at 65%, but ATAC 0.0775 vetoed it. The accessibility gate is the sole reason this working guide would not be recommended."
+    "rationale": "DeepSpCas9 70.3 correctly anticipated a 65% indel, but the accessibility condition would have rejected this working guide. The sequence component is doing the useful work."
   },
   {
     "gene": "RARG",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.33,
+    "confidence": "medium",
+    "confidence_numeric": 0.58,
     "issues": [
-      "gate pass at ATAC 0.124 flips to FAIL under replicate GSM7256892 (0.032)",
       "single guide",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "passes gate, 67% indel - concordant",
+      "ATAC 0.124 close to threshold",
+      "specificity never evaluated"
     ],
-    "rationale": "Correct call (67% indel) but the accessibility pass is replicate-dependent, with the alternative ATAC sample placing this target at less than a third of the cutoff. The sequence scores alone would have selected this guide anyway."
+    "rationale": "A clean concordant case where all three thresholds are met and the guide edited at 67%. Unreplicated, and its gate pass depends on an ATAC value only modestly above a noise-sensitive cutoff."
   },
   {
     "gene": "RBM47",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.42,
+    "confidence": "low",
+    "confidence_numeric": 0.15,
     "issues": [
-      "zero-inflated indel (both guides exactly 0.0, may be assay failure)",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "DeepSpCas9 69.9 / CHOPCHOP 0.76 guide gave 0% indel",
+      "both guides 0% indel",
+      "strong sequence score with complete failure",
+      "possible assay failure not modeled"
     ],
-    "rationale": "A genuine ATAC save: a guide with DeepSpCas9 69.9 and CHOPCHOP 0.76 gave 0% indel and was correctly blocked by ATAC 0.0775. The credit is tempered by the fact that both guides read exactly 0.0, which is indistinguishable from assay failure."
+    "rationale": "A guide with genuinely strong sequence scores (seq_efficacy 0.73) produced zero editing, which the metric has no mechanism to anticipate. Both guides failing suggests a locus-level problem the score does not represent."
   },
   {
     "gene": "RCOR1",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.35,
+    "confidence": "medium",
+    "confidence_numeric": 0.55,
     "issues": [
-      "guide with CHOPCHOP 0.21 / DeepSpCas9 41.1 edited 70%",
-      "ATAC 0.0232 guide edited 70% while ATAC 1.18 guide edited 85.2%",
-      "specificity never assessed"
+      "top guide correctly identified (seq 0.75, ATAC 1.18, 85.2% indel)",
+      "but ATAC 0.0232 guide still achieved 70% indel",
+      "accessibility would reject a working guide",
+      "specificity never evaluated"
     ],
-    "rationale": "The gate pass is robust (ATAC 1.18, 85.2% indel) and well supported. But a second guide with poor scores and near-zero accessibility also edited at 70%, so the rule's rejection of it is a false negative that accessibility caused."
+    "rationale": "The metric correctly ranks the best RCOR1 guide first, which is the intended behavior. However a nominally closed guide also edited at 70%, so the accessibility term again costs recall without adding ranking value."
   },
   {
     "gene": "RUNX1",
@@ -608,193 +617,207 @@
     "confidence": "low",
     "confidence_numeric": 0.25,
     "issues": [
-      "guide with DeepSpCas9 53.5 edited 74%; guide with DeepSpCas9 66.8 edited 46%",
-      "sequence ordering inverted at this locus",
-      "specificity never assessed"
+      "rank inversion: DeepSpCas9 66.8 -> 46%, DeepSpCas9 53.5 -> 74%",
+      "both guides below ATAC threshold",
+      "n=2, ordering wrong",
+      "specificity never evaluated"
     ],
-    "rationale": "The higher-scoring guide underperformed the lower-scoring one, 46% versus 74%. Both fail CHOPCHOP so neither would be recommended despite one working well."
+    "rationale": "The sequence term ranks the two RUNX1 guides backwards, and accessibility is uniformly low so contributes nothing. Low trust in RUNX1 guide selection."
   },
   {
     "gene": "RUNX2",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.28,
+    "confidence_numeric": 0.3,
     "issues": [
-      "guide with CHOPCHOP 0.21 edited 53.5%",
-      "both guides rejected; better guide is a false negative",
-      "specificity never assessed"
+      "better guide (53.5%) has lower ATAC (0.0232 vs 0.0775)",
+      "accessibility inverted",
+      "n=2, neither passes the gate",
+      "specificity never evaluated"
     ],
-    "rationale": "The ordering is directionally right (higher DeepSpCas9 guide edited better) but both guides fall below CHOPCHOP 0.3, so the rule returns nothing while one guide edits at 53.5%."
+    "rationale": "Sequence ordering is correct but accessibility is inverted between the two guides. Only one guide marginally clears 50% indel."
   },
   {
     "gene": "RUNX3",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.35,
+    "confidence_numeric": 0.3,
     "issues": [
-      "ATAC 1.41 guide (14x cutoff) gave 0% indel",
-      "accessibility not sufficient for editing",
-      "specificity never assessed"
+      "ATAC 1.41 guide gave 0% indel",
+      "ATAC 0.17 guide gave 80.4% indel",
+      "accessibility strongly inverted",
+      "specificity never evaluated"
     ],
-    "rationale": "The gate pass is correct and well supported (ATAC 0.17, 80.4% indel). The companion guide sits in far more open chromatin (ATAC 1.41) and edits at 0%, correctly rejected by sequence - again showing sequence, not accessibility, is carrying the discrimination."
+    "rationale": "The far more accessible of the two guides failed completely while the less accessible one edited at 80.4%. The sequence term gets the ordering right; accessibility gets it exactly wrong."
   },
   {
     "gene": "SELL",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.25,
+    "confidence_numeric": 0.32,
     "issues": [
-      "ATAC gate false negative: 92% indel rejected at ATAC 0.0775",
-      "the rejected guide has the highest DeepSpCas9 at the locus (74.0)",
-      "specificity never assessed"
+      "best guide (92% indel) fails the ATAC gate at 0.0775",
+      "gate-passing guide (ATAC 0.287) gave only 56.5%",
+      "ATAC 0.225 guide gave 24.5%",
+      "accessibility anti-predictive across all 4 guides"
     ],
-    "rationale": "The best guide by both sequence score and measured outcome (92% indel, DeepSpCas9 74.0) was vetoed by accessibility, while a weaker guide (56.5%) passed. The accessibility gate actively inverted the correct selection at this locus."
+    "rationale": "Across four guides accessibility runs opposite to outcome: the least accessible guide edited best (92%) and the second-most accessible edited worst among the working guides (24.5%). The gate would recommend the wrong SELL guide."
   },
   {
     "gene": "SETDB1",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.25,
+    "confidence": "medium",
+    "confidence_numeric": 0.5,
     "issues": [
-      "ATAC replicate GSM7256892 reads 0.0 for all SETDB1 targets vs 0.054-0.124 in GSM6896554",
-      "gate pass entirely dependent on replicate choice",
-      "best guide (81% indel) rejected by CHOPCHOP 0.20",
-      "specificity never assessed"
+      "ordering roughly correct across 3 guides",
+      "best guide (81% indel) fails CHOPCHOP gate at 0.20",
+      "ATAC range narrow (0.054-0.124)",
+      "specificity never evaluated"
     ],
-    "rationale": "The second ATAC replicate reports exactly zero signal at every SETDB1 target while the replicate Agent 4 used reports up to 0.124, so the gate pass here is an artifact of an undocumented sample choice. The locus's best-editing guide (81%) is rejected regardless."
+    "rationale": "The sequence term ranks SETDB1's guides approximately correctly, but the best guide would be rejected by the CHOPCHOP>=0.3 condition. Directionally usable, gate-unreliable."
   },
   {
     "gene": "SOCS1",
     "cell_type": null,
     "confidence": "medium",
-    "confidence_numeric": 0.5,
+    "confidence_numeric": 0.45,
     "issues": [
-      "specificity never assessed",
-      "in-sample threshold tuning",
-      "T cells only; cell_type null"
+      "correct ordering (71% vs 0%)",
+      "but the 0% guide sits at ATAC 2.04 - very open chromatin",
+      "accessibility would have recommended a completely failed guide",
+      "specificity never evaluated"
     ],
-    "rationale": "Clean discrimination: the passing guide (ATAC 1.63, CHOPCHOP 0.86) edited at 71% and the rejected guide (CHOPCHOP 0.01) at 0%, with accessibility high for both so sequence did the separating. Robust to ATAC replicate choice, which is why this scores near the top of the range."
+    "rationale": "Sequence score cleanly separates the working guide from the failed one, which is the metric's core claim working. The failed guide's ATAC of 2.04 is another case where high accessibility accompanied zero editing."
   },
   {
     "gene": "SOCS3",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.35,
+    "confidence_numeric": 0.3,
     "issues": [
-      "gate false positive: passed all three components, indel 29%",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "gate-passing guide gave only 29% indel (false positive)",
+      "second gate-passing guide gave 70.5% - inconsistent",
+      "ATAC 0.438 guide gave 0% indel",
+      "specificity never evaluated"
     ],
-    "rationale": "One of the four gate false positives: DeepSpCas9 69.1, CHOPCHOP 0.46, ATAC 0.244 all clear comfortably and the guide reached only 29% indel. A second guide with near-identical scores reached 70.5%, so the metric cannot distinguish them."
+    "rationale": "Two guides pass the full Ito rule and return 29% and 70.5% - the rule cannot distinguish them, and one is a clear false positive. A third guide in open chromatin (ATAC 0.438) failed entirely."
   },
   {
     "gene": "STAT3",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.25,
     "issues": [
       "single guide",
-      "concordant negative - low information",
-      "specificity never assessed"
+      "1% indel despite ATAC 0.201 (2x threshold)",
+      "accessibility overpredicts",
+      "specificity never evaluated"
     ],
-    "rationale": "Predicted failure (CHOPCHOP 0.10, DeepSpCas9 35.6) and gave 1% indel despite ATAC 0.201 being above cutoff. Correct, and a small point against accessibility being sufficient."
+    "rationale": "An accessible target with a weak sequence score that produced almost no editing. Only the sequence term points the right way, and n=1."
   },
   {
     "gene": "STAT4",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.18,
+    "confidence_numeric": 0.28,
     "issues": [
-      "guide with CHOPCHOP 0.06 / DeepSpCas9 39.9 edited 67%",
-      "second guide edited 73% but rejected by DeepSpCas9 50.5",
-      "both efficient guides rejected",
-      "specificity never assessed"
+      "both guides edited well (67%, 73%) with low ATAC (0.0465, 0.031) and mediocre sequence scores",
+      "both would be rejected by the Ito gate",
+      "systematic underprediction",
+      "specificity never evaluated"
     ],
-    "rationale": "Both guides edit well (67% and 73%) and the metric ranks both near the bottom of the dataset. This locus contributes two clear false negatives driven by the sequence component the pipeline now recommends ranking on."
+    "rationale": "Two usable guides (67% and 73% indel) that both scored poorly on sequence and would be filtered out by accessibility. The metric would have discarded the whole gene."
   },
   {
     "gene": "SUV39H1",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.35,
+    "confidence_numeric": 0.15,
     "issues": [
-      "guide rejected at DeepSpCas9 58.6 vs cutoff 60 edited 66%",
-      "threshold near-miss false negative",
-      "specificity never assessed"
+      "DeepSpCas9 75.6 / CHOPCHOP 0.76 guide gave 1% indel",
+      "highest sequence score in the gene is the worst performer",
+      "severe rank inversion across 3 guides",
+      "unmodeled locus confounder"
     ],
-    "rationale": "A real ATAC save here: DeepSpCas9 75.6 and CHOPCHOP 0.76 with only 1% indel, correctly blocked by ATAC 0.0232. Offset by a 1.4-point DeepSpCas9 near-miss that discarded a guide editing at 66%."
+    "rationale": "The best-scoring SUV39H1 guide (seq_efficacy 0.76) edited at 1% while a lower-scoring guide reached 66%. This is a large, unexplained failure of the recommended ranking value at a locus where the metric expresses high confidence."
   },
   {
     "gene": "SUV39H2",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.35,
+    "confidence": "low",
+    "confidence_numeric": 0.28,
     "issues": [
       "single guide",
-      "28% indel from a guide scored near the dataset minimum - partial discordance",
-      "specificity never assessed"
+      "very low scores (DeepSpCas9 21.4, CHOPCHOP 0.01) yet 28% indel",
+      "underprediction",
+      "specificity never evaluated"
     ],
-    "rationale": "Predicted failure (CHOPCHOP 0.01, DeepSpCas9 21.4) and gave 28% indel, which is below the 50% label boundary so it counts as correct, but is well above what those scores imply. Directionally right, poorly calibrated."
+    "rationale": "A guide the metric would rank near the bottom still produced 28% editing. Not a catastrophic error, but consistent with the score's systematic underprediction at the low end."
   },
   {
     "gene": "TBX21",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.22,
+    "confidence": "medium",
+    "confidence_numeric": 0.45,
     "issues": [
-      "ATAC gate false negative: 82% indel rejected at ATAC 0.0775",
-      "rejected guide had DeepSpCas9 75.1 and CHOPCHOP 0.82",
-      "specificity never assessed"
+      "correct ordering (82% vs 0%)",
+      "best guide fails ATAC gate at 0.0775 while the failed guide has ATAC 0.232",
+      "accessibility fully inverted",
+      "specificity never evaluated"
     ],
-    "rationale": "A guide clearing both sequence thresholds by a wide margin and editing at 82% was vetoed solely by accessibility at 0.0775 against a 0.1 cutoff. The other guide, more accessible at ATAC 0.232, edited at 0%."
+    "rationale": "Sequence score separates the two guides correctly and decisively (0.79 vs 0.38 for 82% vs 0% indel). Accessibility points the opposite way, which would flip the recommendation if it carried weight."
   },
   {
     "gene": "TCF7",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.3,
     "issues": [
       "single guide",
-      "concordant negative - low information",
-      "specificity never assessed"
+      "28% indel with ATAC 0.147 above threshold",
+      "moderate overprediction",
+      "specificity never evaluated"
     ],
-    "rationale": "Rejected on sequence scores and gave 28% indel, consistent with the prediction. Single-guide evidence only."
+    "rationale": "An accessible target that fell short of the efficiency bar. Single guide, no within-gene contrast, limited information."
   },
   {
     "gene": "TET2",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.32,
+    "confidence": "medium",
+    "confidence_numeric": 0.48,
     "issues": [
-      "ATAC gate false negative: 71.3% indel rejected at ATAC 0.0697",
-      "all five guides ATAC 0.0155-0.0697, uniformly below cutoff",
-      "specificity never assessed"
+      "best guide correctly ranked first (seq 0.76 -> 71.3% indel)",
+      "but all 5 guides fail the ATAC gate (0.0155-0.0697)",
+      "accessibility contributes zero ranking information across the gene",
+      "specificity never evaluated"
     ],
-    "rationale": "Every TET2 target falls below the ATAC cutoff, so the accessibility gate rejects the whole gene wholesale, including the guide that edits at 71.3%. Sequence_efficacy does correctly rank that guide first at the locus, which is the only reason this is not scored lower."
+    "rationale": "The sequence term correctly identifies the best of five TET2 guides, which is genuinely useful. Accessibility is uniformly sub-threshold and would reject every guide including the working one."
   },
   {
     "gene": "TIA1",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.22,
+    "confidence_numeric": 0.3,
     "issues": [
-      "guide with CHOPCHOP 0.28 (near-miss) edited 65.5%",
-      "both guides rejected on CHOPCHOP by 0.02",
-      "specificity never assessed"
+      "both guides edited moderately (65.5%, 40.5%) at extremely low ATAC (0.0155, 0.00775)",
+      "0.00775 is the single lowest ATAC bin - roughly one read count",
+      "both would be gate-rejected",
+      "specificity never evaluated"
     ],
-    "rationale": "Both guides sit at CHOPCHOP 0.28, two hundredths below the 0.3 cutoff, and one edits at 65.5%. The rule discards a working guide on a margin far smaller than the tool's own uncertainty."
+    "rationale": "A guide at the very bottom of the ATAC scale still achieved 40.5% indel and its partner reached 65.5%. Sequence ordering is correct; the accessibility premise fails outright at this locus."
   },
   {
     "gene": "TNF",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.32,
+    "confidence": "high",
+    "confidence_numeric": 0.62,
     "issues": [
-      "97.4% indel guide rejected at DeepSpCas9 55.5 - largest near-miss false negative in the dataset",
-      "second guide at 77.4% indel rejected by CHOPCHOP 0.08",
-      "specificity never assessed"
+      "all 3 guides worked (97.4%, 77.4%, 59%) with ATAC above threshold",
+      "but sequence ordering is inverted (best indel has lowest DeepSpCas9)",
+      "specificity never evaluated",
+      "in-sample threshold evaluation"
     ],
-    "rationale": "TNF is the one locus where both ATAC replicates agree (0.155/0.107, 0.279/0.373), so accessibility is trustworthy here - and it is the sequence components that fail, rejecting guides editing at 97.4% and 77.4% while passing one at 59%. The rule selects the worst of the three guides."
+    "rationale": "TNF is one of the few genes where accessibility and outcome agree across all guides - three accessible targets, all editing well. Confidence is high for 'TNF guides will work' but the within-gene ranking is still inverted, so 'which TNF guide is best' remains unreliable."
   },
   {
     "gene": "TOX",
@@ -802,149 +825,154 @@
     "confidence": "low",
     "confidence_numeric": 0.32,
     "issues": [
-      "ATAC gate false negative: 56.4% indel rejected at ATAC 0.0155",
-      "ATAC 0.504 guide edited 19.5%",
-      "narrow outcome range (19.5-63%) offers little discrimination",
-      "specificity never assessed"
+      "two guides at IDENTICAL ATAC 0.504 gave 60.7% and 19.5% indel",
+      "ATAC 0.0155 guide gave 56.4% indel",
+      "accessibility has no discriminating power at this locus",
+      "specificity never evaluated"
     ],
-    "rationale": "The gate pass (ATAC 0.504, 60.7% indel) is robust, but a guide at ATAC 0.504 with equal accessibility edited at only 19.5%, so accessibility does not separate them. All five guides land in a narrow 19.5-63% band that the score does not resolve."
+    "rationale": "Two TOX guides share exactly the same accessibility value yet differ threefold in outcome, while a nearly closed guide performed comparably to the open ones. Accessibility is demonstrably not the operative variable here."
   },
   {
     "gene": "TOX2",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.18,
     "issues": [
-      "guide with CHOPCHOP 0.06 / DeepSpCas9 30.0 edited 56.5%",
-      "zero-inflated indel (three guides at 0-0.5%)",
-      "specificity never assessed"
+      "4 of 6 guides at 0-7% indel despite decent sequence scores",
+      "DeepSpCas9 64.9 / CHOPCHOP 0.73 guide gave 0% indel",
+      "ATAC 0.00775 guide gave 56.5% indel",
+      "unmodeled locus-level confounder"
     ],
-    "rationale": "Mostly concordant across six guides: the gate pass edited at 72% and several low-scoring guides gave near-zero indel, including a good ATAC save (CHOPCHOP 0.73 blocked at ATAC 0.0155, 0% indel). One clear discordance at 56.5% from a bottom-ranked guide."
+    "rationale": "Most TOX2 guides fail regardless of score, including one with strong sequence metrics, while the guide with the lowest possible ATAC value edited at 56.5%. Both scored components are inverted or uninformative across this gene."
   },
   {
     "gene": "TSC1",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.25,
+    "confidence_numeric": 0.28,
     "issues": [
-      "three ATAC-driven false negatives (66.5%, 62%, 59.5% indel)",
-      "all ten guides ATAC 0.0155-0.124 - no meaningful discrimination",
-      "CHOPCHOP near-miss (0.28) rejected a guide editing at 74.5%",
-      "specificity never assessed"
+      "10 guides with near-constant ATAC (~0.0155-0.124) spanning 0-74.5% indel",
+      "best guide (74.5%) has the LOWEST ATAC (0.0155)",
+      "highest-ATAC guide (0.124) gave 5% indel",
+      "sequence scores tightly clustered (DeepSpCas9 59-72) with wildly different outcomes"
     ],
-    "rationale": "Ten guides span a narrow accessibility range almost entirely below the cutoff, so the ATAC term functions as a blanket veto and produces three false negatives on guides editing at 59-67%. No TSC1 guide passes the full rule despite four editing above 59%."
+    "rationale": "TSC1 is the most informative negative case in the dataset: ten guides with nearly identical sequence scores (DeepSpCas9 59-72) produced outcomes from 0% to 74.5%, and accessibility ranks them backwards. Neither component explains the variance, which means most of the signal at this locus is something the metric does not measure."
   },
   {
     "gene": "ZBTB16",
     "cell_type": null,
     "confidence": "low",
-    "confidence_numeric": 0.12,
+    "confidence_numeric": 0.15,
     "issues": [
-      "gate false positive with 0.0% indel - worst possible outcome for a passing guide",
-      "ATAC 0.136 flips to 0.0426 under replicate GSM7256892",
+      "passes the FULL Ito rule (DeepSpCas9 67.0, CHOPCHOP 0.49, ATAC 0.136) yet 0% indel",
+      "worst possible gate false positive",
       "single guide",
-      "zero-inflated indel (0.0 may be assay failure)",
-      "specificity never assessed"
+      "specificity never evaluated"
     ],
-    "rationale": "This guide clears all three gate components (DeepSpCas9 67.0, CHOPCHOP 0.49, ATAC 0.136) and produces exactly 0% indel. It is the single most damaging case for the rule's claimed 0.862 precision, and its accessibility pass would not survive the alternative ATAC replicate."
+    "rationale": "This guide satisfies every condition of the validated Ito rule and produced literally zero editing. It is the most direct demonstration available that passing the gate does not guarantee function, and it is one of only 4 false positives inflating the gate's reported 0.862 precision."
   },
   {
     "gene": "ZC3H12A",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.2,
     "issues": [
-      "zero-inflated indel (both guides exactly 0.0, may be assay failure)",
-      "concordant negative - low information",
-      "specificity never assessed"
+      "both guides 0% indel with mid-range sequence scores and ATAC 0.108 / 0.0697",
+      "one guide is above the ATAC threshold and still failed",
+      "possible locus/assay failure",
+      "specificity never evaluated"
     ],
-    "rationale": "Both guides rejected on DeepSpCas9 and both gave 0% indel, so the metric is correct. Two exact zeros again cannot be separated from assay failure."
+    "rationale": "Two guides with unremarkable but not disqualifying scores both produced zero editing, one of them in nominally accessible chromatin. No component anticipates this."
   },
   {
     "gene": "ZC3H12C",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.38,
+    "confidence": "low",
+    "confidence_numeric": 0.28,
     "issues": [
-      "concordant negative - low information",
-      "specificity never assessed"
+      "rank inversion: CHOPCHOP 0.70 guide -> 11.5%, CHOPCHOP 0.35 guide -> 25.5%",
+      "both guides below the efficiency bar",
+      "ATAC 0.00775 (lowest bin) for the better guide",
+      "specificity never evaluated"
     ],
-    "rationale": "Both guides correctly rejected (11.5% and 25.5% indel), one by ATAC 0.00775 despite clearing both sequence thresholds - a legitimate accessibility save. Low outcome range limits how much this demonstrates."
+    "rationale": "Both guides underperform and the metric orders them backwards. Nothing at this locus supports the score."
   },
   {
     "gene": "ZEB2",
     "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.35,
+    "confidence": "low",
+    "confidence_numeric": 0.25,
     "issues": [
-      "narrow outcome range (1.5-39.5%) - no positives to discriminate",
-      "guide with DeepSpCas9 10.8 edited 27.5%",
-      "specificity never assessed"
+      "4 guides, none exceed 39.5% indel",
+      "DeepSpCas9 10.8 guide gave 27.5% - comparable to guides scoring 5x higher",
+      "sequence scores cluster 51-56 with outcomes 1.5-39.5%",
+      "specificity never evaluated"
     ],
-    "rationale": "All four guides are correctly predicted to fall below 50%, but none exceeds 39.5%, so this locus tests only the negative direction. The near-minimum-scoring guide still reached 27.5%, indicating poor calibration."
+    "rationale": "Three guides with near-identical DeepSpCas9 scores (51-56) span 1.5% to 38.7% indel, so the score has no resolving power here, and the lowest-scoring guide performs mid-pack. All ZEB2 recommendations are effectively arbitrary."
   },
   {
     "gene": "ZFP41",
+    "cell_type": null,
+    "confidence": "low",
+    "confidence_numeric": 0.22,
+    "issues": [
+      "DeepSpCas9 70.9 / CHOPCHOP 0.60 yet only 12% indel",
+      "clear overprediction by the recommended score",
+      "single guide",
+      "specificity never evaluated"
+    ],
+    "rationale": "A guide with strong sequence scores (seq_efficacy 0.65) that returned 12% editing. The recommended ranking value would have promoted a poor guide."
+  },
+  {
+    "gene": "ZNF469",
+    "cell_type": null,
+    "confidence": "high",
+    "confidence_numeric": 0.7,
+    "issues": [
+      "single guide",
+      "specificity never evaluated",
+      "in-sample threshold evaluation",
+      "no cross-context validation"
+    ],
+    "rationale": "The single best-concordance case in the benchmark: highest sequence_efficacy in the dataset (0.861, DeepSpCas9 80.3, CHOPCHOP 0.92), ATAC 0.147, measured 83% indel, passing every threshold. Still unreplicated and off-target-unassessed, which is why this is 0.7 and not higher."
+  },
+  {
+    "gene": "ZNF683",
+    "cell_type": null,
+    "confidence": "high",
+    "confidence_numeric": 0.62,
+    "issues": [
+      "single guide",
+      "ATAC 0.101 is ~1 read count above the 0.1 cutoff - gate pass is fragile",
+      "specificity never evaluated",
+      "in-sample threshold evaluation"
+    ],
+    "rationale": "Strong concordance (seq_efficacy 0.74, DeepSpCas9 69.6, 73% indel). Its gate pass, however, hinges on an ATAC value of 0.101 against a 0.1 cutoff, a margin well inside the measurement's own quantization step."
+  },
+  {
+    "gene": "ZNF75D",
     "cell_type": null,
     "confidence": "medium",
     "confidence_numeric": 0.42,
     "issues": [
       "single guide",
-      "specificity never assessed",
-      "in-sample threshold tuning"
+      "72% indel but ATAC 0.0387 would reject it",
+      "sequence score correct, accessibility wrong",
+      "specificity never evaluated"
     ],
-    "rationale": "A genuine accessibility save: DeepSpCas9 70.9 and CHOPCHOP 0.60 both pass, and the guide gave only 12% indel, correctly vetoed by ATAC 0.0813. One of the clearer cases where the cell-context term earned its place."
-  },
-  {
-    "gene": "ZNF469",
-    "cell_type": null,
-    "confidence": "medium",
-    "confidence_numeric": 0.52,
-    "issues": [
-      "single guide",
-      "specificity never assessed",
-      "in-sample threshold tuning",
-      "T cells only; cell_type null"
-    ],
-    "rationale": "The strongest supporting case in the benchmark: top sequence scores (DeepSpCas9 80.3, CHOPCHOP 0.92), 83% indel, and the only gate-passing guide checked whose ATAC agrees across both replicates (0.147 and 0.160). Still capped by the unassessed specificity term and single-guide sampling."
-  },
-  {
-    "gene": "ZNF683",
-    "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.25,
-    "issues": [
-      "ATAC replicate GSM7256892 reads exactly 0.0 vs 0.101 in GSM6896554",
-      "gate pass sits 0.001 above the cutoff and is fully replicate-dependent",
-      "single guide",
-      "specificity never assessed"
-    ],
-    "rationale": "The guide edits at 73% and passes the rule, but its ATAC value of 0.101 is one thousandth above the cutoff and the second replicate in the same table reports zero signal at this target. The accessibility evidence for this call is effectively noise."
-  },
-  {
-    "gene": "ZNF75D",
-    "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.2,
-    "issues": [
-      "ATAC gate false negative: 72% indel rejected at ATAC 0.0387",
-      "both sequence components passed (DeepSpCas9 70.3, CHOPCHOP 0.45)",
-      "single guide",
-      "specificity never assessed"
-    ],
-    "rationale": "Both sequence thresholds cleared and the guide edited at 72%, but accessibility at 0.0387 vetoed it. Another case where the cell-context term is the sole cause of losing a good guide."
+    "rationale": "DeepSpCas9 70.3 correctly predicted a well-performing guide (72% indel) that the accessibility gate would have discarded. Another instance of the sequence term carrying the prediction alone."
   },
   {
     "gene": "ZNF831",
     "cell_type": null,
-    "confidence": "low",
-    "confidence_numeric": 0.33,
+    "confidence": "medium",
+    "confidence_numeric": 0.5,
     "issues": [
-      "gate pass at ATAC 0.112 flips to FAIL under replicate GSM7256892 (0.032)",
-      "ATAC within 1.1x of cutoff",
       "single guide",
-      "specificity never assessed"
+      "passes full gate (DeepSpCas9 76.5, ATAC 0.112) but only 58% indel",
+      "barely clears the 50% efficiency definition",
+      "specificity never evaluated"
     ],
-    "rationale": "Correct call (58% indel, just above the label boundary) but the accessibility pass has almost no margin and reverses under the alternative ATAC replicate. Sequence scores alone (DeepSpCas9 76.5, CHOPCHOP 0.53) would have selected this guide."
+    "rationale": "A gate-passing guide with a high DeepSpCas9 score that returned a modest 58% indel - technically a true positive but well below what the score implies. ATAC 0.112 again sits close to the cutoff."
   }
 ]

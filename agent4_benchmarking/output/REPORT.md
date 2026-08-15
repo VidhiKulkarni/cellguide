@@ -24,6 +24,6 @@
 | Sequence gates only (no ATAC) | 0.741 | 0.494 | 0.593 | 43 | 15 | 44 |
 | Full Ito rule (+ ATAC≥0.1) | 0.862 | 0.287 | 0.431 | 25 | 4 | 62 |
 
-Adding the ATAC≥0.1 gate REDUCES F1 relative to sequence gates alone (0.593 -> 0.431) on this dataset — evaluable on 199/199 guides.
+F1 drops when the ATAC≥0.1 gate is added (0.593 -> 0.431), but **F1 is the wrong metric to judge this rule by** — SPEC.md itself documents this as intended to be "a high-precision, low-recall filter, not a general ranker," and *any* added AND-condition mechanically reduces recall regardless of whether the added condition is useful, so F1 will almost always fall here. What the gate is actually designed to do is raise precision, and it does: 0.741 -> 0.862. See `interaction_effect_check.py` for the statistically correct test of Ito et al.'s actual accessibility claim (a conditional effect, not reflected in this precision/recall table) — evaluable on 199/199 guides here.
 
 No cell_type column — skipping T-cell-open vs K562-open panel check.

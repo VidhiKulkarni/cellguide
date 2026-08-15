@@ -112,23 +112,43 @@ every guide look safer than it actually was. We fixed these (see
 now exposes `recommended_score` (sequence-only) instead of pretending the blended version
 was better.
 
-**Round 2**, after re-running Agent 5 against the fixed formula, it went further and found
-the deeper problem: **chromatin accessibility — the entire premise this project is built
-on — hasn't actually demonstrated value on this benchmark, and the evidence is shakier than
-it first looked.**
+**Round 2**, after re-running Agent 5 against the fixed formula, it went further and
+initially concluded chromatin accessibility — this project's core premise — hadn't
+demonstrated value on this benchmark:
 - Off-target risk (specificity) was never evaluated for any of the 199 guides — no
   off-target data source is wired in yet, so the "3-component" formula is quietly a
-  2-component one.
-- The accessibility gate Ito et al. use (only trust a guide if its chromatin region is also
-  open) actually **reduces prediction quality** (F1 0.593 -> 0.431) compared to using
-  sequence alone, on this dataset.
+  2-component one. **This one still stands.**
 - The underlying ATAC-seq measurement is unstable: the source data has two replicate
   measurements for the same guides, and switching between them flips which guides "pass" the
-  accessibility threshold for the majority of borderline cases.
+  accessibility threshold for the majority of borderline cases. **This one still stands too**
+  — real caution is warranted regardless of what follows.
 - The specific claim CellGuide is named after — that the *same* guide performs differently
-  in different cell types — has no data in this benchmark that can actually test it (the
-  cell-type-comparison data that exists has no editing-outcome measurements to check
-  against).
+  in different cell types — still has no data in this benchmark that can actually test it.
+  **Also still stands** — this is the biggest open gap.
+
+We also tried two follow-ups to see if a sequence-side signal could be rescued: scoring
+guides with only our own from-scratch sequence heuristic (instead of the two external tools
+we normally prefer), and averaging the two ATAC replicates instead of using one. Neither
+helped — the heuristic has no real signal on its own (ρ=0.043, not significant), and
+averaged ATAC is still not statistically significant (ρ=0.062, p=0.386). See
+[`agent4_benchmarking/output/MOTIF_AND_ACCESSIBILITY_CHECKS.md`](agent4_benchmarking/output/MOTIF_AND_ACCESSIBILITY_CHECKS.md).
+
+**Round 3**: Round 2 also claimed the accessibility gate "reduces prediction quality"
+(F1 0.593 → 0.431) and that accessibility overall showed no real signal (marginal
+correlation ρ=0.084, not significant). Re-running Agent 5 a second time against the more
+transparent report, it caught that **both of those were the wrong statistical test** —
+Ito et al.'s actual published claim is conditional ("high ATAC-seq scores were significantly
+associated with efficient indel formation *among gRNAs with above-median [sequence] scores*"),
+not a marginal effect across every guide, and F1 mechanically penalizes any added
+precision-focused filter regardless of whether it's a good one. Tested the way the paper
+actually frames it
+([`agent4_benchmarking/output/INTERACTION_EFFECT_CHECK.md`](agent4_benchmarking/output/INTERACTION_EFFECT_CHECK.md)):
+**the conditional effect reproduces — ρ=0.232, p=0.008 among the 131 guides with
+above-median sequence scores** — and the gate's precision does rise as designed (0.741 →
+0.862). So the corrected, current honest read is: **accessibility has real conditional
+predictive value that the first test missed, but it isn't correctly folded into a single
+score yet** — a more defensible (and more interesting) position than either "it clearly
+works" or "it clearly doesn't."
 
 Full numbers: [`agent4_benchmarking/output/REPORT.md`](agent4_benchmarking/output/REPORT.md)
 and [`agent4_benchmarking/output/REPLICATE_SENSITIVITY_REPORT.md`](agent4_benchmarking/output/REPLICATE_SENSITIVITY_REPORT.md).
