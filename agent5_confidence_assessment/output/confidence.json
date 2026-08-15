@@ -1,0 +1,81 @@
+[
+  {
+    "gene": "GZMA",
+    "cell_type": "T",
+    "confidence": "low",
+    "confidence_numeric": 0.3,
+    "issues": [
+      "indel_pct=88.0 is synthetic demo data, not a measurement (DEMO_REPORT.md)",
+      "demo n=4, Spearman rho=0.800 p=0.2 — not statistically significant",
+      "specificity=1.0 is the empty-off-target-list fallback, not evidence of specificity",
+      "0.3 of the weight budget is a constant and adds zero ranking information",
+      "weights w_seq/w_atac/w_spec = 0.4/0.3/0.3 are untuned and unvalidated",
+      "on real data (n=199) combined score rho=0.315 UNDERPERFORMS sequence-only rho=0.441",
+      "demo seq_efficacy=0.661 conflicts with 0.467 for GZMA in the real-ATAC cross-context run",
+      "Xu et al. 2018 (core corpus, same RNP delivery) reports <30% cross-cell-type variance for the same gRNA",
+      "accessibility term validated only for transient RNP; no delivery-method input exists in the code",
+      "ATAC term saturates at 0.1, discarding all dynamic range in open chromatin",
+      "cross-context 11/11 panel check is near-circular and has no indel ground truth",
+      "T-cell activation state not modeled (Ursch 2024); 'T' is not a single chromatin context",
+      "indel% is not functional knockout — no frameshift/repair-outcome term"
+    ],
+    "rationale": "This is the single most favorable row in the set — high ATAC, passes the Ito AND-gate, and its direction is independently corroborated by the real-ATAC cross-context panel — yet its outcome value (88% indel) is fabricated demo data, so it validates nothing. Confidence is capped low because the one component that actually correlates with real indel% (sequence) is diluted by an untuned accessibility weight and a specificity term that is a constant 1.0 placeholder."
+  },
+  {
+    "gene": "GZMA",
+    "cell_type": "K562",
+    "confidence": "low",
+    "confidence_numeric": 0.18,
+    "issues": [
+      "indel_pct=9.0 is synthetic demo data, not a measurement",
+      "9% indel sits near the Sanger+ICE detection floor — least reliable end of the readout",
+      "demo accessibility=0.20 (atac~0.02) contradicts accessibility=0.0 for GZMA/K562 in the real-ATAC run",
+      "specificity=1.0 is the empty-off-target-list fallback, not evidence of specificity",
+      "K562 is near-triploid with a rearranged CML genome — copy number confounds indel%",
+      "guides designed on reference genome; K562 sequence variants not checked (Kumbara 2025: 82.5% of guides affected)",
+      "ATAC threshold 0.1 transferred across GEO series (GSE221788 vs GSE137647) without cross-dataset normalization",
+      "Xu et al. 2018 attributes cross-cell-type efficiency gaps to delivery artifact, not chromatin",
+      "no delivery-method gate despite Wang 2019 showing accessibility does not help in lentiviral context",
+      "low-signal rows drive the apparent context effect that the real n=199 benchmark fails to reproduce (ATAC-only rho=0.084, p=0.24)"
+    ],
+    "rationale": "This row exists to make the context effect look dramatic (88% -> 9%), but the number is synthetic, sits at the assay's noise floor, and its accessibility value disagrees with the value the real-ATAC run computed for the same gene and cell type. On genuine Ito data the accessibility component is statistically indistinguishable from noise, so the mechanism this row illustrates is the one the benchmark most clearly failed to confirm."
+  },
+  {
+    "gene": "GATA1",
+    "cell_type": "K562",
+    "confidence": "low",
+    "confidence_numeric": 0.22,
+    "issues": [
+      "indel_pct=81.0 is synthetic demo data, not a measurement",
+      "GATA1 is a lineage-essential dependency in K562 — edited cells drop out, confounding indel% by selection",
+      "no timepoint or selection/dropout model in the score",
+      "GATA1 is X-linked and K562 is near-triploid — allele count unmodeled",
+      "demo seq_efficacy=0.61 conflicts with 0.80 for GATA1 in the real-ATAC cross-context run",
+      "specificity=1.0 is the empty-off-target-list fallback, not evidence of specificity",
+      "weights untuned; combined score underperforms sequence-only on real data",
+      "cross-context panel used the weak GC/motif fallback where DeepSpCas9/CHOPCHOP scores were available elsewhere",
+      "off-target risk is itself cell-context dependent (Sari 2025) but specificity() takes no cell_type argument",
+      "Wang 2019 on-target/off-target trade-off violates the additive independence the linear formula assumes"
+    ],
+    "rationale": "Beyond the synthetic outcome value, GATA1 in K562 carries a specific unmodeled confounder: it is an essential erythroid transcription factor in that line, so measured indel% reflects survival selection against edited cells as much as cutting efficiency. The score has no essentiality, timepoint, or ploidy term, and its own components disagree between the demo and the real-ATAC run for this exact gene."
+  },
+  {
+    "gene": "GATA1",
+    "cell_type": "T",
+    "confidence": "low",
+    "confidence_numeric": 0.15,
+    "issues": [
+      "indel_pct=7.0 is synthetic demo data, not a measurement",
+      "7% indel is at/below the Sanger+ICE reliable detection floor",
+      "demo accessibility=0.30 (atac~0.03) contradicts accessibility=0.465 in the real-ATAC cross-context run",
+      "specificity=1.0 is the empty-off-target-list fallback, not evidence of specificity",
+      "no independent corroboration from any real-data run",
+      "ATAC saturating transform makes sub-threshold values the only region with resolution, and they are the noisiest",
+      "Riesenberg 2025: indel% can underestimate true cutting activity — ground truth is a biased proxy",
+      "measurement made in duplicate only; no replicate variance propagated into the score",
+      "'T' cell type unspecified (naive vs stimulated CD8) though ATAC landscape depends on it",
+      "Xu et al. 2018 directly contradicts large same-guide cross-cell-type swings under RNP"
+    ],
+    "rationale": "This is the weakest row in the set: a fabricated low indel value at the assay noise floor, an accessibility number that disagrees by more than 50% with what the real-ATAC pipeline computed for the same gene and context, and no corroborating real-data evidence of any kind. Nothing here should be treated as validation of cell-context-aware scoring."
+  }
+]

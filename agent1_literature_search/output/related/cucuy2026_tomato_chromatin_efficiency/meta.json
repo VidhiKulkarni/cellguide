@@ -1,0 +1,25 @@
+{
+  "title": "Features affecting Cas9-Induced Editing Efficiency and Patterns in Tomato: Evidence from a Large CRISPR Dataset",
+  "authors": [
+    "Amit Cucuy",
+    "Daniela Ben-Tov",
+    "Cathy Melamed-Bessudo",
+    "Arik Honig",
+    "Barry A. Cohen",
+    "Avraham A. Levy"
+  ],
+  "author_note": "Amit Cucuy and Daniela Ben-Tov contributed equally; Avraham A. Levy is corresponding author. Department of Plant and Environmental Sciences, Weizmann Institute of Science, Rehovot 76100, Israel.",
+  "doi": "10.64898/2026.01.06.696182",
+  "journal": "bioRxiv (preprint)",
+  "year": 2026,
+  "pub_date": "2026-01-06",
+  "paperclip_id": "bio_b925f1116c9d",
+  "source": "biorxiv",
+  "url": "https://doi.org/10.64898/2026.01.06.696182",
+  "abstract": "CRISPR/Cas9 is a cornerstone of genome editing, yet the determinants of editing efficiency and DNA Double Strand Break (DSB) repair outcomes remain poorly understood, particularly in plants. To address this gap, we generated a dataset of 420 sgRNAs targeting promoters, exons, and introns of 137 genes in tomato protoplasts and quantified editing efficiencies together with ATAC-seq-derived chromatin accessibility and transcriptional states in the same cellular system. Editing efficiency was consistently higher at open chromatin sites and modestly elevated in promoters and introns relative to exons, whereas transcriptional activity did not measurably influence editing outcomes. Additionally, we identified a local genomic effect resulting in less variable editing between sgRNAs targeting the same compared to different genes. A distinct subset of sgRNAs achieved nearly complete editing, producing long deletions with extended microhomology tracts. These repair footprints closely parallel those observed for high-efficiency guides in human datasets, implicating conserved sequence-driven biases and a predominant role for microhomology-mediated end joining at these sites. Yet, widely used human-trained prediction models failed to rank sgRNA performance in plants, underscoring the limits of cross-species generalization. This dataset defines how chromatin accessibility, genomic context, and intrinsic sequence characteristics shape Cas9 activity in plants, and provides a resource for improving guide design and advancing mechanistic understanding of plant DNA repair.",
+  "content_type": "fulltext",
+  "content_lines": 93,
+  "content_note": "Full text as served by Paperclip. The bioRxiv 'Methods' and 'Supporting information' headings are present but their bodies are not in the Paperclip full text (source lines L61-L62 are heading-only).",
+  "relevance": "An ATAC-seq-matched, 420-sgRNA efficiency dataset in a single uniform cell system showing open chromatin significantly raises Cas9 editing efficiency while transcription does not, plus a direct negative control on transferability: the human-trained Azimuth sequence-only score fails to rank guides across contexts (r=0.05 tomato, r=0.13-0.17 human). It explicitly cites Ito et al. 2024 as support for epigenome-augmented efficiency prediction.",
+  "fetched_date": "2026-08-15"
+}

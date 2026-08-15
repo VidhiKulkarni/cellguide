@@ -1,0 +1,19 @@
+{
+  "title": "Context-dependent determinants of CRISPR-Cas9 editing efficiency revealed through cross-species endogenous editing analysis",
+  "authors": [
+    "Shai Cohen", "Shaked Bergman", "Adi Yahalom", "Alina Wiener", "Anat Lavi-Itzkovitz", "Anat Maoz", "Anna Rice", "Dan Dominissini", "Dana Furest", "David Simanovich Zini", "Dongqi Li", "Dov Gertz", "Ehud Landau", "Ester Yeshayahou", "Eyal Emmanuel", "Gal Avital", "Hanin Wattad", "Inbar Nevo Yassaf", "Itamar Menuhin-Gruman", "Karin Brezinger-Dayan", "Larisa Rabinovich", "Liat Cohen", "Mark Bogen", "Mark Kapel", "Michal Avitzour", "Michal J. Besser", "Michal Rahimi", "Milsee Mol Jaya Prakashan", "Mor Cohen Friedman", "Moritz Burghardt", "Nir Arbel", "Ofir Arias", "Ofir Yaish", "Ofri Kutchinsky", "Orna Steinberg Shemer", "Rivka Manor", "Rivka Ofir", "Ruth van-Oss Pinhasi", "Shai Izraeli", "Shaked Regev", "Tal Sherman", "Tamara Izhiman", "Tom Malul", "Vered Chalifa-Caspi", "Yehuda Shovman", "Yehudit Birger", "Amir Sagi", "Asaph Aharoni", "David Burstein", "Eran Eyal", "Gilad Kunis", "Idan Alyagor", "Imri Ben-Israel", "Isana Veksler-Lublinsky", "Itay Mayrose", "Oren Parnas", "Oshry Markovich", "Sharon Moshkovitz", "Shira Corem", "Yael Barhum", "Yaron Orenstein", "Zohar Yakhini", "Tamir Tuller"
+  ],
+  "doi": "10.64898/2026.03.18.712093",
+  "journal": "bioRxiv (preprint)",
+  "year": 2026,
+  "pub_date": "2026-03-01",
+  "paperclip_id": "bio_56acfb6b86cd",
+  "source": "biorxiv",
+  "url": "https://doi.org/10.64898/2026.03.18.712093",
+  "abstract": "Accurate prediction of CRISPR-Cas9 guide RNA (gRNA) editing efficiency remains limited, particularly outside human systems, where models trained on exogenous human datasets show poor generalization. We analyzed Cas9 efficiency and repair outcomes using novel endogenous editing data from four human cell types, two tomato cell types, and cells from giant river prawn and black soldier fly. While integrating publicly available predictors via ensemble frameworks improved performance, our analysis revealed hundreds of novel features affecting activity. Crucially, dominant features related to sites' competition for gRNA, and local geometric properties varied across systems, highlighting the strong context dependence of Cas9 efficiency and arguing against a universal model. Interestingly, codon usage bias-based features also emerged as informative predictors, as they are proxies for chromatin accessibility. In contrast, trends in repair outcomes remained conserved. This work provides essential resources for more generalizable CRISPR guide design.",
+  "content_type": "fulltext",
+  "content_lines": 147,
+  "cell_systems": ["human T cells", "human K562", "human U937", "human PLX placenta-derived mesenchymal-like adherent stromal cells", "tomato leaf protoplasts", "tomato hairy roots", "Macrobrachium rosenbergii (giant river prawn) embryonic cells", "Hermetia illucens (black soldier fly) embryos"],
+  "relevance": "The strongest direct argument for cell-context-aware guide scoring: with endogenous RNP editing at 1005 sites across 8 cell systems (including BOTH primary human T cells and K562), sequence-only public predictors collapse (DeepCRISPR 0.96 Spearman on its own data -> 0.08 on these human endogenous data; SPROUT 0.41 -> 0.11), and the dominant efficiency features flip sign between cell types (e.g. local PAM-adjacent site density is negative in K562 but positive in U937 and tomato). It supplies a concrete 557-feature engineering catalogue including an explicit epigenetics/accessibility family (DNase-seq accessibility, CTCF, H3K4me3, DNA methylation motifs, Hi-C/TADbit 3D density), DNA-shape (MGW, Roll, HelT, ProT), gRNA thermodynamics/scaffold folding, codon-usage-bias proxies for accessibility, and off-target competition counts - plus the recommendation to make competition/off-target metrics chromatin-aware.",
+  "fetched_date": "2026-08-15"
+}
