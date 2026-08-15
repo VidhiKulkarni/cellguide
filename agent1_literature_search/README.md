@@ -19,3 +19,11 @@ headlessly — see https://paperclip.gxl.ai/docs).
 `output/related/INDEX.md` listing what was found and why it's relevant.
 
 Input to [Agent 2](../agent2_literature_summarization/).
+
+## Containment
+
+Scoped to its own folder (`cwd`), `tools=["Read","Write","Glob","Grep"]` + the paperclip
+MCP tool — no Bash, no subagents, `max_budget_usd=2.0`, `max_turns=30`. This is a fix after
+an earlier unscoped run (full repo `cwd`, default toolset, no caps) spent ~$20 over 80
+minutes autonomously doing real work in *other* agents' folders that was never asked for —
+see git history around 2026-08-15 if you want the full story.

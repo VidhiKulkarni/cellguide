@@ -29,6 +29,14 @@ from claude_agent_sdk import (  # noqa: E402
 HERE = Path(__file__).resolve().parent
 OUTPUT_DIR = HERE / "output"
 
+# Hard containment, added after an earlier unscoped run (full repo cwd, default toolset —
+# which includes Bash and the Task/subagent tool) spent ~$20 and 80 minutes doing real work
+# on OTHER agents' folders (fetching+parsing agent4's ground-truth data, running a real
+# benchmark) that was never asked for. This run is now boxed to exactly what Agent 1 needs:
+# read/write only inside its own folder, no Bash, no subagents, and hard cost/turn caps.
+MAX_BUDGET_USD = 2.0
+MAX_TURNS = 30
+
 SYSTEM_PROMPT = f"""You are Agent 1 in the CellGuide AI pipeline ({REPO_ROOT}/CLAUDE.md).
 
 Task: search biomedical literature for the given topic using the paperclip MCP tool
@@ -47,10 +55,13 @@ already had, with a one-line note on why each is relevant to the topic.
 
 def build_options() -> ClaudeAgentOptions:
     return ClaudeAgentOptions(
-        cwd=str(REPO_ROOT),
+        cwd=str(HERE),
         system_prompt=SYSTEM_PROMPT,
-        permission_mode="bypassPermissions",
+        permission_mode="acceptEdits",
+        tools=["Read", "Write", "Glob", "Grep"],
         mcp_servers=paperclip_mcp_config(),
+        max_budget_usd=MAX_BUDGET_USD,
+        max_turns=MAX_TURNS,
     )
 
 

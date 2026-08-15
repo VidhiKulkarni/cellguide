@@ -6,10 +6,11 @@ between cited papers, weak assumptions, context mismatches (delivery method, cel
 and confounders the score doesn't account for — then gives an explainable confidence
 rating per gene/guide.
 
-Scoped tight on purpose: Read/Write/Glob/Grep only (no Bash, no MCP, no network) — read
-access to `agent2_literature_summarization/output/`, `agent3_metric_construction/`,
-`agent4_benchmarking/output/`, and `papers/`; write access only inside this folder's own
-`output/`.
+Scoped tight on purpose: Read/Write/Glob/Grep only (no Bash, no MCP, no network, no
+subagents) — read access to `agent2_literature_summarization/output/`,
+`agent3_metric_construction/`, `agent4_benchmarking/output/`, and `papers/`; write access
+only inside this folder's own `output/`. `max_budget_usd=2.0`, `max_turns=30`. See
+[Agent 1's README](../agent1_literature_search/README.md#containment) for why this matters.
 
 ## Run
 

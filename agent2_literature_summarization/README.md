@@ -20,3 +20,10 @@ re-run after Agent 1 adds new papers.
 synthesizing across all papers.
 
 Input to [Agent 3](../agent3_metric_construction/).
+
+## Containment
+
+Scoped to its own folder (`cwd`) with read access to Agent 1's output (`add_dirs`) only;
+`tools=["Read","Write","Glob","Grep"]` — no Bash, no subagents, `max_budget_usd=2.0`,
+`max_turns=30`. See [Agent 1's README](../agent1_literature_search/README.md#containment)
+for why.

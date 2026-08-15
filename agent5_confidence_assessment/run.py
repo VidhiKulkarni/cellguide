@@ -39,6 +39,9 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent
 OUTPUT_DIR = HERE / "output"
 
+MAX_BUDGET_USD = 2.0
+MAX_TURNS = 30
+
 READ_ONLY_DIRS = [
     REPO_ROOT / "agent2_literature_summarization" / "output",
     REPO_ROOT / "agent3_metric_construction",
@@ -90,6 +93,8 @@ def build_options(results_path: Path | None) -> ClaudeAgentOptions:
         system_prompt=SYSTEM_PROMPT + extra,
         permission_mode="acceptEdits",
         tools=["Read", "Write", "Glob", "Grep"],
+        max_budget_usd=MAX_BUDGET_USD,
+        max_turns=MAX_TURNS,
     )
 
 

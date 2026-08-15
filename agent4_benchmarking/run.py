@@ -87,6 +87,7 @@ def run_benchmark(df: pd.DataFrame, weights: GuideScoreWeights) -> pd.DataFrame:
             {
                 "gene": row.gene,
                 "cell_type": getattr(row, "cell_type", None),
+                "spacer": row.spacer,
                 "indel_pct": row.indel_pct,
                 "combined_score": result.combined,
                 "sequence_efficacy": result.sequence_efficacy,
@@ -96,6 +97,35 @@ def run_benchmark(df: pd.DataFrame, weights: GuideScoreWeights) -> pd.DataFrame:
             }
         )
     return pd.DataFrame(results)
+
+
+def baseline_comparison(results: pd.DataFrame) -> str:
+    """Compare combined_score against its own components in isolation, and check the
+    Ito et al. AND-gate rule as a precision/recall classifier for >50% indel — this is
+    the comparison that shows whether the linear blend earns its complexity over a single
+    component, and whether Ito's actual (non-linear, gated) method holds up here too."""
+    lines = ["### Baseline comparison (component-only vs combined)\n"]
+    lines.append("| Component | Spearman ρ vs indel% | p-value |")
+    lines.append("|---|---|---|")
+    for col in ["sequence_efficacy", "accessibility", "combined_score"]:
+        rho, pval = spearmanr(results[col], results["indel_pct"])
+        lines.append(f"| `{col}` | {rho:.3f} | {pval:.3g} |")
+
+    if "passes_ito_rule" in results.columns:
+        actual_efficient = results["indel_pct"] > 50
+        predicted_efficient = results["passes_ito_rule"]
+        tp = int((predicted_efficient & actual_efficient).sum())
+        fp = int((predicted_efficient & ~actual_efficient).sum())
+        fn = int((~predicted_efficient & actual_efficient).sum())
+        precision = tp / (tp + fp) if (tp + fp) else float("nan")
+        recall = tp / (tp + fn) if (tp + fn) else float("nan")
+        lines.append("")
+        lines.append(
+            f"`passes_ito_rule()` as a >50%-indel classifier: precision={precision:.3f}, "
+            f"recall={recall:.3f} (TP={tp}, FP={fp}, FN={fn}, evaluable on "
+            f"{int(predicted_efficient.notna().sum())}/{len(results)} guides)."
+        )
+    return "\n".join(lines)
 
 
 def cross_context_check(results: pd.DataFrame) -> str:
@@ -144,6 +174,8 @@ def main() -> None:
         f"- Spearman correlation (combined_score vs indel %): ρ = {rho:.3f}, p = {pval:.3g}",
         f"- results table: `{results_path.name}`",
         f"- scatter figure: `{fig_path.name}`",
+        "",
+        baseline_comparison(results),
         "",
         cross_context_check(results),
     ]

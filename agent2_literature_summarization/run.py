@@ -31,6 +31,11 @@ HERE = Path(__file__).resolve().parent
 OUTPUT_DIR = HERE / "output"
 AGENT1_OUTPUT = REPO_ROOT / "agent1_literature_search" / "output"
 
+# Same containment fix as agent1_literature_search/run.py: own folder only, no Bash, no
+# subagents, hard cost/turn caps.
+MAX_BUDGET_USD = 2.0
+MAX_TURNS = 30
+
 SYSTEM_PROMPT = f"""You are Agent 2 in the CellGuide AI pipeline ({REPO_ROOT}/CLAUDE.md).
 
 Input: papers saved by Agent 1 under {AGENT1_OUTPUT}/related/<slug>/ (meta.json,
@@ -53,9 +58,13 @@ synthesis paragraph at the top.
 
 def build_options() -> ClaudeAgentOptions:
     return ClaudeAgentOptions(
-        cwd=str(REPO_ROOT),
+        cwd=str(HERE),
+        add_dirs=[str(AGENT1_OUTPUT)],
         system_prompt=SYSTEM_PROMPT,
-        permission_mode="bypassPermissions",
+        permission_mode="acceptEdits",
+        tools=["Read", "Write", "Glob", "Grep"],
+        max_budget_usd=MAX_BUDGET_USD,
+        max_turns=MAX_TURNS,
     )
 
 

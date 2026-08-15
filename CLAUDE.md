@@ -20,10 +20,28 @@ live in `.env` (gitignored, never committed).
 | 3 | [`agent3_metric_construction/`](agent3_metric_construction/) | Agent 2's structured summaries | Not a script — the deliverable itself: `guide_scoring.py`, a per-guide scoring formulation with two components: (1) **efficiency** (expected on-target editing/knockdown/activation), (2) **specificity** (inverse of off-target risk), built from GC content/motif heuristics + pluggable external scores | `guide_scoring.py` (code) + `SPEC.md` (inputs, weights, rationale) |
 | 4 | [`agent4_benchmarking/`](agent4_benchmarking/) | Agent 3's metric | Deterministic Python script (no LLM); validates the efficiency/specificity metric against the Ito et al. 2024 T-cell vs K562 ground truth (`papers/ito_2024/`) — compares predicted ranking/scores against measured indel %, and specifically checks whether the metric reproduces the paper's T-cell-open vs K562-open gene panel result. `--demo` runs against synthetic data since the real per-guide Table S1/S2 values aren't fetched yet (see the folder's README) | `output/results.csv`, `output/correlation.png`, `output/REPORT.md` |
 
+## Extended pipeline (agents 5-8)
+
+Layered on top of the core 4-stage pipeline. 5-7 are usable now; 8 is a stub.
+
+| # | Folder | Input | Task | Output |
+|---|---|---|---|---|
+| 5 | [`agent5_confidence_assessment/`](agent5_confidence_assessment/) | Agent 3's metric + Agent 4's results | Claude Agent SDK script acting as a scientific skeptic — flags conflicting evidence between cited papers, weak assumptions, context mismatches, confounders | `output/confidence.json` (per gene/guide) + `output/CONFIDENCE_REPORT.md` |
+| 6 | [`agent6_next_experiment/`](agent6_next_experiment/) | Candidate guide scores + Agent 5's confidence (or a component-disagreement proxy) | Deterministic script; ranks untested guides by `combined_score x uncertainty` and recommends what to test next; `record` ingests a real result and re-ranks | `output/recommendations.csv`, `state/experiment_log.csv` |
+| 7 | [`agent7_provenance/`](agent7_provenance/) | Agent 3's `SPEC.md` (parsed, not hand-copied) + Agents 2/4/5 outputs | Deterministic script; links every score component and per-guide result back to its source paper + evidence snippet | `output/provenance.json` + `output/PROVENANCE_REPORT.md` |
+| 8 | [`agent8_benchling_sync/`](agent8_benchling_sync/) | Benchling experiment results | **Stub** — `client.py`'s methods raise `NotImplementedError`; needs a Benchling API key + tenant + results schema ID to complete. Intended to feed Agent 6's `record` automatically | n/a until implemented |
+
+**Containment**: agents 1/2/5 (and any future LLM-driven stage) must set `cwd` to their own
+folder, `add_dirs` for read-only access to specific sibling folders they need, an explicit
+`tools` allowlist (no `Bash`, no subagents unless truly needed), and `max_budget_usd` /
+`max_turns` caps. This is not optional boilerplate — an earlier unscoped run (full repo
+`cwd`, default toolset, no caps) autonomously did ~$20 of unplanned work across other
+agents' folders. See [`agent1_literature_search/README.md`](agent1_literature_search/README.md#containment).
+
 ## Repository conventions
 
 - `docs/` — planning documents (hackathon plan PDF, etc.)
-- `agent1_literature_search/`, `agent2_literature_summarization/`, `agent3_metric_construction/`, `agent4_benchmarking/` — pipeline stage code + that stage's output, per the table above
+- `agent1_literature_search/`, `agent2_literature_summarization/`, `agent3_metric_construction/`, `agent4_benchmarking/`, `agent5_confidence_assessment/`, `agent6_next_experiment/`, `agent7_provenance/`, `agent8_benchling_sync/` — pipeline stage code + that stage's output, per the tables above
 - `papers/` — **core reference corpus only** (the plan's explicitly-cited papers, fetched via Paperclip), one folder per paper: `meta.json`, `fulltext.txt`, `SUMMARY.md`, `structured_extraction.md`
   - `papers/ito_2024/` — primary benchmark dataset (Agent 4's ground truth)
   - `papers/MANIFEST.md` — fetch status log for the core cited papers
