@@ -1,0 +1,374 @@
+L1: GLiDe: a web-based genome-scale CRISPRi sgRNA design tool for prokaryotes
+L2: BMC Bioinformatics (2025)
+L3: Tongjun Xiang, Huibao Feng, Xin-hui Xing, Chong Zhang
+L4: 1 https://ror.org/03cve4549 grid.12527.33 0000 0001 0662 3178 MOE Key Laboratory for Industrial Biocatalysis, Institute of Biochemical Engineering, Department of Chemical Engineering,  Tsinghua University,  Beijing, 100084 China
+L5: 2 https://ror.org/046rm7j60 grid.19006.3e 0000 0001 2167 8097 Department of Chemical and Biomolecular Engineering,  University of California Los Angeles,  Los Angeles, CA 90095 USA
+L6: 3 https://ror.org/05dxps055 grid.20861.3d 0000 0001 0706 8890 Division of Biology and Bioengineering,  California Institute of Technology,  Pasadena, CA 91125 USA
+L7: 4 https://ror.org/03cve4549 grid.12527.33 0000 0001 0662 3178 Center for Synthetic and Systems Biology,  Tsinghua University,  Beijing, 100084 China
+L8: 5 Institute of Biopharmaceutical and Health Engineering, Tsinghua Shenzhen International Graduate School, Shenzhen, 518055 China
+L9: Background
+L10: CRISPRi screening has become a powerful approach for functional genomic research. However, the off-target effects resulting from the mismatch tolerance between sgRNAs and their intended targets is a primary concern in CRISPRi applications.
+L11: Results
+L12: We introduce Guide Library Designer (GLiDe), a web-based tool specifically created for the genome-scale design of sgRNA libraries tailored for CRISPRi screening in prokaryotic organisms. GLiDe incorporates a robust quality control framework, rooted in prior experimental knowledge, ensuring the accurate identification of off-target hits. It boasts an extensive built-in database, encompassing 1,397 common prokaryotic species as a comprehensive design resource. It also provides the capability to design sgRNAs for newly discovered organisms by accepting uploaded design resource. We further demonstrated that GLiDe exhibits enhanced precision in identifying off-target binding sites for the CRISPRi system.
+L13: Conclusions
+L14: We present a web server that allows the construction of genome-scale CRISPRi sgRNA libraries for prokaryotes. It mitigates off-target effects through a robust quality control framework, leveraging prior experimental knowledge within an end-to-end, user-friendly pipeline.
+L15: Supplementary Information
+L16: The online version contains supplementary material available at 10.1186/s12859-024-06012-0.
+L17: Software
+L18: CRISPRi sgRNA design; Off-target binding identification; Public webserver
+L19: Background
+L20: As the number of bacterial genomes continues to grow, genotype–phenotype mapping is emerging as a potent approach in functional genomics research. It yields valuable insights into the microbiology and engineering of microorganisms [ 1 – 3 ]. To investigate the function of a specific gene, the most straightforward strategy is to perturb the gene and then observe the resulting changes in phenotype [ 4 ]. In recent years, CRISPR system originates from bacterial immune system has provided an extraordinary tool for genome editing, which is programmable and applicable in a wide range of organisms [ 5 – 7 ]. By inactivating the endonuclease activity of Cas9 through mutations (D10A and H840A), nuclease-dead Cas9 (dCas9) is generated [ 8 ]. This can be adapted for transcriptional regulation, giving rise to the CRISPR interference (CRISPRi) system [ 9 ]. This innovative approach facilitates CRISPRi screening [ 10 ], a technique for genome-wide gene perturbation. This method employs a pooled library of single-guide RNAs (sgRNAs), where each sgRNA is meticulously designed to guide dCas9 protein to a specific genetic locus flanked by 3’-NGG protospacer adjacent motif (PAM) via Watson–Crick base pairing [ 8 ], resulting in the inhibition of transcription of the target gene. Following the introduction of the sgRNA library, high-throughput screening techniques such as fluorescence-activated cell sorting [ 11 ,  12 ] or fitness screening [ 13 ,  14 ] are used to assess how cells with different sgRNAs behave. These behaviors are subsequently identified through next-generation sequencing. However, false positive results may arise occasionally in CRISPRi screening, primarily due to unexpected binding, a phenomenon commonly known as “off-targeting.” This can occur due to the tolerance of mismatches between sgRNAs and their intended targets [ 15 ]. Consequently, off-target binding may lead to the unintended inhibition of additional genes beyond the originally targeted one. Hence, ensuring highly reliable sgRNA design is of paramount importance.
+L21: To date, a variety of tools have been established for sgRNA design [ 16 – 22 ]. It’s worth noting that these applications are predominantly tailored for the CRISPR/Cas9 system in eukaryotes, where target DNA cleavage typically takes place following a conformational gating process [ 23 ]. This process requires sufficient base pairing between the sgRNA and the target DNA. Therefore, off-target binding is more prone to occur compared to off-target cleavage [ 24 ]. Additionally, it’s crucial to consider the context of prokaryotic genomes when discussing sgRNA design tools. Prokaryotic genomes differ fundamentally from eukaryotic genomes in terms of genome accessibility due to a less organized chromosome structure [ 25 ,  26 ] and variations in intracellular conditions. These unique characteristics may impact the applicability of existing sgRNA design tools to prokaryotic systems.
+L22: To tackle the challenges outlined above, our research focuses on the development of an accurate off-target identification algorithm tailored specifically for the CRISPRi system in prokaryotes. Drawing upon insights gained from extensive pooled screening assays evaluating binding affinities of diverse sequences in prokaryotes [ 10 ,  27 ], we have conducted a comprehensive analysis to discern the impact of mismatches on binding affinity. From these derived principles, we have developed GLiDe, a web-based tool that allows users to easily and rapidly design genome-scale sgRNA libraries for CRISPRi screening in prokaryotes. GLiDe offers a built-in database of 1,397 common microorganisms and accepts uploaded reference files for less common species. Additionally, we illustrated that sgRNAs generated by GLiDe display a reduced propensity for off-target binding. Our in-depth analysis, supported by quantitative data, unequivocally demonstrated that GLiDe showcased substantial performance improvement in designing sgRNA libraries for CRISPRi screening. Consequently, through rigorous design principles and meticulous experimentation, we have firmly established GLiDe as a highly promising tool poised to substantially promote functional genomic studies in prokaryotes.
+L23: Methods
+L24: Data prerequisites for the design of sgRNA library
+L25: To Design an sgRNA library, GLiDe requires two types of files: a FASTA file containing the entire DNA sequence, and an annotation file offering comprehensive details including genomic names, coding types, locations, strands, phases, and functional attributes. Regarding the annotation file, two formats are acceptable: (i) generic feature format files (GFF) and (ii) protein/RNA table files (PTT/RNT). GLiDe has employed a built-in database containing reference files for 1,397 common organisms based on NCBI RefSeq release 225 (updated on July 12, 2024). This database is scheduled to be updated every six months. For newly sequenced organisms, these files can be generated using genome annotation pipeline like PGAP [ 28 ].
+L26: sgRNA library design workflow
+L27: As shown in Fig.  2 A, upon receiving the files, GLiDe constructs a coding list that connect each gene feature with its corresponding sequence. Genes with high similarity are considered as the same function [ 29 ,  30 ] and are grouped into a cluster. This is achieved by employing BLASTN [ 31 ] with default parameters for sequence alignment, applying a strict threshold (< 0.001 evalue, > 95% identity, > 95% hit coverage, and > 95% query coverage). Each cluster may encompass one or more genes, and genes within the same cluster are considered to be multiple copies of the same gene. Consequently, potential hits across the cluster are not considered as off-target. For example, Table S1 provides a list of all clusters of multi-copy coding genes in  E. coli  MG1655. Candidate sgRNAs are identified using regular expressions, targeting two categories of guides: N20NGG and N20NAG (N = A, T, C or G), corresponding to canonical and non-canonical PAM sequences [ 9 ]. These candidate sgRNAs are categorized into three groups: (i) sgRNAs with an NGG PAM targeting the non-template strand; (ii) sgRNAs with an NGG PAM targeting the template strand; and (iii) sgRNAs with an NAG PAM. Three FASTA files (FASTA1, FASTA2, and FASTA3) are generated, corresponding to group (i), (ii), and (iii), respectively. These files contain the PAM-proximal 12-bp regions (seed regions) of all candidate sgRNAs, as these regions are pivotal for binding [ 14 ]. An illustrative example is presented in Fig. S1. Following this, candidate sgRNAs undergo a rigorous quality control process to eliminate those with potential off-target hits (see “Quality control and output” section in Results). Subsequently, only sgRNAs adhering to the user-specified upper and lower limits for GC content are retained. Finally, the designed library is presented to the user, as detailed in the “Visualization of results” section.
+L28: Design of negative control sgRNAs
+L29: Negative control sgRNAs are designed to have no specific targets across the genome, which can be used to assess the influence of external factors on cellular phenotype. GLiDe designs these sgRNAs by generating random N20 sequences and subsequently removing those with notable target sites. For both NGG and NAG PAMs, a penalty score of 25 is applied, and the GC content limits match those of the sgRNA library. Additionally, GLiDe ensures that there are no five or more consecutive identical bases in these negative control sgRNAs.
+L30: Visualization of results
+L31: GLiDe provides the final sgRNA library in a table, with each sgRNA linked to its target gene. The sgRNAs closer to the start codon are listed first because those targeting near the transcription start site (TSS) are more likely to have higher knock-down activity [ 9 ]. Although a recent study showed some genes exhibit a different trend in the relationship between repression rate and distance to the TSS, guides near the TSS still show high efficiency [ 32 ]. In addition to the table, GLiDe also generates an interactive graphical interface using D3GB [ 33 ]. This interface provides users with a comprehensive overview of the entire genome and the designed sgRNA library.
+L32: DNA manipulation and reagents
+L33: Plasmid extraction and DNA purification procedures were carried out employing kits provided by Vazyme. PCR reactions were performed utilizing KOD One™ PCR Master Mix from TOYBO Life Science. The PCR primers were ordered from Azenta (Table S2). Plasmids were constructed by Gibson Assembly, with a mixture comprising 10 U/μL T5 exonuclease, 2 U/μL Phusion High-Fidelity DNA polymerase, and 40 U/μL Taq DNA ligase, all sourced from New England Biolabs. The antibiotic concentrations for kanamycin and ampicillin were maintained at 50 and 100 mg/L, respectively. All experiments were conducted in  Escherichia coli  MCm [ 10 ], a comprehensive list of all strains and plasmids utilized in this study can be found in Table S3.
+L34: Plasmid construction
+L35: The reporting system was established using two separate plasmids: one harbored dCas9, named pdCas9-J23111, was previously constructed as described in prior work [ 10 ]. The other plasmid was derived from pN20test-114mCherry-r0-m1 [ 27 ], which was responsible for the expression of sgRNA and  mcherry . In this particular plasmid, sgRNA expression was regulated by the J23119 promoter, while the N20 sequence was inserted upstream of the − 35 region of the J23114 promoter, controlling  mcherry  expression. A total of 21 distinct pN20test-114mCherry plasmids were constructed (Fig. S2). The plasmids were assembled using the Gibson Assembly method from PCR products (primers listed in Table S2), using the original pN20test-114mCherry-r0-m1 plasmid as the template. All constructed plasmids were confirmed through Sanger sequencing.
+L36: Cell cultivation
+L37: Strains were initially cultured overnight at 37 °C and 220 rpm in a 48-well deep-well plate, each contained 1 mL of LB medium with kanamycin and ampicillin. The grown cells were transferred to fresh LB medium with a 0.5% dilution and grown again under the same conditions as above for 10 h. This subculture process was repeated to ensure the stability of mCherry expression and avoid cell adhesion. In preparation for cytometry assays, cultures were next diluted in fresh LB medium with antibiotics to OD600 = 0.02 and then grown for 4 h to the logarithmic phase. After cultivation, 5 μL of culture medium from each well was diluted into 200 μL of phosphate-buffered saline. Three independent biological replicates were prepared for each strain.
+L38: Flow cytometry assay and data processing
+L39: The flow cytometry assay was performed on an LSRFortessa flow cytometer (BD Biosciences) using a 96-well plate. Gating based on the FSC area and SSC area was carried out to exclude non-cell particles. To ensure accurate measurements, autofluorescence was quantified using the MCm/PdCas9-J23111 strain and subsequently subtracted during the data analysis process.
+L40: In the cytometry analysis, the fluorescence intensity distribution was log10-transformed and fitted to a two-component Gaussian mixture model [ 34 ] with parameters  \documentclass[12pt]{minimal}
+L41: 				\usepackage{amsmath}
+L42: 				\usepackage{wasysym} 
+L43: 				\usepackage{amsfonts} 
+L44: 				\usepackage{amssymb} 
+L45: 				\usepackage{amsbsy}
+L46: 				\usepackage{mathrsfs}
+L47: 				\usepackage{upgreek}
+L48: 				\setlength{\oddsidemargin}{-69pt}
+L49: 				\begin{document}$$(\lambda ,{\mu }_{1},{\mu }_{2},{\sigma }_{1},{\sigma }_{2})$$\end{document} ( λ , μ 1 , μ 2 , σ 1 , σ 2 )  through the expectation–maximization algorithm. Here,  \documentclass[12pt]{minimal}
+L50: 				\usepackage{amsmath}
+L51: 				\usepackage{wasysym} 
+L52: 				\usepackage{amsfonts} 
+L53: 				\usepackage{amssymb} 
+L54: 				\usepackage{amsbsy}
+L55: 				\usepackage{mathrsfs}
+L56: 				\usepackage{upgreek}
+L57: 				\setlength{\oddsidemargin}{-69pt}
+L58: 				\begin{document}$$\lambda$$\end{document} λ  and  \documentclass[12pt]{minimal}
+L59: 				\usepackage{amsmath}
+L60: 				\usepackage{wasysym} 
+L61: 				\usepackage{amsfonts} 
+L62: 				\usepackage{amssymb} 
+L63: 				\usepackage{amsbsy}
+L64: 				\usepackage{mathrsfs}
+L65: 				\usepackage{upgreek}
+L66: 				\setlength{\oddsidemargin}{-69pt}
+L67: 				\begin{document}$$1-\lambda$$\end{document} 1 - λ  represent the mixing coefficients of the two Gaussian components,  \documentclass[12pt]{minimal}
+L68: 				\usepackage{amsmath}
+L69: 				\usepackage{wasysym} 
+L70: 				\usepackage{amsfonts} 
+L71: 				\usepackage{amssymb} 
+L72: 				\usepackage{amsbsy}
+L73: 				\usepackage{mathrsfs}
+L74: 				\usepackage{upgreek}
+L75: 				\setlength{\oddsidemargin}{-69pt}
+L76: 				\begin{document}$${\mu }_{1}$$\end{document} μ 1 ,  \documentclass[12pt]{minimal}
+L77: 				\usepackage{amsmath}
+L78: 				\usepackage{wasysym} 
+L79: 				\usepackage{amsfonts} 
+L80: 				\usepackage{amssymb} 
+L81: 				\usepackage{amsbsy}
+L82: 				\usepackage{mathrsfs}
+L83: 				\usepackage{upgreek}
+L84: 				\setlength{\oddsidemargin}{-69pt}
+L85: 				\begin{document}$${\mu }_{2}$$\end{document} μ 2 ,  \documentclass[12pt]{minimal}
+L86: 				\usepackage{amsmath}
+L87: 				\usepackage{wasysym} 
+L88: 				\usepackage{amsfonts} 
+L89: 				\usepackage{amssymb} 
+L90: 				\usepackage{amsbsy}
+L91: 				\usepackage{mathrsfs}
+L92: 				\usepackage{upgreek}
+L93: 				\setlength{\oddsidemargin}{-69pt}
+L94: 				\begin{document}$${\sigma }_{1}$$\end{document} σ 1  and  \documentclass[12pt]{minimal}
+L95: 				\usepackage{amsmath}
+L96: 				\usepackage{wasysym} 
+L97: 				\usepackage{amsfonts} 
+L98: 				\usepackage{amssymb} 
+L99: 				\usepackage{amsbsy}
+L100: 				\usepackage{mathrsfs}
+L101: 				\usepackage{upgreek}
+L102: 				\setlength{\oddsidemargin}{-69pt}
+L103: 				\begin{document}$${\sigma }_{2}$$\end{document} σ 2  represent the mean and standard deviation of the first and second Gaussian component, respectively (Eq.  1 ). 1 \documentclass[12pt]{minimal}
+L104: 				\usepackage{amsmath}
+L105: 				\usepackage{wasysym} 
+L106: 				\usepackage{amsfonts} 
+L107: 				\usepackage{amssymb} 
+L108: 				\usepackage{amsbsy}
+L109: 				\usepackage{mathrsfs}
+L110: 				\usepackage{upgreek}
+L111: 				\setlength{\oddsidemargin}{-69pt}
+L112: 				\begin{document}$$f\left( x \right) = \lambda N\left( {\mu_{1} ,\sigma_{1}^{2} } \right) + \left( {1 - \lambda } \right)N\left( {\mu_{2} ,\sigma_{2}^{2} } \right)$$\end{document} f x = λ N μ 1 , σ 1 2 + 1 - λ N μ 2 , σ 2 2
+L113: The mean expression strength was calculated with Eq.  2 . 2 \documentclass[12pt]{minimal}
+L114: 				\usepackage{amsmath}
+L115: 				\usepackage{wasysym} 
+L116: 				\usepackage{amsfonts} 
+L117: 				\usepackage{amssymb} 
+L118: 				\usepackage{amsbsy}
+L119: 				\usepackage{mathrsfs}
+L120: 				\usepackage{upgreek}
+L121: 				\setlength{\oddsidemargin}{-69pt}
+L122: 				\begin{document}$$Mean={Mean}_{1}\times {Mean}_{2}=\mathit{exp}\left({m}_{1}+{V}_{1}/2\right)\times \mathit{exp}\left({m}_{2}+{V}_{2}/2\right)$$\end{document} M e a n = Mean 1 × Mean 2 = exp m 1 + V 1 / 2 × exp m 2 + V 2 / 2 where  \documentclass[12pt]{minimal}
+L123: 				\usepackage{amsmath}
+L124: 				\usepackage{wasysym} 
+L125: 				\usepackage{amsfonts} 
+L126: 				\usepackage{amssymb} 
+L127: 				\usepackage{amsbsy}
+L128: 				\usepackage{mathrsfs}
+L129: 				\usepackage{upgreek}
+L130: 				\setlength{\oddsidemargin}{-69pt}
+L131: 				\begin{document}$${m}_{1}={\lambda }_{i}{\mu }_{1i}\mathit{log}\left(10\right)$$\end{document} m 1 = λ i μ 1 i log 10 ,  \documentclass[12pt]{minimal}
+L132: 				\usepackage{amsmath}
+L133: 				\usepackage{wasysym} 
+L134: 				\usepackage{amsfonts} 
+L135: 				\usepackage{amssymb} 
+L136: 				\usepackage{amsbsy}
+L137: 				\usepackage{mathrsfs}
+L138: 				\usepackage{upgreek}
+L139: 				\setlength{\oddsidemargin}{-69pt}
+L140: 				\begin{document}$${V}_{1}={\left({{\lambda }_{i}\sigma }_{1i}\mathit{log}\left(10\right)\right)}^{2}$$\end{document} V 1 = λ i σ 1 i log 10 2 ,  \documentclass[12pt]{minimal}
+L141: 				\usepackage{amsmath}
+L142: 				\usepackage{wasysym} 
+L143: 				\usepackage{amsfonts} 
+L144: 				\usepackage{amssymb} 
+L145: 				\usepackage{amsbsy}
+L146: 				\usepackage{mathrsfs}
+L147: 				\usepackage{upgreek}
+L148: 				\setlength{\oddsidemargin}{-69pt}
+L149: 				\begin{document}$${m}_{2}=\left({1-\lambda }_{i}\right){\mu }_{2i}\mathit{log}\left(10\right)$$\end{document} m 2 = 1 - λ i μ 2 i log 10  and  \documentclass[12pt]{minimal}
+L150: 				\usepackage{amsmath}
+L151: 				\usepackage{wasysym} 
+L152: 				\usepackage{amsfonts} 
+L153: 				\usepackage{amssymb} 
+L154: 				\usepackage{amsbsy}
+L155: 				\usepackage{mathrsfs}
+L156: 				\usepackage{upgreek}
+L157: 				\setlength{\oddsidemargin}{-69pt}
+L158: 				\begin{document}$${V}_{2}={\left({\left(1-{\lambda }_{i}\right)\sigma }_{2i}\mathit{log}\left(10\right)\right)}^{2}$$\end{document} V 2 = 1 - λ i σ 2 i log 10 2 .
+L159: The repression rate of each group was calculated using Eq.  3 . 3 \documentclass[12pt]{minimal}
+L160: 				\usepackage{amsmath}
+L161: 				\usepackage{wasysym} 
+L162: 				\usepackage{amsfonts} 
+L163: 				\usepackage{amssymb} 
+L164: 				\usepackage{amsbsy}
+L165: 				\usepackage{mathrsfs}
+L166: 				\usepackage{upgreek}
+L167: 				\setlength{\oddsidemargin}{-69pt}
+L168: 				\begin{document}$$repression\, rate=1-\frac{{Mean}_{Ri}-{Mean}_{Ri-PC}}{{Mean}_{Ri-NC}-{Mean}_{Ri-PC}}$$\end{document} r e p r e s s i o n r a t e = 1 - Mean Ri - Mean R i - P C Mean R i - N C - Mean R i - P C where  i  = 1–4.
+L169: Results
+L170: Implementation of the GLiDe web tool
+L171: Fig. 1 Work flow and results of a GLiDe query.  A  The main design process starts when a “start calculation” request is received, and the website automatically redirects to the progress page that displays the real-time progress of the calculation. After the calculation is complete, GLiDe redirects again to the results page. Users are free to download the result tables and view the sgRNA library on the interactive page.  B  The designed sgRNA library is grouped by its targeted gene.  C  The list of sgRNAs which are excluded from quality control, along with their off-target hits and penalty scores
+L172: We have developed GLiDe, a web-based tool for genome-scale CRISPRi sgRNA library design in prokaryotes, which is available at  https://www.thu-big.net/sgRNA_design/ . It employs a powerful algorithm for identifying off-target hits and outputs the results on an interactive page (Fig.  1 A). This result can also be easily downloaded from the website in tabular format (Fig.  1 B). Fig. 1 Work flow and results of a GLiDe query.  A  The main design process starts when a “start calculation” request is received, and the website automatically redirects to the progress page that displays the real-time progress of the calculation. After the calculation is complete, GLiDe redirects again to the results page. Users are free to download the result tables and view the sgRNA library on the interactive page.  B  The designed sgRNA library is grouped by its targeted gene.  C  The list of sgRNAs which are excluded from quality control, along with their off-target hits and penalty scores
+L173: Input and configuration
+L174: GLiDe includes an extensive built-in database harboring over 1,397 prokaryotic organisms and allows users to upload their reference files (see Methods). To optimize sgRNA design, five essential parameters are required: (i) design target, which can be either coding sequence (CDS) or RNA coding genes (RNA); (ii) off-target threshold, which is the penalty score used in the sgRNA quality control, with a default value of 20. Based on our experience, a recommended range for designing genome-scale libraries is 16–21; (iii) GC limits, which represent the upper and lower boundaries for the GC content of each sgRNA, with default limits of 30% and 85%. sgRNAs with very high or very low GC content are reported to be less active [ 35 ]; (iv) spacer length, which defines the length of the sgRNA being designed, with a default value of 20; and (v) target strand, which can be either template or non-template, referring to the strand that the sgRNAs target. It’s important to note that, although for common CRISPRi systems, the non-template strand is the preferred choice to ensure effective gene silencing [ 9 ], we offer the alternative option for other applications, such as genome editing, base editing [ 36 ,  37 ], or dynamic imaging [ 38 ], where there may be less strand preference.
+L175: GLiDe can also design library for multi-contig sequences, such as strains containing plasmids. For the second and subsequent contigs, the sequence file is necessary, while the annotation file is optional. This feature is designed for contigs where there is no need for sgRNA design, but the prevention of sgRNAs targeting these specific contigs is desired, like plasmid vectors used in experiments. If users choose to upload the annotation file for these additional contigs, GLiDe will design sgRNAs accordingly.
+L176: Quality control and output
+L177: Fig. 2 Functional Functional blocks of GLiDe.  A  The GLiDe flowchart encompasses the processing of the FASTA file and the annotation file through multiple modules. These modules conduct candidate sgRNA searches, quality control (identifying off-target hits and selecting GC content), and ultimately present the results.  B  The off-target hits identification module generates three FASTA files containing 12 bp PAM-proximal sequences of sgRNA candidates. Alignments are performed among these three files to identify potential off-target hits
+L178: Upon configuration, a server request is initiated to commence the workflow (Fig.  2 A). The core process is the off-target hit identification process, which relies on the strand invasion model grounded in the natural binding process [ 39 – 41 ] and previous experimental findings [ 8 ,  42 ]. The fundamental concept involves identifying sequences that are less likely to result in off-target hits, with a focus on those exhibiting fewer mismatches in the PAM-proximal region compared to the target sequence. This process involves three alignments according to the user defined target strand (template or non-template) using SeqMap [ 43 ]. For instance, if the non-template strand is selected, FASTA1 would be aligned with FASTA1, FASTA2, and FASTA3. We implement two general rules to evaluate the impact of each off-target hit (Fig.  2 B). Fig. 2 Functional Functional blocks of GLiDe.  A  The GLiDe flowchart encompasses the processing of the FASTA file and the annotation file through multiple modules. These modules conduct candidate sgRNA searches, quality control (identifying off-target hits and selecting GC content), and ultimately present the results.  B  The off-target hits identification module generates three FASTA files containing 12 bp PAM-proximal sequences of sgRNA candidates. Alignments are performed among these three files to identify potential off-target hits
+L179: One is seed region rule, where the seed region refers to the PAM-proximal 7–12 bp region. Mismatches within the seed region exert a notable impact on the binding affinity [ 14 ,  44 ]. Our previous study revealed that two mismatches in the seed region substantially weaken binding affinity [ 27 ]. Despite its effectiveness, this principle has not been integrated into existing tools. Consequently, in our design, off-target binding is not deemed to occur when there are more than two mismatches within the 12 bp PAM-proximal region.
+L180: The second rule is the penalty scoring rule, which considers the influence of mismatches based on their distance to the PAM, considering that mismatches are generally better tolerated at the 5’ end of the sgRNA than at the 3’ end [ 18 ]. The sgRNA regions are categorized from the 3’ end to the 5’ end as region I (7 nt), region II (5 nt), and region III (the remaining sgRNA sequence). This division is informed by the experimental findings [ 15 ,  24 ,  35 ]. The mismatch penalties for region I, II, and III are 8, 4.5, and 2.5 (for NGG PAM), and 10, 7, and 3 (for NAG PAM), respectively (Fig. S3). This principle has been used in previous studies [ 10 ,  45 ]. An off-target site is identified and relevant sgRNAs are eliminated from further processing when the penalty score, Σ (penalty × mismatch), falls below the user-defined threshold. For example, if the threshold is set at 21, an sgRNA identified to have potential off-target effects with two mismatches in Region I and one mismatch in Region II would have a penalty score of 4.5 + (8 × 2) = 20.5, which is less than 21. Consequently, this sgRNA would be removed from the library. An illustrated example of the quality control process is presented in Fig. S4.
+L181: The anticipated processing time for a standard genome-scale library design range from 5 to 20 min, varying based on the size of the genome. The result sgRNA library is thoughtfully presented in a tabular format, where sgRNAs are meticulously organized by their respective targeted genes and annotated with their corresponding start positions (see Methods). Additionally, an interactive page is generated using the D3GB genome browser [ 33 ], offering an intuitive visualization of the sgRNA library. This page accurately maps all genes and sgRNAs to their natural positions within the genome.
+L182: GLiDe is capable of designing CRISPRi sgRNA libraries
+L183: It is important to note that instead of CRISPR/Cas9 system that existing sgRNA design tools are focusing on, GLiDe is specially tailored for CRISPRi system. CRISPR/Cas9 system requires conformational gating process for formatting an R-loop structure before DNA cleavage [ 23 ], which requires sufficient base pairing between the sgRNA and the target DNA, reducing the likelihood of off-target cleavage. Consequently, sgRNAs without off-target cleavage may have potential off-target binding effects. GLiDe implements a more rigorous off-target selection principle, enabling the identification of these sgRNAs. To illustrate this capability, we compared sgRNA library of  Corynebacterium glutamicum  ATCC 13032 designed by GLiDe and sgRNA libraries generated by two widely used tools: CHOPCHOP [ 19 ] and Synthego ( https://design.synthego.com/ ). We discovered that some of the highly ranked sgRNAs intended for CRISPR/Cas9 systems were indeed identified as having the potential for off-target binding. Among these identified off-target sequences, we randomly chose four (R1–R4, Table  1 ) for further validation. Table 1 An example of four high rank sgRNAs designed by existing tools and their potential off-target hits identified by GLiDe No Design tool Rank Target gene sgRNA sequence Off-target gene Potential off-target hits discovered byGLiDe R1 chopchop 1 Cgl0025 T AA TTC GAA TGGTTCCACGG Cgl2364 T CC TTC CTC TGGTTCCACGG R2 chopchop 3 Cgl0044 GCACGAT GCCCACCACACCG Cgl1968 CGGATGG GCCCACCACACCG R3 Synthego 3 Cgl0005 TTCT G CGC ATGGCTTCGGCG Cgl0369 GCGC G GCG ATGGCTTCGGCG R4 Synthego 2 Cgl0059 GAG CT CAG ATCGCTCAACAT Cgl1680 TCT CT TGA ATCGCTCAACAT The bold italic letters are the mismatched bases
+L184: Fig. 3 Assessment of off-target binding affinities using flow cytometry assay.  A  The binding affinity of each mismatched sgRNA was compared with positive controls and negative controls. Fluorescence intensities of the three groups were measured by flow cytometry.  B  All sgRNAs from the EXP groups exhibited significant off-target binding affinities ( P  < 10-4for all groups, two tailed  t -test).  C  The fluorescence intensities of the blank control groups were similar, demonstrated that the effects of sgRNA expression on  mcherry  expression are negligible. Therefore, the fluorescence intensity variations among EXP, PC, and NC groups were originated from the differences in binding affinities of sgRNAs. In both ( B ) and ( C ), error bars represent the standard deviations of biological replicates ( n  = 3)
+L185: To quantitatively assay the off-target binding effects, we applied a reporter system to connect binding affinity with mCherry expression [ 27 ]. In this system, we inserted the GLiDe identified off-target hit (N20 sequence) upstream of the  mcherry  promoter. Upon binding of the dCas9-sgRNA complex to the N20 sequence, the expression of  mcherry  would be repressed, resulting in altered fluorescence intensity. For each sgRNA (EXP) and its potential off-target hit, two additional sgRNAs were designed as positive (PC) and negative control (NC). The PC was the reverse-complement of the N20 sequence and was used to represent full repression; meanwhile, the NC had no binding affinity with the N20 sequence and was used to represent the fluorescence intensity without repression (Fig.  3 A). Since sgRNAs may bind to the endogenous genome to impact fluorescence intensity, experiments were conducted in  Escherichia coli  MCm, and all sgRNAs were cross-referenced with the bacterial genome to ensure the absence of potential off-target hits. Moreover, a blank control N20 sequence (blank) was designed, which had no binding affinity to any sgRNA, to assess whether the sgRNAs themselves had any influence on mCherry fluorescence. The sgRNA and N20 sequences used in all experiment groups are listed in Table  2 . Fig. 3 Assessment of off-target binding affinities using flow cytometry assay.  A  The binding affinity of each mismatched sgRNA was compared with positive controls and negative controls. Fluorescence intensities of the three groups were measured by flow cytometry.  B  All sgRNAs from the EXP groups exhibited significant off-target binding affinities ( P  < 10-4for all groups, two tailed  t -test).  C  The fluorescence intensities of the blank control groups were similar, demonstrated that the effects of sgRNA expression on  mcherry  expression are negligible. Therefore, the fluorescence intensity variations among EXP, PC, and NC groups were originated from the differences in binding affinities of sgRNAs. In both ( B ) and ( C ), error bars represent the standard deviations of biological replicates ( n  = 3) Table 2 sgRNAs and N20 sequences of each test group Test group sgRNA sequence N20 sequence R1-NC TATTATCGGAGCCCGGACAT TCCTTCCTCTGGTTCCACGG R1-EXP TAATTCGAATGGTTCCACGG R1-PC TCCTTCCTCTGGTTCCACGG R2-NC TATTATCGGAGCCCGGACAT CGGATGGGCCCACCACACCG R2-EXP GCACGATGCCCACCACACCG R2-PC CGGATGGGCCCACCACACCG R3-NC TATTATCGGAGCCCGGACAT GCGCGGCGATGGCTTCGGCG R3-EXP TTCTGCGCATGGCTTCGGCG R3-PC GCGCGGCGATGGCTTCGGCG R4-NC TATTATCGGAGCCCGGACAT TCTCTTGAATCGCTCAACAT R4-EXP GAGCTCAGATCGCTCAACAT R4-PC TCTCTTGAATCGCTCAACAT NC-blank TATTATCGGAGCCCGGACAT CATGTATTATACACGAAGTT R1-blank TAATTCGAATGGTTCCACGG R1-PC-blank TCCTTCCTCTGGTTCCACGG R2-blank GCACGATGCCCACCACACCG R2-PC-blank CGGATGGGCCCACCACACCG R3-blank TTCTGCGCATGGCTTCGGCG R3-PC-blank GCGCGGCGATGGCTTCGGCG R4-blank GAGCTCAGATCGCTCAACAT R4-PC-blank TCTCTTGAATCGCTCAACAT
+L186: The results revealed that all four sgRNAs bound to the off-target hits identified by GLiDe, leading to reduced fluorescence intensity compared to the negative control groups (Fig.  3 B,  P  < 1.36 × 10 –5  for all groups, two-tailed  t -test; Fig. S5). The repression rates ranged from 51.12% (R2) to 90.70% (R4), with an average of 69.47% (see Methods). This rate is capable of causing unexpected outcomes and potentially result in false positives in the screening experiment [ 11 ]. The blank control groups exhibited similar mCherry fluorescence intensities (Fig.  3 C), indicating that the observed repressions were primarily attributed to off-target effects. These findings provide strong evidence that GLiDe excels in the design of CRISPRi sgRNA libraries.
+L187: Discussion
+L188: GLiDe presents several distinctive advantages. Firstly, it concentrates on designing genome-scale CRISPRi sgRNA libraries, a focus notably lacking in prior web-based platforms like CHOPCHOP [ 19 ] and synthego ( https://design.synthego.com/ ). Secondly, in contrast to existing scripts for bacterial CRISPRi sgRNA design [ 14 ,  46 ,  47 ], GLiDe provides a more convenient and flexible way for a wide range of user groups. As a web-based tool, the entire calculation process occurs online, eliminating the need for installation or local dependencies. Its compact, user-friendly interface simplifies the process, requiring researchers to set only a few parameters and optionally submit the sequence and annotation of the genome of interest. Finally, GLiDe’s quality control mechanism is built on a solid theoretical foundation. Two key design rules, the seed region rule (not yet considered by existing tools) and the penalty scoring rule, have been introduced based on extensive experimental evidence. This robust theoretical underpinning enhances the reliability of GLiDe, contributing to the accuracy and effectiveness of the tool. Our further experiments have demonstrated GLiDe’s superiority over existing tools when employed to design CRISPRi sgRNA libraries. Therefore, we believe GLiDe has extensive applicability in functional genomic studies such as essential genes study [ 48 ,  49 ], bioprocesses optimization in industrially relevant microorganisms [ 50 ,  51 ], or identification of complex genetic interactions [ 52 ].
+L189: The quality control methodology employed by GLiDe is based on the strand invasion model. During binding, mismatches in PAM-proximal region, particularly when there are two mismatches in seed region, could create a substantial energy barrier that cannot be adequately compensated. This barrier effectively impedes the strand invasion from the beginning, increasing the likelihood of dCas9 disengaging from the target. However, there is still potential limitation in the estimation of the impact of PAM-proximal mismatches. The current penalty scoring system primarily relies on experimental data, lacking a robust theoretical explanation. Furthermore, the current model assumes equal contributions from different mismatched nucleotide pairs, yet variations in stability exist among these mismatches [ 53 ]. Certain mismatches, such as rU/dG, rG/dT, and rG/dG, exhibit similar stabilities to Watson–Crick pairs [ 54 ]. One potential avenue for improvement is to incorporate thermodynamics. By treating the combination process as a Markov chain model, we can quantitatively calculate the thermodynamics of the sgRNA/DNA binding process based on fundamental thermodynamic parameters (nearest-neighbor parameters) [ 27 ]. We have further gathered nearest-neighbor parameters for the remaining 12 RNA/DNA single internal mismatches [ 55 ] and incorporated these data into the quantitative CRISPRi design tool we previously introduced ( https://www.thu-big.net/sgRNA_design/Quantitative_CRISPRi_Design/ ). Nevertheless, the current tool faces limitations in computing binding activities when mismatches are adjacent or located at the ends due to a lack of corresponding thermodynamic parameters. The challenge arises because adjacent mismatches are too numerous to be directly measured by experiments. Substantial work is still needed to complete the thermodynamic data for these scenarios.
+L190: It should be noted that GLiDe does not consider the on-target activity of sgRNAs, which has been proved to associate with sequence [ 56 ] and target location, including the distance from the TSS [ 9 ] and start codon [ 32 ]. Therefore, the designed library could include some less effective sgRNAs. However, this limitation is generally acceptable, as the major concern in CRISPRi screening experiments is off-target effects, which can lead to false positive results. Less effective sgRNAs can still achieve target gene knockdown, and the inclusion of multiple sgRNAs per gene helps reduce potential impact of less effective ones. Moreover, apart from the above-mentioned factors, the optimal window for active sgRNA positioning varies across different organisms [ 57 ,  58 ]. Currently, some models have been constructed based on machine learning [ 32 ,  56 ]. While these studies offer valuable proof-of-concept results, a unified model for predicting on-target guide efficiency in prokaryotes has not yet been established. Therefore, creating a comprehensive approach remains an important direction for future research. Overall, owing to the usability, solid basis, and high precision, we believe GLiDe can serve as a powerful tool that provides a wide range of novel research opportunities.
+L191: Conclusions
+L192: GLiDe is a web-based tool for genome-scale CRISPRi sgRNA library design for prokaryotic organisms. It has a powerful quality control principle based on large-scale empirical data to enhance the accuracy of identifying off-target hits. It also has a substantial database containing 1,397 common prokaryotes and supports sgRNA design for new organisms using uploaded reference files.
+L193: Availability and requirements
+L194: Project name: GLiDe. Project home page: https://www.thu-big.net/sgRNA_design/. Operating system(s): Platform independent. Programming language: Python. Other requirements: None. License: MIT. Any restrictions to use by non-academics: None.
+L195: Supplementary Information
+L196: Additional file1
+L197: Additional file1
+L198: 1. van Opijnen T, Bodi KL, Camilli A. Tn-seq: high-throughput parallel sequencing for fitness and genetic interaction studies in microorganisms. Nat Methods. 2009;6:767–72. 19767758
+L199: 2. Garst AD, Bassalo MC, Pines G, Lynch SA, Halweg-Edwards AL, Liu R, et al. Genome-wide mapping of mutations at single-nucleotide resolution for protein, metabolic and genome engineering. Nat Biotechnol. 2017;35:48–55. 27941803
+L200: 3. Freed EF, Winkler JD, Weiss SJ, Garst AD, Mutalik VK, Arkin AP, et al. Genome-wide tuning of protein expression levels to rapidly engineer microbial traits. ACS Synth Biol. 2015;4:1244–53. 26478262
+L201: 4. Feng H, Yuan Y, Yang Z, Xing X, Zhang C. Genome-wide genotype-phenotype associations in microbes. J Biosci Bioeng. 2021;132:1–8. 33895083
+L202: 5. Cong L, Ran FA, Cox D, Lin S, Barretto R, Habib N, et al. Multiplex genome engineering using CRISPR/Cas systems. Science. 2013;339:819–23. 23287718
+L203: 6. Mali P, Yang L, Esvelt KM, Aach J, Guell M, DiCarlo JE, et al. RNA-guided human genome engineering via Cas9. Science. 2013;339:823–6. 23287722
+L204: 7. Bikard D, Jiang W, Samai P, Hochschild A, Zhang F, Marraffini LA. Programmable repression and activation of bacterial gene expression using an engineered CRISPR-Cas system. Nucleic Acids Res. 2013;41:7429–37. 23761437
+L205: 8. Jinek M, Chylinski K, Fonfara I, Hauer M, Doudna JA, Charpentier E. A programmable dual-RNA–guided DNA endonuclease in adaptive bacterial immunity. Science. 2012;337:816–21. 22745249
+L206: 9. Qi LS, Larson MH, Gilbert LA, Doudna JA, Weissman JS, Arkin AP, et al. Repurposing CRISPR as an RNA-guided platform for sequence-specific control of gene expression. Cell. 2013;152:1173–83. 23452860
+L207: 10. Wang T, Guan C, Guo J, Liu B, Wu Y, Xie Z, et al. Pooled CRISPR interference screening enables genome-scale functional genomics study in bacteria with superior performance. Nat Commun. 2018;9:2475. 29946130
+L208: 11. Hawkins JS, Silvis MR, Koo BM, Peters JM, Osadnik H, Jost M, et al. Mismatch-CRISPRi reveals the co-varying expression-fitness relationships of essential genes in  Escherichia coli  and  Bacillus subtilis . Cell Syst. 2020;11:523-535.e9. 33080209
+L209: 12. Lian J, Schultz C, Cao M, HamediRad M, Zhao H. Multi-functional genome-wide CRISPR system for high throughput genotype–phenotype mapping. Nat Commun. 2019;10:1–10. 30602773
+L210: 13. Chen P, Michel AH, Zhang J. Transposon insertional mutagenesis of diverse yeast strains suggests coordinated gene essentiality polymorphisms. Nat Commun. 2022;13:1–15. 34983933
+L211: 14. de Bakker V, Liu X, Bravo AM, Veening JW. CRISPRi-seq for genome-wide fitness quantification in bacteria. Nat Protoc. 2022;17:252–81. 34997243
+L212: 15. Hsu PD, Scott DA, Weinstein JA, Ran FA, Konermann S, Agarwala V, et al. DNA targeting specificity of RNA-guided Cas9 nucleases. Nat Biotechnol. 2013;31:827–32. 23873081
+L213: 16. Shalem O, Sanjana NE, Zhang F. High-throughput functional genomics using CRISPR–Cas9. Nat Rev Genet. 2015;16:299–311. 25854182
+L214: 17. Heigwer F, Kerr G, Boutros M. E-CRISP: fast CRISPR target site identification. Nat Methods. 2014;11:122–3. 24481216
+L215: 18. Sander JD, Joung JK. CRISPR-Cas systems for editing, regulating and targeting genomes. Nat Biotechnol. 2014;32:347–55. 24584096
+L216: 19. Montague TG, Cruz JM, Gagnon JA, Church GM, Valen E. CHOPCHOP: a CRISPR/Cas9 and TALEN web tool for genome editing. Nucleic Acids Res. 2014;42:W401–7. 24861617
+L217: 20. Concordet J-P, Haeussler M. CRISPOR: intuitive guide selection for CRISPR/Cas9 genome editing experiments and screens. Nucleic Acids Res. 2018;46:W242–5. 29762716
+L218: 21. Bae S, Park J, Kim J-S. Cas-OFFinder: a fast and versatile algorithm that searches for potential off-target sites of Cas9 RNA-guided endonucleases. Bioinformatics. 2014;30:1473–5. 24463181
+L219: 22. Liu H, Wei Z, Dominguez A, Li Y, Wang X, Qi LS. CRISPR-ERA: a comprehensive design tool for CRISPR-mediated gene editing, repression and activation. Bioinformatics. 2015;31:3676–8. 26209430
+L220: 23. Sternberg SH, LaFrance B, Kaplan M, Doudna JA. Conformational control of DNA target cleavage by CRISPR–Cas9. Nature. 2015;527:110–3. 26524520
+L221: 24. Boyle EA, Andreasson JOL, Chircus LM, Sternberg SH, Wu MJ, Guegler CK, et al. High-throughput biochemical profiling reveals sequence determinants of dCas9 off-target binding and unbinding. In: Proceedings of the National Academy of Sciences. 2017;114:5461–6.
+L222: 25. Struhl K. Fundamentally different logic of gene regulation in eukaryotes and prokaryotes. Cell. 1999;98:1–4. 10412974
+L223: 26. Kuzminov A. The precarious prokaryotic chromosome. J Bacteriol. 2014;196:1793–806. 24633873
+L224: 27. Feng H, Guo J, Wang T, Zhang C, Xing X. Guide-target mismatch effects on dCas9–sgRNA binding activity in living bacterial cells. Nucleic Acids Res. 2021;49:1263–77. 33503261
+L225: 28. Li W, O’Neill KR, Haft DH, Dicuccio M, Chetvernin V, Badretdin A, et al. RefSeq: expanding the prokaryotic genome annotation pipeline reach with protein family model curation. Nucleic Acids Res. 2021;49:D1020–8. 33270901
+L226: 29. McTavish H, LaQuier F, Arciero D, Logan M, Mundfrom G, Fuchs JA, et al. Multiple copies of genes coding for electron transport proteins in the bacterium Nitrosomonas europaea. J Bacteriol. 1993;175:2445–7. 8385668
+L227: 30. Schrider DR, Hahn MW. Gene copy-number polymorphism in nature. In: Proceedings of the Royal Society B: Biological Sciences. 2010;277:3213–21.
+L228: 31. Johnson M, Zaretskaya I, Raytselis Y, Merezhuk Y, McGinnis S, Madden TL. NCBI BLAST: a better web interface. Nucleic Acids Res. 2008;36:W5-9. 18440982
+L229: 32. Yu Y, Gawlitt S, de Andrade Sousa LB, Merdivan E, Piraud M, Beisel CL, et al. Improved prediction of bacterial CRISPRi guide efficiency from depletion screens through mixed-effect machine learning and data integration. Genome Biol. 2024;25:13. 38200565
+L230: 33. Barrios D, Prieto C. D3GB: an interactive genome browser for R, python, and WordPress. J Comput Biol. 2017;24:447–9. 28437135
+L231: 34. Feng H, Li F, Wang T, Xing X, Zeng A, Zhang C. Deep-learning–assisted sort-seq enables high-throughput profiling of gene expression characteristics with high precision. Sci Adv. 2023. 10.1126/sciadv.adg5296. 38064556
+L232: 35. Gilbert LA, Horlbeck MA, Adamson B, Villalta JE, Chen Y, Whitehead EH, et al. Genome-scale CRISPR-mediated control of gene repression and activation. Cell. 2014;159:647–61. 25307932
+L233: 36. Gaudelli NM, Komor AC, Rees HA, Packer MS, Badran AH, Bryson DI, et al. Programmable base editing of A•T to G•C in genomic DNA without DNA cleavage. Nature. 2017;551:464–71. 29160308
+L234: 37. Komor AC, Kim YB, Packer MS, Zuris JA, Liu DR. Programmable editing of a target base in genomic DNA without double-stranded DNA cleavage. Nature. 2016;533:420–4. 27096365
+L235: 38. Chen B, Gilbert LA, Cimini BA, Schnitzbauer J, Zhang W, Li GW, et al. Dynamic imaging of genomic loci in living human cells by an optimized CRISPR/Cas system. Cell. 2013;155:1479–91. 24360272
+L236: 39. Szczelkun MD, Tikhomirova MS, Sinkunas T, Gasiunas G, Karvelis T, Pschera P, et al. Direct observation of R-loop formation by single RNA-guided Cas9 and Cascade effector complexes. In: Proceedings National Academy Science U S A. 2014;111:9798–803.
+L237: 40. Nishimasu H, Ran FA, Hsu PD, Konermann S, Shehata SI, Dohmae N, et al. Crystal structure of Cas9 in complex with guide RNA and target DNA. Cell. 2014;156:935–49. 24529477
+L238: 41. Cofsky JC, Soczek KM, Knott GJ, Nogales E, Doudna JA. CRISPR–Cas9 bends and twists DNA to read its sequence. Nat Struct Mol Biol. 2022;29:395–402. 35422516
+L239: 42. Jones SK, Hawkins JA, Johnson NV, Jung C, Hu K, Rybarski JR, et al. Massively parallel kinetic profiling of natural and engineered CRISPR nucleases. Nat Biotechnol. 2020;39:84–93. 32895548
+L240: 43. Jiang H, Wong WH. SeqMap: mapping massive amount of oligonucleotides to the genome. Bioinformatics. 2008;24:2395–6. 18697769
+L241: 44. Semenova E, Jore MM, Datsenko KA, Semenova A, Westra ER, Wanner B, et al. Interference by clustered regularly interspaced short palindromic repeat (CRISPR) RNA is governed by a seed sequence. In: Proceedings National Academy Science U S A. 2011;108:10098–103.
+L242: 45. Yu X, Li S, Feng H, Liao X, Xing XH, Bai Z, et al. CRISPRi-microfluidics screening enables genome-scale target identification for high-titer protein production and secretion. Metab Eng. 2023;75:192–204. 36572334
+L243: 46. Liu X, Kimmey JM, Matarazzo L, de Bakker V, Van Maele L, Sirard JC, et al. Exploration of bacterial Bottlenecks and  Streptococcus pneumoniae  pathogenesis by CRISPRi-Seq. Cell Host Microb. 2021;29:107-120.e6.
+L244: 47. Banta AB, Ward RD, Tran JS, Bacon EE, Peters JM. Programmable gene knockdown in diverse bacteria using mobile-CRISPRi. Curr Protoc Microbiol. 2020;59:e130. 33332762
+L245: 48. Peters JM, Colavin A, Shi H, Czarny TL, Larson MH, Wong S, et al. A comprehensive, CRISPR-based functional analysis of essential genes in bacteria. Cell. 2016;165:1493–506. 27238023
+L246: 49. Rousset F, Cabezas-Caballero J, Piastra-Facon F, Fernández-Rodríguez J, Clermont O, Denamur E, et al. The impact of genetic diversity on gene essentiality within the  Escherichia coli  species. Nat Microbiol. 2021;6:301–12. 33462433
+L247: 50. Li S, Jendresen CB, Landberg J, Pedersen LE, Sonnenschein N, Jensen SI, et al. Genome-wide CRISPRi-based identification of targets for decoupling growth from production. ACS Synth Biol. 2020;9:1030–40. 32268068
+L248: 51. Donati S, Kuntz M, Pahl V, Farke N, Beuter D, Glatter T, et al. Multi-omics analysis of CRISPRi-knockdowns identifies mechanisms that buffer decreases of enzymes in  E. coli  metabolism. Cell Syst. 2021;12:56-67.e6. 33238135
+L249: 52. Jaffe M, Dziulko A, Smith JD, St. Onge RP, Levy SF, Sherlock G. Improved discovery of genetic interactions using CRISPRiSeq across multiple environments. Genome Res. 2019;29:668–81. 30782640
+L250: 53. Sugimoto N, Nakano S, Katoh M, Matsumura A, Nakamuta H, Ohmichi T, et al. Thermodynamic parameters to predict stability of RNA/DNA hybrid duplexes. Biochemistry. 1995;34:11211–6. 7545436
+L251: 54. Sugimoto N, Nakano M, Nakano S. Thermodynamics−structure relationship of single mismatches in RNA/DNA duplexes. Biochemistry. 2000;39:11270–81. 10985772
+L252: 55. Xiang T, Feng H, Xing X, Zhang C. Thermodynamic parameters contributions of single internal mismatches In RNA/DNA Hybrid Duplexes. bioRxiv. 2022;2022.11.25.517909.
+L253: 56. Calvo-Villamañán A, Ng JW, Planel R, Ménager H, Chen A, Cui L, et al. On-target activity predictions enable improved CRISPR–dCas9 screens in bacteria. Nucleic Acids Res. 2020;48:e64–e64. 32352514
+L254: 57. Guo J, Wang T, Guan C, Liu B, Luo C, Xie Z, et al. Improved sgRNA design in bacteria via genome-wide activity profiling. Nucleic Acids Res. 2018;46:7052–69. 29982721
+L255: 58. Smith JD, Suresh S, Schlecht U, Wu M, Wagih O, Peltz G, et al. Quantitative CRISPR interference screens in yeast identify chemical-genetic interactions and new rules for guide RNA design. Genome Biol. 2016;17:1–16. 26753840
+L256: Acknowledgements
+L257: We thank the support of the National Key R&D Program of China [2023YFC3402300 to CZ], the National Natural Science Foundation of China [21938004 to XX], and the National Natural Science Foundation of China [U2032210 to CZ]. We also thank Dr. T. Wang (Tsinghua University) for building the original demo of the sgRNA design tool. We thank members from the C. Zhang and H. Xing laboratories for critical discussions of this work.
+L258: **Figure S1.** A toy example to illustrate the identification and classification of candidate sgRNAs. sgRNAs are searched by regular
+L259: expressions and classified into three groups based on the PAM and targeted strands. The start position and PAM-proximal 12-bp of
+L260: each sgRNA are saved in three separate FASTA files.
+L261: **Figure S2.** Workflow of the plasmid construction. The sgRNA and N20 sequences were introduced via Gibson assembly.
+L262: **Figure S3.** Schematic diagram of the calculation of penalty scores
+L263: **Figure S4** An illustrated example of the quality control process. Two general rules, the seed region rule and the penalty scoring rule,
+L264: are applied to evaluate the impact of each off-target hit. If an sgRNA has more than two mismatches in the PAM-proximal 12 bp
+L265: region (seed region), off-target binding is not considered to occur. Otherwise, the penalty scoring rule is applied to inspect the
+L266: sgRNA. An sgRNA is removed from the library if the Σ (penalty × mismatch) is below the threshold.
+L267: **Figure S5** Fluorescence intensity distributions of EXP (blue), NC (red) and PC groups (green). Three independent biological
+L268: replicates were conducted for **(A-C)** R1, **(D-F)** R2, **(G-I)** R3, and **(J-L)** R4.
+L269: **Table S1:** Clusters of all multi-copy coding genes of _E. coli_ MG1655 identified by GLiDe
+L270: Gene
+L271: name
+L272: Copy
+L273: number
+L274: _insL_ 3
+L275: _insB_ 7
+L276: _insA_ 7
+L277: _insI_ 3
+L278: _insH_ 11
+L279: _insE_ 5
+L280: _insF_ 5
+L281: _insC_ 6
+L282: _insD_ 6
+L283: _rzpD, rzoR_ 2
+L284: _ylcI, ynfO_ 2
+L285: _nohD, nohA_ 2
+L286: _rhsC, rhsB, rhsA_ 3
+L287: _ybfD, ydcC, yhhI_ 3
+L288: _ldrA, ldrB, ldrC_ 3
+L289: _tpr, ychS_ 2
+L290: _tfaR, tfaQ_ 2
+L291: _pinR, pinQ_ 2
+L292: _ynaE, ydfK_ 2
+L293: _ynaM, ynfT_ 2
+L294: _hokB, mokB_ 2
+L295: _gadB, gadA_ 2
+L296: _yqgG, yqgC_ 2
+L297: _tufA, tufB_ 2
+L298: _yriA, yriB_ 2
+L299: _cyaY, yzcX_ 2
+L300: **Table S2:** PCR Primers used in this study
+L301: Name Sequence
+L302: R1_F CCGTGGAACCATTCGAATTAACTAGTATTATACCTAGGACTGAGC
+L303: R1_R CTAGTTAATTCGAATGGTTCCACGGGTTTTAGAGCTAGAAATAGCAAGTT
+L304: N20_R1_F TCCTTCCTCTGGTTCCACGGCGGTTTATGGCTAGCTCAGTCCTAG
+L305: N20_R1_R AACCGCCGTGGAACCAGAGGAAGGAGTTGGATGTACTGCGGCTCCGTCTA
+L306: R1_PC_F CCGTGGAACCAGAGGAAGGAACTAGTATTATACCTAGGACTGAGC
+L307: R1_PC_R CTAGTTCCTTCCTCTGGTTCCACGGGTTTTAGAGCTAGAAATAGCAAGTT
+L308: R2_F CGGTGTGGTGGGCATCGTGCACTAGTATTATACCTAGGACTGAGC
+L309: R2_R CTAGTGCACGATGCCCACCACACCGGTTTTAGAGCTAGAAATAGCAAGTT
+L310: N20_R2_F CGGATGGGCCCACCACACCGCGGTTTATGGCTAGCTCAGTCCTAG
+L311: N20_R2_R AACCGCGGTGTGGTGGGCCCATCCGGTTGGATGTACTGCGGCTCCGTCTA
+L312: R2_PC_F CGGTGTGGTGGGCCCATCCGACTAGTATTATACCTAGGACTGAGC
+L313: R2_PC_R CTAGTCGGATGGGCCCACCACACCGGTTTTAGAGCTAGAAATAGCAAGTT
+L314: R3_F CGCCGAAGCCATGCGCAGAAACTAGTATTATACCTAGGACTGAGC
+L315: R3_R CTAGTTTCTGCGCATGGCTTCGGCGGTTTTAGAGCTAGAAATAGCAAGTT
+L316: N20_R3_F GCGCGGCGATGGCTTCGGCGCGGTTTATGGCTAGCTCAGTCCTAG
+L317: N20_R3_R AACCGCGCCGAAGCCATCGCCGCGCGTTGGATGTACTGCGGCTCCGTCTA
+L318: R3_PC_F CGCCGAAGCCATCGCCGCGCACTAGTATTATACCTAGGACTGAGC
+L319: R3_PC_R CTAGTGCGCGGCGATGGCTTCGGCGGTTTTAGAGCTAGAAATAGCAAGTT
+L320: R4_F ATGTTGAGCGATCTGAGCTCACTAGTATTATACCTAGGACTGAGC
+L321: R4_R CTAGTGAGCTCAGATCGCTCAACATGTTTTAGAGCTAGAAATAGCAAGTT
+L322: N20_R4_F TCTCTTGAATCGCTCAACATCGGTTTATGGCTAGCTCAGTCCTAG
+L323: N20_R4_R AACCGATGTTGAGCGATTCAAGAGAGTTGGATGTACTGCGGCTCCGTCTA
+L324: R4_PC_F ATGTTGAGCGATTCAAGAGAACTAGTATTATACCTAGGACTGAGC
+L325: R4_PC_R CTAGTTCTCTTGAATCGCTCAACATGTTTTAGAGCTAGAAATAGCAAGTT
+L326: NC_F ATGTCCGGGCTCCGATAATAACTAGTATTATACCTAGGACTGAGC
+L327: NC_R CTAGTTATTATCGGAGCCCGGACATGTTTTAGAGCTAGAAATAGCAAGTT
+L328: N20_NC_F CCAACCATGTATTATACACGAAGTTCGGTTTATGGCTAGCTCAGTCCTAG
+L329: N20_NC_R AACTTCGTGTATAATACATGGTTGGATGTACTGCGGCTCCGTCTA
+L330: **Table S3:** Strains and plasmids used in this study
+L331: **Strains/plasmids** **Sequence** **Sources**
+L332: **Strains**
+L333: _E. coli_ K12 MG1655 Wild type ATCC 700936
+L334: Carries chloromycetin expression cassette
+L335: _E. coli_ MCm
+L336: **Plasmids**
+L337: integrated into _smf_ locus of _E. coli_ K12
+L338: MG1655
+L339: Ref (1)
+L340: pdCas9-J23111 Expresses dCas9, p15A, Km [R] Ref (2)
+L341: pN20test-J23114-MCherry-R1-EXP
+L342: pN20test-J23114-MCherry-R1-PC
+L343: pN20test-J23114-MCherry-R1-NC
+L344: pN20test-J23114-MCherry-R2-EXP
+L345: pN20test-J23114-MCherry-R2-PC
+L346: pN20test-J23114-MCherry-R2-NC
+L347: pN20test-J23114-MCherry-R3-EXP
+L348: pN20test-J23114-MCherry-R3-PC
+L349: pN20test-J23114-MCherry-R3-NC
+L350: pN20test-J23114-MCherry-R4-EXP
+L351: pN20test-J23114-MCherry-R4-PC
+L352: pN20test-J23114-MCherry-R4-NC
+L353: pN20test-J23114-MCherry-R1-EXP-blank
+L354: pN20test-J23114-MCherry-R1-PC-blank
+L355: pN20test-J23114-MCherry-R2-EXP-blank
+L356: pN20test-J23114-MCherry-R2-PC-blank
+L357: pN20test-J23114-MCherry-R3-EXP-blank
+L358: pN20test-J23114-MCherry-R3-PC-blank
+L359: pN20test-J23114-MCherry-R4-EXP-blank
+L360: pN20test-J23114-MCherry-R4-PC-blank
+L361: pN20test-J23114-MCherry-NC-blank
+L362: Express MCherry with different exp/NC/PC
+L363: sgRNA and N20 sequence, pMB1, Amp [R]
+L364: Express MCherry with negative control N20
+L365: sequence and different exp/NC/PC sgRNA,
+L366: pMB1, Amp [R]
+L367: This study
+L368: This study
+L369: **References**
+L370: 1. Wang,T., Guan,C., Guo,J., Liu,B., Wu,Y., Xie,Z., Zhang,C. and Xing,X.-H. (2018) Pooled CRISPR interference screening
+L371: enables genome-scale functional genomics study in bacteria with superior performance. _Nat Commun_, **9**, 2475.
+L372: 2. Feng,H., Guo,J., Wang,T., Zhang,C. and Xing,X. (2021) Guide-target mismatch effects on dCas9–sgRNA binding activity in
+L373: living bacterial cells. _Nucleic Acids Res_, **49**, 1263–1277.
+[23ms]

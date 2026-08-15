@@ -1,0 +1,32 @@
+{
+  "title": "Extended replicative lifespan of primary resting T cells by CRISPR/dCas9-based epigenetic modifiers and transcriptional activators",
+  "authors": [
+    "Siping Huang",
+    "Cia-Hin Lau",
+    "Chung Tin",
+    "Raymond H. W. Lam"
+  ],
+  "doi": "10.1007/s00018-024-05415-9",
+  "journal": "Cellular and Molecular Life Sciences (CMLS)",
+  "year": 2024,
+  "pub_date": "2024-09-17",
+  "paperclip_id": "PMC11408452",
+  "pmc_id": "PMC11408452",
+  "pmid": "39287670",
+  "source": "pmc",
+  "article_type": "research-article",
+  "url": "https://doi.org/10.1007/s00018-024-05415-9",
+  "pmc_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11408452/",
+  "paperclip_url": "https://paperclip.gxl.ai/citations/papers/PMC11408452",
+  "keywords": [
+    "CRISPRa",
+    "Epigenome editing",
+    "Immortalization",
+    "Lifespan extension",
+    "Longevity",
+    "Replicative senescence"
+  ],
+  "abstract": "Extension of the replicative lifespan of primary cells can be achieved by activating human telomerase reverse transcriptase (hTERT) to maintain sufficient telomere lengths. In this work, we utilize CRISPR/dCas9-based epigenetic modifiers (p300 histone acetyltransferase and TET1 DNA demethylase) and transcriptional activators (VPH and VPR) to reactivate the endogenous TERT gene in unstimulated T cells in the peripheral blood mononuclear cells (PBMCs) by rewiring the epigenetic marks of the TERT promoter. Importantly, we have successfully expanded resting T cells and delayed their cellular senescence for at least three months through TERT reactivation, without affecting the expression of a T-cell marker (CD3) or inducing an accelerated cell division rate. We have also demonstrated the effectiveness of these CRISPR tools in HEK293FT and THP-1-derived macrophages. TERT reactivation and replicative senescence delay were achieved without inducing malignancy transformation, as shown in various cellular senescence assays, cell cycle state, proliferation rate, cell viability, and karyotype analyses. Our chromatin immunoprecipitation (ChIP)-qPCR data together with TERT mRNA and protein expression analyses confirmed the specificity of CRISPR-based transcription activators in modulating epigenetic marks of the TERT promoter, and induced telomerase expression. Therefore, the strategy of cell immortalization described here can be potentially adopted and generalized to delay cell death or even immortalize any other cell types.",
+  "retrieved": "2026-08-15",
+  "fulltext_status": "full body text (Title, Abstract, Keywords, Introduction, all Results subsections + figure captions, Discussion, all Materials and methods subsections). Paperclip's content.lines slab for this ID returned 'Slab service unavailable', so the body was reassembled from /papers/PMC11408452/sections/*.lines with original L-line numbers preserved. Bibliography (L94-L140) and front-matter metadata lines (L2-L6, L8) are not included in fulltext.txt."
+}

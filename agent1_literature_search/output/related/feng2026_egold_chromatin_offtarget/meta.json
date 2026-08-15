@@ -1,0 +1,27 @@
+{
+  "title": "Decoding the role of chromatin context in the off-target effects of CRISPR gene editing with EGOLD",
+  "authors": [
+    "Hu Feng",
+    "Jitan Zheng",
+    "Nana Li",
+    "Long Xie",
+    "Erwei Zuo"
+  ],
+  "doi": "10.1038/s41421-026-00889-2",
+  "pmid": "42129132",
+  "pmc_id": "PMC13172344",
+  "journal": "Cell Discovery",
+  "year": 2026,
+  "pub_date": "2026-05-13",
+  "article_type": "Article",
+  "paperclip_id": "PMC13172344",
+  "source": "pmc",
+  "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13172344/",
+  "abstract": "Despite the power of CRISPR in genome editing, its clinical application is limited by off-target effects; these effects are currently difficult to evaluate at the genome level but are likely to involve chromatin context. Here, we developed the Endogenous Genome-wide Off-target Library Detection (EGOLD) method for high-throughput detection of off-target effects and identification of chromatin context bias in gene editor evaluation. Applying EGOLD to define the off-target characteristics of 17 base-editing tools revealed 2,145,592 total off-targets, with 1236-618,774 events detected per tool. The frequency of off-targets of CRISPR/Cas9 and derivative base editors ranged from 40% to 80% and were strongly influenced by the chromatin context. Using a large-scale endogenous off-target dataset with strict target site conditions to exclude the influence of sequence context, we found that off-target effects occurred in open chromatin genomic regions at a significantly greater frequency than in closed chromatin regions. The incorporation of EGOLD-Seq off-target chromatin context data to train machine learning-based models of gene editor activity substantially improved off-target prediction accuracy. These findings and the accompanying toolkit can guide mechanistic research and the development of safe and precise CRISPR-based tools.",
+  "content_type": "excerpt",
+  "content_lines": 35,
+  "excerpt_note": "content.lines unavailable from Paperclip (slab service error); assembled from per-section files. Section 'An open chromatin state promotes the off-target activity of CRISPR/Cas9-derived nucleases' (paper lines L13-L16) could not be retrieved due to a Paperclip path-parsing bug on the '/' in the section title; its findings are summarized in the Discussion, which is included.",
+  "code_url": "https://github.com/offtargetor/EGOLD",
+  "relevance": "Provides the specificity-side counterpart to chromatin-aware guide design: with sequence held constant, off-target editing is significantly MORE frequent in open chromatin, DNA methylation and H3K9me3 suppress it, and the chromatin dependence grows with mismatch count - meaning an accessibility term should raise both the efficiency and the off-target-risk estimate for a guide.",
+  "fetched_date": "2026-08-15"
+}
