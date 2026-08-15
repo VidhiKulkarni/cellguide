@@ -1,27 +1,56 @@
-# Agent 8 — Benchling sync (stub)
+# Agent 8 — Benchling sync
 
-**Not runnable yet** — no Benchling account/API key was available when this was scaffolded.
-`client.py`'s two methods (`fetch_new_results`, `push_ranking_update`) raise
-`NotImplementedError` with exactly what each needs.
+Closes the pipeline loop. Pulls guide experiment results out of the Benchling tenant,
+feeds each into [Agent 6](../agent6_next_experiment/)'s `record` (which logs it and
+re-ranks), then pushes the fresh ranking and confidence back so the lab notebook reflects
+current state.
 
-## To complete this
+```
+Benchling AIFG -> Agent 6 record -> re-ranked recommendations -> Benchling AIFG
+```
 
-1. Get a Benchling API key (Settings → Developer Console → API keys) and your tenant
-   subdomain.
-2. Decide which Benchling schema (custom entity or result type) holds guide experiment
-   results in your workspace — gene, cell type, spacer, indel % — and pass its schema ID.
-3. Fill in the two `NotImplementedError` bodies in `client.py` using Benchling's REST API
-   (https://benchling.com/api/reference), following the request shapes already sketched in
-   the docstrings.
-4. Add `BENCHLING_API_KEY` to `../.env`.
+## Tenant specifics (re:AGENT hackathon)
 
-## Intended flow (once implemented)
+This deployment is not a standard Benchling install. Three things differ from the docs:
 
-`run.py` pulls new results from Benchling → feeds each into
-[Agent 6](../agent6_next_experiment/)'s `record` subcommand (updates the ranking) → pushes
-the new top ranking and [Agent 5](../agent5_confidence_assessment/)'s confidence back to
-Benchling.
+| | Standard Benchling | This tenant |
+|---|---|---|
+| Host | `<org>.benchling.com` | `hackathon26.bnchdev.org` |
+| Auth | Bearer API key | OAuth2 app: `client_id` + `client_secret` |
+| Location | wherever | project `Hackathon26`, folder `AIFG` |
+
+## Setup
+
+1. In the tenant: **Developer Console → Apps → Create**. Copy the `client_id` and
+   `client_secret` (the secret is shown once).
+2. Add the app to the `Hackathon26` project — a new app has no permissions and will see
+   an empty result set until you do.
+3. Fill in `../.env` (gitignored) from `../.env.example`:
+   ```
+   BENCHLING_TENANT_URL=https://hackathon26.bnchdev.org
+   BENCHLING_CLIENT_ID=...
+   BENCHLING_CLIENT_SECRET=...
+   BENCHLING_AIFG_FOLDER_ID=lib_...
+   BENCHLING_RESULTS_SCHEMA_ID=...   # optional; narrows the query to one entity schema
+   ```
+
+## Run
 
 ```bash
-uv run agent8_benchling_sync/run.py --tenant your-org --schema-id <id>
+uv run agent8_benchling_sync/run.py --dry-run   # show what would sync, write nothing
+uv run agent8_benchling_sync/run.py --no-push   # pull + re-rank only
+uv run agent8_benchling_sync/run.py             # full loop
 ```
+
+Start with `--dry-run`. It exercises auth, folder access, and field mapping without
+writing to either the experiment log or Benchling.
+
+## Field mapping
+
+`fetch_new_results()` expects custom entities with fields `gene`, `cell_type`, `spacer`,
+`indel_pct`. Entities whose `indel_pct` isn't numeric are skipped rather than guessed at.
+If your AIFG schema names these differently, adjust the `field(...)` calls in
+`client.py` — that is the one place the mapping lives.
+
+`push_ranking_update()` writes `combined_score` and `confidence` onto the matching entity,
+so those fields need to exist on the schema for the write-back to succeed.

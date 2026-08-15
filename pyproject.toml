@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
+    "benchling-sdk>=1.25.0",
     "claude-agent-sdk>=0.2.139",
     "cryptography==46.0.0",
     "matplotlib>=3.11.1",
