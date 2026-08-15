@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11213142",
+  "pmc_id": "PMC11213142",
+  "pmid": "38948878",
+  "doi": "10.1101/2024.06.18.599405",
+  "title": "CRISPRware: an efficient method for contextual gRNA library design",
+  "authors": "Eric Malekos, Christy Montano, Susan Carpenter",
+  "journal": "bioRxiv (preprint)",
+  "pub_year": 2024,
+  "pub_date": "2024-06-22",
+  "relevance_to_cellguide": "CRISPRware is a Python package for context-specific gRNA library design that leverages NGS data and accounts for genetic variation, enabling allele-specific guide design genome-wide across CRISPR modalities (KO/CRISPRi/CRISPRa), with built-in on-target and off-target scoring. Directly relevant to CLAUDE.md's 'guide sequence libraries' topic seed and to Agent 3's guide_scoring.py as a reference implementation for combining on-/off-target scoring with contextual (cell/genotype) constraints in a single library-design tool."
+}

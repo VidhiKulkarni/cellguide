@@ -153,7 +153,11 @@ def specificity(
     ozden2024_crispai_uncertainty/) or CrisprBERT (papers/related/sari2025_crisprbert/),
     both trained on the same primary-T-cell CHANGE-seq data Ito et al.'s cohort comes
     from, which is recommended here because Ito et al. report no off-target data of
-    their own. Falls back to CFD aggregation over an enumerated off-target site list."""
+    their own. Falls back to CFD aggregation over an enumerated off-target site list.
+
+    Deliberately ignores atac_signal: feng2026_egold_chromatin_offtarget found open
+    chromatin *raises* off-target editing at sequence-identical sites, so accessibility
+    must never be used to boost this term, only sequence_efficacy/accessibility_score."""
     if external_score is not None:
         return max(0.0, min(1.0, external_score))
     return cfd_specificity(offtargets or [])

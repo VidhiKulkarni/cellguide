@@ -1,0 +1,12 @@
+{
+  "document_id": "PMID39572737",
+  "pmc_id": null,
+  "pmid": "39572737",
+  "doi": "10.1038/s41587-024-02475-x",
+  "title": "Pooled CRISPR screens with joint single-nucleus chromatin accessibility and transcriptome profiling",
+  "authors": "Rachel E. Yan, Alba Corman, Lyla Katgara, Xiao Wang, Xinhe Xue, Zoran Z. Gajic, Richard Sam, Michael Farid, Samuel M. Friedman, Jungwook Choo, Ivan Raimondi, Shridar Ganesan, Eugene Katsevich, Jeffrey P. Greenfield, Nadia Dahmane, Neville E. Sanjana",
+  "journal": "Nature Biotechnology",
+  "pub_year": 2025,
+  "pub_date": "2025-10",
+  "relevance_to_cellguide": "MultiPerturb-seq jointly captures guide identity, single-nucleus chromatin accessibility, and the transcriptome from the same pooled CRISPR screen. This is the modality CellGuide's chromatin-aware efficiency term needs evidence from: it directly pairs each guide's perturbation outcome with the accessibility state of its own target locus at single-cell resolution, rather than inferring accessibility from a separate bulk ATAC-seq track. Also a candidate methodology for generating new cell-type-matched training data (T cells vs K562) beyond what Ito et al. 2024 already measured."
+}

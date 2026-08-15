@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11042384",
+  "pmc_id": "PMC11042384",
+  "pmid": "38659894",
+  "doi": "10.1101/2024.04.18.590188",
+  "title": "Machine learning methods for predicting guide RNA effects in CRISPR epigenome editing experiments",
+  "authors": "Wancen Mu, Tianyou Luo, Alejandro Barrera, Lexi R. Bounds, Tyler S. Klann, Maria ter Weele, Julien Bryois, Gregory E. Crawford, Patrick F. Sullivan, Charles A. Gersbach, Michael I. Love, Yun Li",
+  "journal": "bioRxiv (preprint)",
+  "pub_year": 2024,
+  "pub_date": "2024-04-19",
+  "relevance_to_cellguide": "launch-dCas9 is a CNN + XGBoost framework predicting guide RNA effects in CRISPR epigenome editing (CRISPRi/CRISPRa) across cell fitness, wild-type abundance, and expression change, trained on >1M gRNAs across >100,000 candidate cis-regulatory elements with demonstrated cross-cell-line generalization (AUC up to 0.81; top-ranked guides 4.6x more likely to show an effect). This is a directly comparable ML-based efficiency scoring approach for Agent 3's metric to benchmark against, and its cross-cell-line generalization analysis is a template for validating chromatin-aware transfer between cell types (T cell vs K562)."
+}

@@ -1,0 +1,5 @@
+# Machine learning methods for predicting guide RNA effects in CRISPR epigenome editing experiments
+
+Mu W. et al., *bioRxiv* preprint (2024). PMC11042384, DOI 10.1101/2024.04.18.590188
+
+CRISPR epigenomic editing enables functional study of non-coding regions, but existing computational methods struggle to predict guide RNA effectiveness across multiple impact measures at once. The authors present launch-dCas9, a machine learning framework combining convolutional neural networks and XGBoost to forecast guide RNA effects on cell fitness, wild-type abundance, and gene expression change in single cells. Tested on more than one million guide RNAs across the human genome targeting over 100,000 candidate cis-regulatory elements, the approach achieves prediction accuracy up to AUC 0.81 and generalizes across cell lines; top-ranked guides are 4.6-fold more likely to show an effect than alternatives targeting the same regulatory region. Feature analysis identifies the sequence positions and functional annotations most predictive of CRISPR epigenome-editing outcomes.

@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC10835965",
+  "pmc_id": "PMC10835965",
+  "pmid": "38308274",
+  "doi": "10.1186/s13059-024-03176-z",
+  "title": "Mapping the functional impact of non-coding regulatory elements in primary T cells through single-cell CRISPR screens",
+  "authors": "Celia Alda-Catalinas, Ximena Ibarra-Soria, Christina Flouri, Jorge Esparza Gordillo, Diana Cousminer, Anna Hutchinson, Bin Sun, William Pembroke, Sebastian Ullrich, Adam Krejci, Adrian Cortes, Alison Acevedo, Sunir Malla, Carl Fishwick, Gerard Drewes, Radu Rapiteanu",
+  "journal": "Genome Biology",
+  "pub_year": 2024,
+  "pub_date": "2024-02-02",
+  "relevance_to_cellguide": "'Primary T cell crisprQTL' is a CRISPRi single-cell functional screen (ZIM3-dCas9) tiling 45 non-coding regulatory elements and 35 TSSs across ~250,000 primary human CD4+ T-cell transcriptomes -- exactly CellGuide's target cell type and CRISPRi modality. It maps element-to-gene links using T-cell-specific open chromatin, giving an independent primary-T-cell CRISPRi efficacy dataset alongside Ito et al. 2024 that could be used to validate or extend the chromatin-aware efficiency term beyond the benchmark panel."
+}

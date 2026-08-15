@@ -180,7 +180,7 @@ def main() -> None:
         cross_context_check(results),
     ]
     report_path = OUTPUT_DIR / ("DEMO_REPORT.md" if args.demo else "REPORT.md")
-    report_path.write_text("\n".join(report) + "\n")
+    report_path.write_text("\n".join(report) + "\n", encoding="utf-8")
 
     print("\n".join(report))
     print(f"\nWrote {results_path}, {fig_path}, {report_path}")

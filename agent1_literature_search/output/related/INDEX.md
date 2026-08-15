@@ -11,6 +11,25 @@ Each folder contains `meta.json` plus one of `fulltext.txt` (complete body),
 
 ---
 
+## Pass 3 — Perturb-seq / CROP-seq + guide-library / epigenome-editing ML (no paperclip access)
+
+No `PAPERCLIP_API_KEY` was available for this pass, so papers were located via web search
+(PubMed/PMC/journal pages) instead of the paperclip MCP tool, and each was verified against
+its PMC/PubMed record before saving. 4 new slugs, all `abstract.md` only (no full-text
+fetch tool in this pass). Topic seeds covered: Perturb-seq, CROP-seq in primary T cells,
+guide sequence libraries, ML prediction of CRISPRi/CRISPRa guide effects — filling gaps the
+first two passes left in CLAUDE.md's topic-seed list. Checked against all 34 existing slugs
+above for duplicates before saving — none found.
+
+| Slug | Text | Why it's relevant |
+|---|---|---|
+| `yan2025_multiperturbseq_chromatin` | abstract | MultiPerturb-seq: joint single-nucleus chromatin accessibility + transcriptome + guide identity from the same pooled CRISPR screen — pairs each guide's outcome with its own target locus's accessibility state at single-cell resolution, the modality CellGuide's chromatin-aware efficiency term is built on. |
+| `alda2024_tcell_crisprqtl` | abstract | "Primary T cell crisprQTL": CRISPRi single-cell screen (ZIM3-dCas9) tiling 45 regulatory elements + 35 TSSs across ~250,000 primary human CD4+ T-cell transcriptomes — independent primary-T-cell CRISPRi dataset alongside Ito et al. 2024. |
+| `mu2024_launch_epigenome_ml` | abstract | launch-dCas9: CNN+XGBoost prediction of CRISPRi/CRISPRa guide effects (fitness, expression) over >1M gRNAs / >100k cis-regulatory elements, cross-cell-line generalization (AUC to 0.81) — directly comparable ML efficiency-scoring baseline for Agent 3. |
+| `malekos2024_crisprware_library` | abstract | CRISPRware: contextual gRNA library design tool (NGS-informed, allele-specific, on-/off-target scoring built in) across CRISPR modalities — reference implementation for CLAUDE.md's "guide sequence libraries" topic seed. |
+
+---
+
 ## New this pass — CRISPRi / CRISPRa + chromatin accessibility
 
 ### Tier 1 — directly on-topic (chromatin context changes guide efficacy/specificity)
