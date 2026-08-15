@@ -1,0 +1,13 @@
+{
+  "document_id": "PMC6753114",
+  "pmc_id": "PMC6753114",
+  "pmid": "31537810",
+  "doi": "10.1038/s41467-019-12281-8",
+  "title": "Optimized CRISPR guide RNA design for two high-fidelity Cas9 variants by deep learning",
+  "authors": "Daqi Wang, Chengdong Zhang, Bei Wang, Bin Li, Qiang Wang, Dong Liu, Hongyan Wang, Yan Zhou, Leming Shi, Feng Lan, Yongming Wang",
+  "journal": "Nature Communications",
+  "pub_year": 2019,
+  "pub_date": "2019-09-19",
+  "source": "pmc",
+  "cited_in_plan_as": "Wang D. et al. Optimized CRISPR guide RNA design for two high-fidelity Cas9 variants by deep learning (DeepHF). Nature Communications 10:4284 (2019)."
+}

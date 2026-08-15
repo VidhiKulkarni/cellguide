@@ -1,0 +1,2120 @@
+L1: Efficient homology-directed gene editing by CRISPR/Cas9 in human stem and primary cells using tube electroporation
+L2: Scientific Reports (2018)
+L3: Xiaoyun Xu, Dongbing Gao, Ping Wang, Jian Chen, Jinxue Ruan, Jie Xu, Xiaofeng Xia
+L4: 1 0000 0004 0445 0041 grid.63368.38 Chao Center for BRAIN, Department of Systems Medicine and Bioengineering,  Houston Methodist Research Institute,  Houston, Texas USA
+L5: 2 0000 0004 1936 8972 grid.25879.31 Department of Pathology and Laboratory Medicine,  University of Pennsylvania Perelman School of Medicine,  Philadelphia, Pennsylvania USA
+L6: 3 Celetrix Biotechnologies, Manassas, Virginia USA
+L7: 4 0000000086837370 grid.214458.e Center for Advanced Models and Translational Sciences and Therapeutics,  University of Michigan Medical School,  Ann Arbor, MI 48109-2800 USA
+L8: 5 000000041936877X grid.5386.8 Weill Cornell Medical College,  Cornell University, New York,  New York, USA
+L9: CRISPR/Cas9 efficiently generates gene knock-out via nonhomologous end joining (NHEJ), but the efficiency of precise homology-directed repair (HDR) is substantially lower, especially in the hard-to-transfect human stem cells and primary cells. Herein we report a tube electroporation method that can effectively transfect human stem cells and primary cells with minimal cytotoxicity. When applied to genome editing using CRISPR/Cas9 along with single stranded DNA oligonucleotide (ssODN) template in human induced pluripotent stem cells (iPSCs), up to 42.1% HDR rate was achieved, drastically higher than many reported before. We demonstrated that the high HDR efficiency can be utilized to increase the gene ablation rate in cells relevant to clinical applications, by knocking-out β2-microglobulin (B2M) in primary human mesenchymal stem cells (MSCs, 37.3% to 80.2%), and programmed death-1 (PD-1) in primary human T cells (42.6% to 58.6%). Given the generality and efficiency, we expect that the method will have immediate impacts in cell research as well as immuno- and transplantation therapies.
+L10: Article
+L11: Introduction
+L12: Programmable nuclease technologies have shown great power in disease modeling and gene therapy 1 . Among these technologies the clustered regularly interspaced short palindromic repeats (CRISPR)/CRISPR-associated protein 9 (Cas9) has now become the tool of choice thanks to its simplicity and versatility 2 , 3 . However, the efficiency of CRISPR/Cas9 remains to be improved in order to broaden applications and eventually translate to the clinic 4 . Firstly, although high levels of gene disruption can often be achieved via NHEJ in cell lines, the efficiencies in the more clinically relevant human stem cells and primary cells are usually substantially lower. For example, in human iPSCs the overall gene disruption rate using a single guide RNA (gRNA) is typically only between 1–25% without subsequent selection 5 – 7 . In primary human T cells the efficiencies have been reported to be 4- to 10-fold lower than HEK293T cells for the various gRNAs and transfection methods tested 8 , 9 . Secondly and more importantly, there is necessity to improve the efficiency of precise gene modification via HDR, which generally occurs at significantly lower rate than NHEJ and account for no more than one-third (usually much lower) of the total editing events 10 , 11 . At such efficiencies, subsequent selection or subcloning is required to isolate the edited cells for further studies 12 , which it is often unsuitable for clinical applications. Techniques for increasing the CRISPR/Cas9 gene editing efficiency in clinically relevant human stem cells and primary cells are highly desirable.
+L13: Successful delivery of sufficient amount of CRISPR/Cas9 elements into the target cells by transfection is a prerequisite for efficient gene editing. Transfection methods can be broadly classified into viral, chemical and physical. Among them electroporation is the most widely used physical method. First introduced in 1982 13 , 14 , electroporation is easy to perform and is generally applicable to a wide range of cell types. Not requiring additional viral or cytotoxic chemical components, electroporation also is uniquely advantageous in clinical applications. However, with the high electric field strength and ensued electrochemical reactions, electroporation often leads to high post-transfection mortality. Moreover, despite the optimization of electrical parameters and solution recipes 15 , 16 , its efficiency on many cell types especially primary human cells is still not sufficiently high, posing a major obstacle for its clinical applications. Here we report a tube electroporation method capable of delivering nucleic acids and proteins into a diverse array of cells, including the hard-to-transfect human stem and primary cells with a very high efficiency and a very low cytotoxicity. We also demonstrate successful genome editing using CRISPR/Cas9 elements delivered by the tube device. Surprisingly, our data indicated that upon efficient delivery of the CRISPR/Cas9 elements, HDR can take place at very high rate when it is done through a single ssODN template harboring a single base pair mutation in the protospacer adjacent motif (PAM) sequence. The tube electroporation technique and the high HDR rate phenomenon may find broad clinically significant applications.
+L14: Results
+L15: Electroporation Tube design
+L16: Figure 1 Design of the electroporation tube. ( A ) Illustration of a conventional cuvette is highly uneven in two regions. ( B ) Illustration of the electroporation tube. The tube design uses two small surface electrodes at the top and bottom. Upon closure excess liquid is pushed into the surrounding groove, creating perfectly flat top surface. This design eliminates the curved surface and minimizes the air bubble generating area, to achieve a highly homogeneous electric field within the tube. A picture of the tubes (upper: 120 μl; bottom: 20 μl) is shown on the right. The numbers shown on the ruler is by centimeter (cm).
+L17: Most current electroporation devices use cuvettes to deliver the electrical pulse to the cells (Fig.  1A ), which is associated with surface warping. We reasoned that such surface warping may cause uneven voltages across the buffer. To address this concern, we designed a novel pressured electroporation tube device (Fig.  1B ), with two small electrodes placed in the tube bottom and in the top cap. The tube is filled until a convex meniscus occurs. Upon closing the cap, the excess liquid is driven into the surrounding groove to generate a perfectly flat surface, therefore eliminating the surface warping effect. Figure 1 Design of the electroporation tube. ( A ) Illustration of a conventional cuvette is highly uneven in two regions. ( B ) Illustration of the electroporation tube. The tube design uses two small surface electrodes at the top and bottom. Upon closure excess liquid is pushed into the surrounding groove, creating perfectly flat top surface. This design eliminates the curved surface and minimizes the air bubble generating area, to achieve a highly homogeneous electric field within the tube. A picture of the tubes (upper: 120 μl; bottom: 20 μl) is shown on the right. The numbers shown on the ruler is by centimeter (cm).
+L18: DNA transfection with tube electroporation
+L19: Figure 2 DNA transfection using tube electroporation. ( A ) Different cell types were transfected with pCMV-GFP plasmid and the transfection efficiencies were measured by fluorescence microscopy and flow cytometry after 48 hours. From left to right are the cell bright field images, fluorescence images and flow cytometry dot plots in which the transfected cells are shown in red and mock transfected control cells were shown in black. The black and red dots were from different data sets that have been juxtaposed to show the gating. Scale bar, 20 µm. ( B ) Quantification of the transfection efficiency and cell survival rates. Results are shown as mean ± S.E.M. from at least three independent experiments. The efficiencies were calculated from the GFP flow cytometry analysis. The actual cell survival rates were listed on the top. The relative survival rates compared to the untransfected controls were given in parenthesis at the bottom. The survival rates for the untransfected control cells during regular passage were 95.3 ± 2.1%, 93.3 ± 0.7%, 93.4 ± 2.9%, 90.1 ± 3.6%, and 83.7 ± 4.4% for HEK293, mouse ESC, ReNCell VM, Jurkat and human iPSC cells.
+L20: We first tested the tube device for DNA transfection, by electroporating 30 nM pCMV-GFP vector into mammalian cells and measuring the rate of GFP expressing cells and cell viability. The results showed that high efficiencies were not only achieved for cell types that are prone to electroporation such as HEK293 cells (90.7%) and mouse embryonic stem cells (ESC, 85.2%), but also for cell types that are generally considered hard-to-transfect, such as human neural stem cells (ReNCell VM, 83.1%), Jurkat cells (75.5%) and human iPSC (74.0%) (Fig.  2A,B , a complete list of cell type tested is provided in Supplemental Table  1 ). High mortality is a major disadvantage of conventional cuvette-based electroporation compared to other transfection methods such as using lipids or cationic polymers 17 . We analyzed in Fig.  1A  and reasoned that the high voltage regions generated by surface warping and gas bubbles is a major contributor to cell mortality, which should be largely avoided in the pressured tube electroporation method. Indeed our result (Fig.  2B ) confirmed that for many cell types such as HEK293, mouse ESC and ReNCell VM cells, the mortality of the transfected cells were negligible. For other more vulnerable cell types such as Jurkat cells and human iPSC, very low cytotoxicity was detected with a survival rate more than 80% compared to the untransfected control cells (Jurkat transfected VS control = 73.2% VS 81.2%; human iPSC transfected VS control = 73.1% VS 87.3%). Both the efficiency and the survival rate clearly surpass those achieved by current widely-used electroporation instruments using the manufacturer suggested or published conditions (Supplemental Table  2 ) 18 . Besides, we also detected a higher protein expression level after DNA transfection with tube electroporation compared to other methods (Supplemental Fig.  1 ). Figure 2 DNA transfection using tube electroporation. ( A ) Different cell types were transfected with pCMV-GFP plasmid and the transfection efficiencies were measured by fluorescence microscopy and flow cytometry after 48 hours. From left to right are the cell bright field images, fluorescence images and flow cytometry dot plots in which the transfected cells are shown in red and mock transfected control cells were shown in black. The black and red dots were from different data sets that have been juxtaposed to show the gating. Scale bar, 20 µm. ( B ) Quantification of the transfection efficiency and cell survival rates. Results are shown as mean ± S.E.M. from at least three independent experiments. The efficiencies were calculated from the GFP flow cytometry analysis. The actual cell survival rates were listed on the top. The relative survival rates compared to the untransfected controls were given in parenthesis at the bottom. The survival rates for the untransfected control cells during regular passage were 95.3 ± 2.1%, 93.3 ± 0.7%, 93.4 ± 2.9%, 90.1 ± 3.6%, and 83.7 ± 4.4% for HEK293, mouse ESC, ReNCell VM, Jurkat and human iPSC cells.
+L21: Protein and RNA transfection with tube electroporation
+L22: Figure 3 Protein and dsRNA transfection using tube electroporation. ( A ) Transfection of Alexa Fluor 488 conjugated protein (IgG antibody) into different human stem and primary cells. The brightfield images were shown in the left and fluorescence images shown in the right. ( B ) Transfection of FAM conjugated 21-mer dsRNA into different human stem and primary cells. The brightfield images were shown in the left and fluorescence images shown in the right. ( C ) Comparison of the protein and dsRNA transfected cell survival rates with untransfected controls.
+L23: We next tested the tube electroporation method for delivering protein and small double strand RNA (dsRNA) into mammalian cells. Three cell types of high clinical and research interest - human iPSC, human primary T cells and human primary mesenchymal stem cells (MSC) were selected for the test. Cells were electroporated with 0.5 μM Alexa fluor 488 conjugated goat anti rabbit IgG protein or 0.5 μM FAM conjugated synthetic 21-mer dsRNA. The result showed that both protein and dsRNA were successfully delivered into nearly every cell (Fig.  3A,B , Supplementary Figure  2 ). Possibly because of the smaller molecular sizes, protein and small dsRNA required lower voltage than DNA plasmid to be efficiently delivered into the cells (Supplemental Table  1 ), consequently the posttranfection mortality is very low or negligible for all the three cell types tested (Fig.  3C ). Figure 3 Protein and dsRNA transfection using tube electroporation. ( A ) Transfection of Alexa Fluor 488 conjugated protein (IgG antibody) into different human stem and primary cells. The brightfield images were shown in the left and fluorescence images shown in the right. ( B ) Transfection of FAM conjugated 21-mer dsRNA into different human stem and primary cells. The brightfield images were shown in the left and fluorescence images shown in the right. ( C ) Comparison of the protein and dsRNA transfected cell survival rates with untransfected controls.
+L24: CRISPR/Cas9 genome editing using tube electroporation
+L25: Figure 4 Genome editing by Cas9/gRNA RNP tube electroporation. Cells were transfected with Cas9/gRNA (+) or Cas9 only as control (−). DNAs were extracted and measured by T7EN1 assay. The average targeting efficiency of three experiments were shown above the representative gel picture. ( A ) Four gRNAs were tested targeting B2M gene in HEK293 and human MSCs. gRNA4 and gRNA6 were shown to be effective in both cells (efficiencies >30%), gRNA13 was weakly effective in both cells (efficiencies <10%), while no activity was detectable for gRNA8 in both cells. ( B ) Targeting APP gene in HEK293 and human iPSC. ( C ) Targeting the AAVS1 site in HEK293 and human iPSC. ( D ) Targeting OCT4 gene in HEK293 and human iPSC. ( E ) Two gRNAs were tested targeting PDCD1 gene in HEK293, human iPSC and primary human T cells. gRNA2 were shown to be effective in all three cell types (efficiencies >50%), while the activities of gRNA3 were very weak (efficiencies = 5%) in both HEK293 and human T cells. In all these experiments the efficiency of the same gRNA is very consistent in different cell types with a variance <30%.
+L26: CRISPR/Cas9 has rapidly become the method of choice for generating gene knock-out or knock-in cells. A highly efficient low cytotoxicity tool for delivering the CRISPR/Cas9 elements, including the Ca9 protein, gRNA and a DNA repair template when applicable into mammalian cells would greatly facilitate its clinical and research applications. We tested the tube electroporation method for transfecting Cas9/gRNA ribonucleoprotein (RNP), which has been shown to achieve efficient and specific genome editing in mammalian cells recently 9 , 19 , 20 . We used gRNAs that were previously reported by others (Supplemental Table  3 ) to target 5 different gene loci - B2M 8 , amyloid precursor protein (APP) 10 , Adeno-associated virus integration site 1 (AAVS1), octamer-binding transcription factor 4 (OCT4) 21  and PDCD1 22  in 4 types of cells – HEK293FT, primary human MSC, human iPSC and primary human T cells (Fig.  4 ). The results showed that tube electroporation allowed efficient RNP delivery leading to high levels of gene editing for all of the genes in all the cells. Consistent with literature reports, we observed the gene targeting efficiency to be highly gRNA specific, as even partially overlapping gRNAs displayed significantly different results in the same type of cells. We also observed a consistency of efficiencies of the same gRNA in different cell types, as each gRNA achieved close levels of gene targeting in different cells, ranging from 0% to 70%. Early work indicated that the activity of CRISPR/Cas9 may be remarkably lower in primary human cells, with a up to 10-fold efficiency reduction compared to HEK293T cells 8 , 9 . However, our current result suggests that upon efficient RNP delivery, gRNA efficiency is highly consistent (variance <30%, Fig.  4 ) in the different cell types that we tested. The high disparity reported previously may possibly be attributed to insufficient DNA delivery in primary human cells and/or the difference in Cas9 protein translation in different cell types. Therefore these results support that tube electroporation of RNP may be used as a more efficient delivery method for CRISPR/Cas9, especially for the hard-to-transfect human stem cells and primary cells. Figure 4 Genome editing by Cas9/gRNA RNP tube electroporation. Cells were transfected with Cas9/gRNA (+) or Cas9 only as control (−). DNAs were extracted and measured by T7EN1 assay. The average targeting efficiency of three experiments were shown above the representative gel picture. ( A ) Four gRNAs were tested targeting B2M gene in HEK293 and human MSCs. gRNA4 and gRNA6 were shown to be effective in both cells (efficiencies >30%), gRNA13 was weakly effective in both cells (efficiencies <10%), while no activity was detectable for gRNA8 in both cells. ( B ) Targeting APP gene in HEK293 and human iPSC. ( C ) Targeting the AAVS1 site in HEK293 and human iPSC. ( D ) Targeting OCT4 gene in HEK293 and human iPSC. ( E ) Two gRNAs were tested targeting PDCD1 gene in HEK293, human iPSC and primary human T cells. gRNA2 were shown to be effective in all three cell types (efficiencies >50%), while the activities of gRNA3 were very weak (efficiencies = 5%) in both HEK293 and human T cells. In all these experiments the efficiency of the same gRNA is very consistent in different cell types with a variance <30%.
+L27: High HDR by RNP tube electroporation
+L28: Figure 5 Tube electroporation achieves high accurate HDR rate in human iPSC. ( A ) Human iPSC were transfected with Cas9/gRNA RNP targeting APP gene, without (left) or with (right) an ssODN template. DNA sequencing showed that the editing efficiency was 56.3% without ssODN, and all the edited cells have Indels. The overall editing efficiency was increased to 89.5% with ssODN, including 47.4% of the total cells having various Indels, and 42.1% of the total cells having a single G to C mutation introduced by the accurate HDR with the ssODN template. ( B ) Human iPSC were transfected with Cas9/gRNA RNP targeting PDCD1 gene, without (left) or with (right) an ssODN template. DNA sequencing showed that the editing efficiency was 47.8% without ssODN, and all the edited cells have Indels. The overall editing efficiency was increased to 62.2% with ssODN, including 42.2% of the total cells having various Indels, and 20.0% of the total cells having a single G deletion introduced by the accurate HDR with the ssODN template. The sing base deletion would result in an open reading frame shift of the gene.
+L29: Fluorescently labeled protein and dsRNA indicated that the molecules can be delivered at nearly 100% efficiency using tube electroporation (Fig.  3 ). However, a significant amount of cells remained unedited even with the best gRNA as shown by the T7EN1 assay (Fig.  4 ). This was confirmed by direct Sanger sequencing of the targeted APP site in human iPSC (56.2% Indel, 9/16 clones) (Fig.  5A , Supplemental Table  4 ). The incomplete editing may be due to several reasons: RNP is more difficult to transfect (Cas9/gRNA RNP is about 180kd and larger than the 150kd IgG protein, or the 14kd 21-mer dsRNA) so that it was less efficiently delivered into many cells; or the RNP was inactive in these cells; or the cells were edited but then repaired by the active DNA repair machinery. To test these possibilities, we co-transfected an ssODN repair template, together with Cas9/gRNA RNP targeting APP in human iPSC. The 100nt ssODN carries a single base mutation in the PAM sequence (AGG to AGC) (Supplemental Table  3 ) 10 . Upon HDR PAM should be eliminated to prevent further targeting. Sanger sequencing was carried out using the PCR products of the targeted regions amplified from the genomic DNA of the bulk transfected cells. The PCR products were cloned into a pJET vector and the plasmid DNA purified from individual  E.coli  clones were used for sequencing. The sequencing results surprisingly displayed a much higher mutation rate (89.5%, Fig.  5A ) than the cells transfected without ssODN (56.2%). Noteworthy is that the majority of the mutated DNAs (42.1% of the total) had the same single base pair PAM mutation but were free of any additional indel, therefore were the result of accurate HDR 10  using the ssODN template (Fig.  5A , Supplemental Table  4 ). This result suggests that firstly, Cas9/gRNA RNP can be successfully delivered into nearly all (at least 89.5%) of the human iPSCs by the tube electroporation; secondly, the transfected RNP is active in human iPSC and cleaves DNA in at least 89.5% of the cells; thirdly, active DNA repair exists in human iPSC and more than 1/3 ((89.5–56.2%)/89.5% = 37.2%) of the double strand breaks (DSBs) may be accurately repaired later and appear to be unedited. NHEJ is the predominant DNA repair mechanism after DSB by CRISPR/Cas9. Because CRISPR/Cas9 typically generates high levels of gene disruption, NHEJ is mostly recognized as error-prone but this view has also been challenged 23 , 24 . Our current data may support the intrinsic precision of NHEJ repair at least in human iPSC at the targeted loci, suggesting that most Indels may be accurately repaired and mutations are only introduced after repetitive DSB/repair processes. Our data also demonstrated a surprisingly high accurate HDR rate in human iPSC (42.1% of the total unselected transfected cells). Efficient RNP/ssODN delivery by the tube electroporation is apparently an essential contributor for the high HDR rate. Previously the same gRNA and ssODN was transfected into human iPSC by other electroporation method and only 2.1–6.7% HDR rate was observed in the Cas9-GFP sorted cells 10 . The tube electroporation method improved the efficiency by an order of magnitude. Figure 5 Tube electroporation achieves high accurate HDR rate in human iPSC. ( A ) Human iPSC were transfected with Cas9/gRNA RNP targeting APP gene, without (left) or with (right) an ssODN template. DNA sequencing showed that the editing efficiency was 56.3% without ssODN, and all the edited cells have Indels. The overall editing efficiency was increased to 89.5% with ssODN, including 47.4% of the total cells having various Indels, and 42.1% of the total cells having a single G to C mutation introduced by the accurate HDR with the ssODN template. ( B ) Human iPSC were transfected with Cas9/gRNA RNP targeting PDCD1 gene, without (left) or with (right) an ssODN template. DNA sequencing showed that the editing efficiency was 47.8% without ssODN, and all the edited cells have Indels. The overall editing efficiency was increased to 62.2% with ssODN, including 42.2% of the total cells having various Indels, and 20.0% of the total cells having a single G deletion introduced by the accurate HDR with the ssODN template. The sing base deletion would result in an open reading frame shift of the gene.
+L30: The high HDR rate by tube electroporation may greatly facilitate the generation of single-base genome edited (i.e. point mutation) cells in which the isolation of rare clones is often hindered by the unavailability of antibiotic selection 12 . Among the human DNA point mutations that cause pathological phenotypes, a vast amount either lead to the ablation of an existing PAM or creation of a new PAM (Supplemental Table  5 ) and can thus be studied by the current method. However, the application is limited to mutations in PAM sequences because it is dependent on the preventing of further targeting by HDR. A more universal application of the high HDR rate at PAM sites may be the introduction of single base pair insertion or deletion to create a frame shift, thereby knock-out the gene expression 20 . As our result indicated that accurate NHEJ repair may significantly reduce the number of cells with Indels, and virtually any gene exon would have PAM sequence (NGG or CCN), this method may be used universally to increase the gene knockout rate by combing the HDR mediated frame shift and NHEJ mediate Indel. To test this possibility we chose the gRNA targeting the PD-1 encoding human PDCD1 gene (Fig.  5B ) that is now actively being studied in immune checkpoint blockade therapy 25 . Human iPSC were transfected using tube electroporation with Cas9/gRNA RNP only, or together with an ssODN carrying a single base deletion in the PAM site (CGG to CG, Fig.  5B ). Sequencing of the genomic DNA extracted from the transfected cells showed that 47.8% of the DNAs are mutated (11 out of 23 clones) with RNP alone. Inclusion of the ssODN significantly increased mutation rate to 62.2% (28 out of 45 clones). Again, a marked percentage (20.0%, 9 out of 45 clones) of the mutations resulted from accurate HDR, which introduced a single base deletion in PAM (Fig.  5B , Supplemental Table  6 ) and would cause a frameshift. Together, these results confirmed that upon efficient RNP delivery by tube electroporation, HDR occurs in human iPSC at surprisingly high rate, and can be explored to create mutation knock-in cell lines or increase the rate of gene disruption.
+L31: Ablation of clinically relevant genes in primary human cells
+L32: Figure 6 Enhancing the gene knock-out rate in primary human cells by ssODN HDR. Cell surface protein expression was analyzed by flow cytometry (left) and quantified (right). ( A ) Knocking-out PD-1 in primary human T cells. Tube electroporation of the Cas9/gRNA RNP reduced the surface expression of PD-1 from 31.9% to 18.3%. Inclusion of a frameshift introducing ssODN (a single G deletion in PAM) further reduced it to 13.2%. ( B ) Two gRNAs (gRNA6 and gRNA4) were selected to knock-out B2M gene in human MSCs. For gRNA6 (upper), tube electroporation of the Cas9/gRNA RNP reduced the surface expression of B2M from 95.6% to 59.9%. Inclusion of a frameshift introducing ssODN (a single C insertion in PAM) further reduced it to 18.9%. For gRNA4 (lower), tube electroporation of the Cas9/gRNA RNP reduced the surface expression of B2M from 95.9% to 74.4%. Inclusion of the ssODN further reduced it to 48.3%. The numbers of repeating experiments were indicated in each bar graph.
+L33: High gene knock-out rate is often desired in therapeutic applications, in which pre-selection is usually unavailable and high editing rate is critical for better clinical outcome 4 . For example, autologous transplantation of PD-1 knockout T cells are now being studied in several clinical trials (e.g. NCT02793856 for metastatic non-small cell lung cancer and NCT02867345 for castration resistant prostate cancer) 26 , as an alternative checkpoint blockade strategy to the costly antibody treatment. We have shown that PDCD1 gene can be efficiently targeted in human iPSC (Fig.  5 ), but the effect on PD-1 expression could not be tested as it is not expressed in the undifferentiated human iPSC. To demonstrate the effect on protein expression and test the potential of the tube electroporation method in immunotherapy, activated CD3+ T cells were electroporated with Cas9 RNP, with or without a ssODN carrying the single nucleotide deletion mutation (Fig.  6A ). Flow cytometry confirmed that this strategy is indeed effective in reducing PD-1 expression in CD3+ T cells. The percentage of PD-1 expressing cells was reduced from 31.9% to 18.3% (42.6% reduction) without using ssODN. Use of PAM mutated ssOND, as expected, further reduced percentage of the PD-1 expressing cells to 13.2% (58.6% reduction). Figure 6 Enhancing the gene knock-out rate in primary human cells by ssODN HDR. Cell surface protein expression was analyzed by flow cytometry (left) and quantified (right). ( A ) Knocking-out PD-1 in primary human T cells. Tube electroporation of the Cas9/gRNA RNP reduced the surface expression of PD-1 from 31.9% to 18.3%. Inclusion of a frameshift introducing ssODN (a single G deletion in PAM) further reduced it to 13.2%. ( B ) Two gRNAs (gRNA6 and gRNA4) were selected to knock-out B2M gene in human MSCs. For gRNA6 (upper), tube electroporation of the Cas9/gRNA RNP reduced the surface expression of B2M from 95.6% to 59.9%. Inclusion of a frameshift introducing ssODN (a single C insertion in PAM) further reduced it to 18.9%. For gRNA4 (lower), tube electroporation of the Cas9/gRNA RNP reduced the surface expression of B2M from 95.9% to 74.4%. Inclusion of the ssODN further reduced it to 48.3%. The numbers of repeating experiments were indicated in each bar graph.
+L34: Human MSC is numerically is the most favored cell type presently under clinical trial 27 . Genetic modification of the cells would further broaden its therapeutic potential and enhance its safety. Genome editing of primary human MSCs has been achieved using adenoviral Cas9 28 , but non-viral method has not been reported. We tested the tube electroporation for knocking-out B2M, a well-established MHC class I molecule association protein, in human MSCs. Several gRNAs were tested and two of them (gRNA4 and gRNA6) were shown to be effective by T7EN1 assay (Fig.  4A ). The RNP was electroporated into the cells with or without an ssODN template, which introduces a single base (C) insertion in the PAM sites and creates a frameshift mutation to disrupt gene function. Flow cytometry confirmed the enhancement of gene disruption rate by the ssODN. For gRNA4, the cell-surface B2M expressing cells were reduced from 95.9% to 74.4% (22.4% reduction) by Cas9/gRNA alone, and further reduced to 48.3% (49.6% reduction) by the inclusion of ssODN. gRNA6 resulted in a more significant gene disruption and reduced B2M expressing cells from 95.6% to 59.9% (37.3% reduction) by Cas9/gRNA alone, and further reduced to 18.9% (80.2% reduction) by the additional ssODN (Fig.  6B ). Together these results strongly support that tube electroporation can effectively deliver RNP/ssODN, to achieve high HDR universally in different cell types, and can be utilized as a general method to enhance gene knock-out rate in different types of cells.
+L35: Discussion
+L36: We show here that a novel tube electroporation method can deliver CRISPR/Cas9 RNP components without or without ssODNs at remarkably high efficiency into various human stem cells and primary cells that are hard-to-transfect. It also leads to satisfactory knock-in results when donor DNA is of large size (e.g. a reporter gene) at a level comparable to that achieved by the popular Nucleofector machine (Supplementary Figure  3 ).
+L37: Electroporation transfection method was developed 35 years ago 13 , 14 . In the past many improvements have been made, for example, the nucleofector technique 15 , 16  that provided the optimization of electrical parameters and solution recipes. Notably, most current electroporation devices use cuvettes to deliver the electrical pulse to the cells. Despite of its long history and wide usage, the cuvette suffers from physical effects that have been overlooked. A primary concern is the surface warping effect. Due to surface adhesion, a concave meniscus naturally occurs in the cuvette (Supplementary Figure  4 , region 1). As the cuvette is often only filled partially at the bottom and the space between the electrodes is narrow (typically 1- to 4-millimeter), it is conceivable that a substantial portion of the sample is close to the concave meniscus with an uneven electric field distribution. The voltage distribution in the liquid can be simulated by a simplified equivalent circuit (Supplementary Figure  4 , region 1). The whole liquid can be subdivided into identical resistors that are connected into multiple series in parallel with the same end-to-end total voltage. Since in a series circuit voltage is distributed in proportion to resistance, each of these resistors would have the same voltage if the liquid surface is flat. However in the concave meniscus two resistors are first connected in parallel (Supplementary Figure  4 , region 1 blue resistor) with the resistance cut in half and they are then connected in series to the center resistor (Supplementary Figure  4 , region 1 red resistor). Therefore the side of the concave meniscus would assume a lower voltage, which is insufficient for effective transfection; while the center region beneath the concave meniscus is allocated an overly high voltage that would damage or kill the cells. Another notable adverse effect in a cuvette design is the bubble effect (Supplementary Figure  4 , region 2). Electroporation inevitably generates air bubbles on the electrode surface as a result of electrochemical reactions. Because air is insulating, lower voltage regions are created on both sides of each bubble, while the electrons are forced through the spaces between bubbles creating very high voltage regions, again either insufficient for transfection or causing high cytotoxicity.
+L38: In the tube electroporator design, the surface warping effect is eliminated by placing the electrodes in a top-bottom manner (Fig.  1B ). Because the surface area of the electrodes is also significantly reduced, this design minimizes air bubble regions as well. The small gas volume is further reduced by the sealing of the sample and the applied pressure to the sample from the electroporation machine and the tube itself. Based on these considerations, it is not surprising that the tube electroporation indeed leads to satisfactory transfection results as demonstrated in this study.
+L39: With the high transfection efficiency achieved in this study, a few new properties of CRISPR/Cas9 were discovered that may change our current notion. Firstly, although restricted to the PAM site, we determined that HDR can happen at unexpectedly high rate (a magnitude of order higher than previous report). This may significantly change the strategy for creating knock-in cell models, and as we demonstrated it can also be utilized as a strategy to increase the gene knock-out rate. Secondly, we observed the high editing efficiency consistently in different cell types, indicating that the previously reported cell type specific inefficiency may be due to the insufficient delivery of CRISPR/Cas9 components. Our method can also be combined with other recently improved CRISPR/Cas9 components, such as the chemically modified gRNA 29 , negative supercharge fused protein 19 , to further boost the genome editing efficiency.
+L40: We demonstrated the application of our method in introducing single base gene modification in human iPSC, and knocking-out clinically relevant genes in primary human cells. These applications may have direct impact in cell research as well as immuno- and transplantation therapies. Currently there are more than 300 registered human MSC clinical trials 27 , for various conditions including orthopedic injuries, graft versus host disease following bone marrow transplantation, cardiovascular diseases, autoimmune diseases, and liver diseases. In Canada and New Zealand, human MSCs have been approved for pediatric graft versus host disease 30 . Although human MSC is generally considered to have low immunogenicity, MSCs are not intrinsically immune-privileged and may trigger immune responses depending on the administration route and transplantation time, and possible account for their very brief existence in the host (typical only a few days, no more than a week or two) 31 – 33 . Protecting MSCs from immune detection and prolonging their persistence  in vivo  may improve clinical outcomes and prevent patient sensitization toward donor antigens. B2M encodes a non-membrane-anchored glycoprotein to associate with major histocompatibility complex (MHC) class I molecules and is required for their surface expression. Deletion of B2M is therefore a well-established strategy to ablate MHC class I surface expression and reduce the immunogenicity of allogeneic transplants 34 . Using tube electroporation we first achieved high efficiency non-viral transfection of CRISPR/Cas9 in human MSCs, and demonstrated that this strategy can be successfully applied to human MSCs to eliminate the surface expression of B2M in the majority of the cells without requiring any selection, thus may produce safer and longer lasting transplantation sources. Immune checkpoint blockade by PD-1 antibody has shown remarkable antitumor responses in patients with advanced melanoma, lung cancer as well as other cancer types 35 . The ability to knock-out PD-1 expression in primary human T cells opens a new revenue of adoptive cell therapy 20 , to possibly avoid the costly continuous antibody treatment. Also of note, previous studies have demonstrated that PD-1 blockage may significantly enhance the efficacy of genetically modified T cells expressing a chimeric antigen receptor (CAR) 36 . The tube electroporation method was shown to be able to eliminate PD-1 expression efficiently through CRIPSR/Cas9 mediated NHEJ and HDR. Either used alone or in combination with CAR overexpression, the method could potentially provide a useful tool to improve the efficacy of T-cell based adoptive therapies.
+L41: Methods
+L42: Cell culture
+L43: All the cells used in this study were purchased from commercial sources that are listed in the below sections. An ethical approval is not required for this study.
+L44: Human iPSC
+L45: Human iPSCs were purchased from American Type Culture Collection (ATCC, Manassas, VA 20110, ACS-1030) or Systems Biosciences (SBI, Palo Alto, CA 94303, SC600A-WT). Cells were cultured in feeder-free condition in mTeSR1 medium (StemCell Technologies, Vancouver, Canada) supplemented with 10 ng/ml bFGF (StemCell Technologies, Vancouver, Canada), on Matrigel (Corning, Corning, NY) coated cultureware surface. For transfection, cells were dissociated with Accutase (StemCell Technologies, Vancouver, Canada) to single cells. To improve survival 10 µM ROCK inhibitor Y27632 (Sigma-Aldrich, St. Louis, MO) was added to the transfected cells and removed after the cells are attached.
+L46: Mouse ESC and iPSC
+L47: Mouse ESC (ES-D3) were purchased from ATCC (Manassas, VA, CRL-1934). Mouse iPS cells were purchased from Systems Biosciences (SBI, Palo Alto, CA 94303, SC201A-1). Both cells were cultured in feeder-free condition in medium containing DMEM (ThermoFisher Scientific, Waltham, MA), 15% fetal bovine serum (FBS, ThermoFisher Scientific, Waltham, MA), 100 µM non-essential amino acids, 100 µM 2-mercaptoehanol, and 1,000 U/ml LIF (Peprotech, Rocky Hill, NJ). Cell cultureware were pre-coated with 0.2% gelatin (Sigma-Aldrich, St. Louis, MO). For transfection cells were dissociated with 0.25% trypsin ((ThermoFisher Scientific, Waltham, MA) to single cells.
+L48: Human MSC
+L49: Human MSCs derived from adipose (ZenBio, Research Triangle Park, NC), cord blood (Cellular Engineering Technologies, Coralville, IA) or bone marrow (ThermoFisher Scientific, Waltham, MA) were purchased from the indicated sources. Cells were cultured in DMEM/F12 containing 10% FBS and 10 ng/ml bFGF. For transfection cells were dissociated with 0.25% trypsin to single cells.
+L50: HEK293 cells
+L51: HEK293 cell line was purchased from Sigma-Aldrich (St. Louis, MO). Cells were cultured in DMEM containing 10% FBS. For transfection cells were dissociated with 0.25% trypsin to single cells.
+L52: Human neural progenitor cells
+L53: Human neural progenitor cell line ReNCell VM was purchased from Millipore (Billerica, MA). Human embryonic stem cell (H9) derived neural progenitor cells were purchased from ThermoFisher. Cells were culture in knockout DMEM/F12 (ThermoFisher) with StemPro supplement (ThermoFisher), 10 ng/ml bFGF and 10 ng/ml EGF (StemCell Technologies), on laminin (ThermoFisher) coated cultureware. For transfection cells were dissociated with accutase to single cells.
+L54: Jurkat cells
+L55: Jurkat cells were purchase from ATCC. Cells were cultured in suspension in RPMI-1640 (ThermoFisher) containing 10% FBS medium.
+L56: Human primary T cells
+L57: CD3+ human primary T cells were purchased from Astarte Biologics (Bothell, WA). Cells were cultured in suspension in ImmunoCult-XF T cell expansion medium (StemCell Technologies) with 10 ng/ml recombinant human IL-2 (PeproTech). To activate the cells 100 ng/ml anti-CD3 antibody (clone OKT3, eBioscience, San Diego, CA) was added to the medium. Cells were activated and expanded for two weeks before they are collected for transfection experiments.
+L58: Human primary hepatocyte
+L59: Metabolism qualified primary human hepatocyte was purchased from Lonza (Walkersville, MD). Cells were grown adherently in hepatocyte plating medium (Lonza). For transfection cells were dissociated with Accutase (StemCell Technologies) to single cells.
+L60: Primary rat cortex neural progenitor cells
+L61: Neural progenitor cells were cultured from the E18 rat brain cortex. Tissues were dissected and dissociated with Accutase (StemCell Technologies) to single cells, and grown in suspension to form neurospheres first. The spheres were then digested with Accutase to single cells and grown adherently as monolayer on 20 μg/ml laminin (ThermoFisher) coated surface. For transfection the adherent cells were dissociated with Accutase to single cells.
+L62: Electroporation
+L63: The electroporation machine (Catalog# CTX-1500A LE), the pressured electroporation tubes (Catalog# 20 µL: 12–0107; 120 µL: 12–0104; 200 µL: 12–0101), and the electroporation buffer (Catalog# 13–0104) were provided by Celetrix LLC, Manassas VA. Single cell suspensions were prepared as indicated in Cell Culture. Cells were resuspended in electroporation buffer to 25 × 106 cells/ml. For GFP DNA transfection 30 nM pCMV-GFP plasmid (Addgene,Cambridge, MA) was added to the cells. For Cas9 ribonucleoprotein (RNP) transfection, 0.5 μM Cas9-NLS protein (PNA Bio, Newbury Park, CA) was pre-mixed with 0.85 μM gRNA at room temperature for 10 minutes first, then the formed RNP complex was mixed with the cells and transferred to 120 µl electroporation tube. In indicated experiments 2.7 μM ssODN was also added to the mixture. The electroporation conditions were listed in Supplemental Table  1 . After electroporation the cells were immediately transferred back to warm medium to continue culture.
+L64: GFP reporter knock-in
+L65: To knock in a GFP reporter provided by plasmid DNA donor, we constructed AAVS1 and Rosa26 targeting vector respectively. The GFP coding sequence was amplified from pEGFP-N1, splice acceptor (SA) sequence was added to the upstream of the GFP coding sequence, homology arms of 500 to 600 bp were amplified from the genomic DNA purified from human iPSC. AAVS1 sgRNA targeting sequence were designed to locate in the first intron of PPP1R12C, and Rosa26 sgRNA were designed to locate in the third intron of Rosa26. To knock in the GFP reporter, we co-transfected AAVS1/Rosa26-specific sgRNA, PX330 vector, and AAVS1/Rosa26 targeting vector into human iPSC by the tube electroporation and Lonza’s Nucleofector. GFP positive cells as the indicator of knock in events were analyzed by flow cytometry four days after transfection.
+L66: Flow cytometry
+L67: Flow cytometry was done with BD FACS Fortessa instrument and analyzed with BD VACSDiva software. The data was exported to Excel to make the plots. Cells were harvested 48 hours after transfection. For GFP expression analysis cells were analyzed directly. For surface marker analysis cells were stained with fluorophore labeled antibodies for 30 minutes in dark. The antibodies used were PE conjugated mouse anti-human CD279 (PD1, clone EH12.1) antibody (BD Biosciences, San Jose, CA) and APC conjugated mouse anti-human β2-microglobulin (B2M, clone 2M2) antibody (Biolegend, San Diego, CA).
+L68: T7EN1 cleavage assay and sequencing
+L69: Cells were harvested 48 hours after transfection and genomic DNA was extracted with a Wizard genomic DNA purification kit (Promega, Madison, WI). Targeted regions were PCR amplified using high-fedelity PCR master mix (ThermoFisher) with primers listed in Supplemental Table  3 . The products were gel purified using Qiaquick gel purification kit (Qiagen, Germantown, MD). For T7EN1 assay the purified PCR products were denatured and re-annealed and digested with T7EN1 enzyme (NEB, Ipswich, MA) for 30 minutes at 37 °C, and then analyzed by 2% agarose gel. Gene modification efficiency was calculated by % gene modification = 100 × (1 − (1 − fraction cleaved) 1/2 ) 37 . DNA sequencing was used to further confirm the gene editing rate. The PCR products of the targeted regions were produced from the genomic DNA of the bulk transfected cells as described above. After purification they were ligated into a pJET1.2 vector using the CloneJET PCR cloning kit (ThermoFisher). The ligated DNA was transformed into  E.coli  and 20 to 60 colonies were picked to extract the plasmid DNA. The inserts were then sequenced using the kit supplied universal sequencing primer. We assume that the Indel rates among colonies were identical to that among the genomic DNAs.
+L70: Cell viability assay
+L71: Cell viability was analyzed 24 hours after transfection by trypan blue dye exclusion method using Vi-Cell XR instrument (Beckman Coulter, Indianapolis, IN). Adherent cells were dissociated to single cells using the enzyme indicated in Cell Culture. Since dead cells are often floating the cell culture medium was centrifuged and the floating cells were combined with the dissociated cells for cell count. Cells were put in the sample tube, trypan blue mixing and viable cell count were done automatically by the instrument.
+L72: gRNA synthesis
+L73: All primers were ordered from IDT (Coralville, Iowa). Primer pairs were annealed to PCR assemble the gRNA DNA template, and then synthesize the gRNA by  in vitro  transcription using GeneArt Precision gRNA synthesis kit (ThermoFisher). The gRNA was then purified using the GeneJET RNA purification column supplied with the kit and the concentration measured by Nanodrop (ThermoFisher).
+L74: Western Blot analysis
+L75: Cells were harvested 48 hours after transfection and lysed with RIPA lysis and extraction buffer (ThermoFisher). The protein concentration was determined using Pierce BCA protein assay kit (ThermoFisher). The cell lysate was fractionated using a 4–12% Mini-PROTEAN TGX gel (Bio-Rad (Hercules, CA) and transferred to a PVDF membrane. Upon blocking, the membrane was incubated for 2 h with polyclonal rabbit GFP antibody at 1:1000 dilution. After washing, the membrane was incubated for 1 hour with HRP conjugated goat anti-rabbit antibody at 1:2000 dilution. Upon extensive washing, the membrane was developed with Pierce ECL reagent (ThermoFisher) and imaged using a Fuji imager LAS 4000 instrument (GE, Pittsburgh, PA).
+L76: Statistical analysis
+L77: Microsoft Excel (Seattle, WA) was used for all statistical analysis. The mean ± S.E.M. was determined for each treatment group in the individual experiments. And the one-tailed Student t-test was used to determine the significances between treatment and control group. P-values < 0.05 were considered significant.
+L78: Electronic supplementary material
+L79: Supplementary information
+L80: Competing Interests
+L81: J. C. works in Celetrix L. L. C, manufacturer of the tube electroporator. X. X. (Xu), D. G., P. W., J. R., L. Ma, J. X. and X. X. (Xia) declare no competing interests.
+L82: Supplementary information
+L83: 1. Kim H Kim JS A guide to genome engineering with programmable nucleases Nature reviews. Genetics 2014 15 321 334 10.1038/nrg3686 24690881
+L84: 2. Jinek M A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity Science 2012 337 816 821 10.1126/science.1225829 22745249
+L85: 3. Cong L Multiplex genome engineering using CRISPR/Cas systems Science 2013 339 819 823 10.1126/science.1231143 23287718
+L86: 4. Cox DB Platt RJ Zhang F Therapeutic genome editing: prospects and challenges Nat Med 2015 21 121 131 10.1038/nm.3793 25654603
+L87: 5. Byrne SM Mali P Church GM Genome editing in human stem cells Methods in enzymology 2014 546 119 138 10.1016/B978-0-12-801185-0.00006-4 25398338
+L88: 6. Gonzalez F An iCRISPR platform for rapid, multiplexable, and inducible genome editing in human pluripotent stem cells Cell stem cell 2014 15 215 226 10.1016/j.stem.2014.05.018 24931489
+L89: 7. Wang G Efficient, footprint-free human iPSC genome editing by consolidation of Cas9/CRISPR and piggyBac technologies Nature protocols 2017 12 88 103 10.1038/nprot.2016.152 27929521
+L90: 8. Mandal PK Efficient ablation of genes in human hematopoietic stem and effector cells using CRISPR/Cas9 Cell Stem Cell 2014 15 643 652 10.1016/j.stem.2014.10.004 25517468
+L91: 9. Liang X Rapid and highly efficient mammalian cell engineering via Cas9 protein transfection Journal of biotechnology 2015 208 44 53 10.1016/j.jbiotec.2015.04.024 26003884
+L92: 10. Paquet D Efficient introduction of specific homozygous and heterozygous mutations using CRISPR/Cas9 Nature 2016 533 125 129 10.1038/nature17664 27120160
+L93: 11. Richardson CD Ray GJ DeWitt MA Curie GL Corn JE Enhancing homology-directed genome editing by catalytically active and inactive CRISPR-Cas9 using asymmetric donor DNA Nature biotechnology 2016 34 339 344 10.1038/nbt.3481 26789497
+L94: 12. Miyaoka Y Isolation of single-base genome-edited human iPS cells without antibiotic selection Nature methods 2014 11 291 293 10.1038/nmeth.2840 24509632
+L95: 13. Neumann E Schaefer-Ridder M Wang Y Hofschneider PH Gene transfer into mouse lyoma cells by electroporation in high electric fields The EMBO journal 1982 1 841 845 6329708
+L96: 14. Wong TK Neumann E Electric field mediated gene transfer Biochemical and biophysical research communications 1982 107 584 587 10.1016/0006-291X(82)91531-5 7126230
+L97: 15. Gresch O New non-viral method for gene transfer into primary cells Methods 2004 33 151 163 10.1016/j.ymeth.2003.11.009 15121170
+L98: 16. Zeitelhofer M High-efficiency transfection of mammalian neurons via nucleofection Nature protocols 2007 2 1692 1704 10.1038/nprot.2007.226 17641634
+L99: 17. Kim TK Eberwine JH Mammalian cell transfection: the present and the future Analytical and bioanalytical chemistry 2010 397 3173 3178 10.1007/s00216-010-3821-6 20549496
+L100: 18. Soldner F Parkinson’s disease patient-derived induced pluripotent stem cells free of viral reprogramming factors Cell 2009 136 964 977 10.1016/j.cell.2009.02.013 19269371
+L101: 19. Zuris JA Cationic lipid-mediated delivery of proteins enables efficient protein-based genome editing  in vitro  and  in vivo Nature biotechnology 2015 33 73 80 10.1038/nbt.3081 25357182
+L102: 20. Schumann K Generation of knock-in primary human T cells using Cas9 ribonucleoproteins Proceedings of the National Academy of Sciences of the United States of America 2015 112 10437 10442 10.1073/pnas.1512503112 26216948
+L103: 21. Zhu Z Verma N Gonzalez F Shi ZD Huangfu D A CRISPR/Cas-Mediated Selection-free Knockin Strategy in Human Embryonic Stem Cells Stem cell reports 2015 4 1103 1111 10.1016/j.stemcr.2015.04.016 26028531
+L104: 22. Su S CRISPR-Cas9 mediated efficient PD-1 disruption on human primary T cells from cancer patients Scientific reports 2016 6 20070 10.1038/srep20070 26818188
+L105: 23. Betermier M Bertrand P Lopez BS Is non-homologous end-joining really an inherently error-prone process? PLoS genetics 2014 10 e1004086 10.1371/journal.pgen.1004086 24453986
+L106: 24. Suzuki K In vivo  genome editing via CRISPR/Cas9 mediated homology-independent targeted integration Nature 2016 540 144 149 10.1038/nature20565 27851729
+L107: 25. Pardoll DM The blockade of immune checkpoints in cancer immunotherapy Nature reviews. Cancer 2012 12 252 264 10.1038/nrc3239 22437870
+L108: 26. Cyranoski D Chinese scientists to pioneer first human CRISPR trial Nature 2016 535 476 477 10.1038/nature.2016.20302 27466105
+L109: 27. Trounson A McDonald C Stem Cell Therapies in Clinical Trials: Progress and Challenges Cell stem cell 2015 17 11 22 10.1016/j.stem.2015.06.007 26140604
+L110: 28. Maggio I Adenoviral vector delivery of RNA-guided CRISPR/Cas9 nuclease complexes induces targeted mutagenesis in a diverse array of human cells Scientific reports 2014 4 5105 10.1038/srep05105 24870050
+L111: 29. Hendel A Chemically modified guide RNAs enhance CRISPR-Cas genome editing in human primary cells Nature biotechnology 2015 33 985 989 10.1038/nbt.3290 26121415
+L112: 30. Ratcliffe E Glen KE Naing MW Williams DJ Current status and perspectives on stem cell-based therapies undergoing clinical trials for regenerative medicine: case studies British medical bulletin 2013 108 73 94 10.1093/bmb/ldt034 24200742
+L113: 31. Nauta AJ Donor-derived mesenchymal stem cells are immunogenic in an allogeneic host and stimulate donor graft rejection in a nonmyeloablative setting Blood 2006 108 2114 2120 10.1182/blood-2005-11-011650 16690970
+L114: 32. Ankrum JA Ong JF Karp JM Mesenchymal stem cells: immune evasive, not immune privileged Nature biotechnology 2014 32 252 260 10.1038/nbt.2816 24561556
+L115: 33. Gu LH Immunogenicity of allogeneic mesenchymal stem cells transplanted via different routes in diabetic rats Cellular & molecular immunology 2015 12 444 455 10.1038/cmi.2014.70 25242276
+L116: 34. Riolobos L HLA engineering of human pluripotent stem cells Molecular therapy: the journal of the American Society of Gene Therapy 2013 21 1232 1241 10.1038/mt.2013.59 23629003
+L117: 35. Chen L Han X Anti-PD-1/PD-L1 therapy of human cancer: past, present, and future The Journal of clinical investigation 2015 125 3384 3391 10.1172/JCI80011 26325035
+L118: 36. John LB Anti-PD-1 antibody therapy potently enhances the eradication of established tumors by gene-modified T cells Clinical cancer research: an official journal of the American Association for Cancer Research 2013 19 5636 5646 10.1158/1078-0432.CCR-13-0458 23873688
+L119: 37. Guschin DY A rapid and general assay for monitoring endogenous gene modification Methods in molecular biology 2010 649 247 256 10.1007/978-1-60761-753-2_15 20680839
+L120: Acknowledgements
+L121: We thank Lilian Tsou for providing help in laboratory management. This work was supported by HMRI cornerstone award to X.X.(Xia), and Cystic Fibrosis Foundation Therapeutics award to J.X. (XU15XX0).
+L122: **Supplemental information**
+L123: **Title: Efficient homology-directed gene editing by CRISPR/Cas9 in human stem and**
+L124: **primary cells using tube electroporation**
+L125: Xiaoyun Xu [1, †], Dongbing Gao [1, †], Ping Wang [2], Jian Chen [3], Jinxue Ruan [4], Jie Xu [4, *], Xiaofeng
+L126: Xia [1, 5, *]
+L127: 1Chao Center for BRAIN, Department of Systems Medicine and Bioengineering, Houston
+L128: Methodist Research Institute, Houston, Texas, USA
+L129: 2Department of Pathology and Laboratory Medicine, University of Pennsylvania Perelman
+L130: School of Medicine, Philadelphia, Pennsylvania, USA
+L131: 3Celetrix Biotechnologies, Manassas, Virginia, USA
+L132: 4Center for Advanced Models and Translational Sciences and Therapeutics, University of
+L133: Michigan Medical School, Ann Arbor, MI 48109-2800
+L134: 5Weill Cornell Medical College, Cornell University, New York, New York, USA
+L135: †These authors contributed equally to this work
+L136: *Correspondence and requests for materials should be addressed to X.X. (email:
+L137: xiaofengxia01@gmail.com) or J.X. (email: jiex@umich.edu).
+L138: **Supplemental Table 1. Electroporation conditions for different cell types**
+L139: **Cell Type** **Tube size (µl)** **Voltage (V)** **Pulse time (ms)**
+L140: **DNA transfection (30 nM pCMV-GFP)**
+L141: Human iPSC 120 640 30 × 1
+L142: HEK293 cell 120 620 30 × 1
+L143: Mouse iPSC 120 660 30 × 1
+L144: Jurkat cell 120 660 30 × 1
+L145: Human adipose MSC 20 440 30 × 1
+L146: Human neural progenitor cell ReNCell VM 120 620 30 × 1
+L147: Human primary T cell 20 440 30 × 1
+L148: Human cord blood MSC 120 640 30 × 1
+L149: Rat primary cortex neural progenitor cell 120 620 30 × 1
+L150: Human ESC derived neural stem cell 120 640 30 × 1
+L151: Mouse ESC 120 660 30 × 1
+L152: Human primary hepatocyte 20 440 30 × 1
+L153: Human MM1.S 20 535 + 315 5 × 1 + 60 × 1
+L154: Human bone marrow MSC 20 440 30 × 1
+L155: **Protein transfection (0.5 μM Alexa Fluor 488-IgG)**
+L156: Human iPSC 120 620 30 × 1
+L157: Human primary T cell 20 415 30 × 1
+L158: Human adipose MSC 20 415 30 × 1
+L159: **dsRNA transfection (0.5 μM FAM-21-mer-dsRNA)**
+L160: Human iPSC 120 620 30 × 1
+L161: Human primary T cell 20 415 30 × 1
+L162: Human adipose MSC 20 415 30 × 1
+L163: **Cas9/gRNA RNP transfection (0.5 μM Cas9-NLS, 0.85 μM gRNA, with or without 2.7 μM ssODN)**
+L164: Human iPSC 120 620 30 × 1
+L165: HEK293 cell 120 620 30 × 1
+L166: Human MSC 120 620 30 × 1
+L167: Human primary T cell 120 660 30 × 1
+L168: **Supplemental Table 2. Comparison with other electroporation instruments.** Cells were transfected with pCMV-GFP plasmid and
+L169: the transfection efficiencies were measured by flow cytometry analysis of GFP expression rates. The actual survival rates were listed
+L170: on the top. The relative survival rates compared to the untransfected controls were given in parenthesis at the bottom. The survival
+L171: rates for the control untransfected cells during regular passage were 83.7±4.4; 90.1±3.6; 93.3±0.7 and 93.4±2.9 for human iPSC,
+L172: Jurkat, mouse ESC and ReNCell VM cells. The electroporation conditions for Bio-Rad Gene Pulser Xcell and Lonza 4D Nucleofector
+L173: were listed under each cell type. The tube electroporation conditions were listed in Supplemental Table 1.
+L174: |Col1|human iPSC|Col3|Jurkat|Col5|Mouse ESC|Col7|ReNCell VM|Col9|
+L175: |---|---|---|---|---|---|---|---|---|
+L176: ||Efficiency|Survival|Efficiency|Survival|Efficiency|Survival|Efficiency|Survival|
+L177: |Tube electroporation<br>|74.0±4.9%|73.1±5.3%<br>(87.3%)|75.5±2.3%|73.2±5.5%<br>(81.2%)|85.2±3.7%|92.1±3.1%<br>(98.7%)|83.1±3.5%|93.6±3.0%<br>(100.2%)|
+L178: |Bio-Rad<br>Gene Pulser Xcell<br>|15.1±2.1%<br>|24.8±4.5%<br>(29.6%)|7.5±2.7%<br>|46.0±9.1%<br>(51.1%)|56.6±6.3%<br>|58.7±1.6%<br>(62.9%)|25.7±1.8%<br>|43.9±1.7%<br>(47.0%)|
+L179: |Bio-Rad<br>Gene Pulser Xcell<br>|250V, 500μF, 1000Ω|250V, 500μF, 1000Ω|300V, 350μF, 1000Ω|300V, 350μF, 1000Ω|795V, 10μF, Ω, 0.2ms|795V, 10μF, Ω, 0.2ms|250V, 500μF, 1000Ω|250V, 500μF, 1000Ω|
+L180: |Lonza<br>4D Nucleofector<br>|46.5±3.8%<br>|55.5±1.7%<br>(66.3%)|44.4±10.9%<br>|57.9±3.0%<br>(64.3%)|74.4±3.7%<br>|76.3±6.6%<br>(81.8%)|45.0±4.0%<br>|63.1±6.1%<br>(67.6%)|
+L181: |Lonza<br>4D Nucleofector<br>|P3 solution, CB-150<br>program|P3 solution, CB-150<br>program|V4XC solution,<br>CL-120 program|V4XC solution,<br>CL-120 program|P3 solution, CG-104<br>program|P3 solution, CG-104<br>program|SG solution, DN-100<br>program|SG solution, DN-100<br>program|
+L182: |Supplemental Table 3. DNA sequences and primers for genome editing|Col2|Col3|Col4|
+L183: |---|---|---|---|
+L184: |**Target sequences (PAMs are shaded and not included)**|**Target sequences (PAMs are shaded and not included)**|**Target sequences (PAMs are shaded and not included)**|**Target sequences (PAMs are shaded and not included)**|
+L185: |Gene|gRNA#|gRNA#||
+L186: |PDCD1|gRNA1|gRNA1|GGCGTGACTTCCACATGAGCGTGG|
+L187: |PDCD1|gRNA2|gRNA2|GGCAGTTGTGTGACACGGAAGCGG|
+L188: |PDCD1|gRNA3|gRNA3|TGACGTTACCTCGTGCGGCCCGG|
+L189: |APP|gRNA1|gRNA1|GCAGAATTCCGACATGACTCAGG|
+L190: |B2M|gRNA4|gRNA4|CCAGAAAGAGAGAGTAGCGCGAG<br>|
+L191: |B2M|gRNA6|gRNA6|GGCCGAGATGTCTCGCTCCGTGG|
+L192: |B2M|gRNA8|gRNA8|CCACCTCTTGATGGGGCTAGTAG|
+L193: |B2M|gRNA13|gRNA13|GCTACTCTCTCTTTCTGGCCTGG|
+L194: |AAVS1|gRNA1|gRNA1|GCCAGTAGCCAGCCCCGTCCTGG|
+L195: |OCT4|gRNA1|gRNA1|TCTCCCATGCATTCAAACTGAGG|
+L196: |**Primers for gRNA synthesis**|**Primers for gRNA synthesis**|**Primers for gRNA synthesis**|**Primers for gRNA synthesis**|
+L197: |Gene|gRNA#|||
+L198: |PDCD1|gRNA1|Fwd|TAATACGACTCACTATAGGCGTGACTTCCACATG|
+L199: |PDCD1|gRNA1|Rev|TTCTAGCTCTAAAACCGCTCATGTGGAAGTCACG|
+L200: |PDCD1|gRNA2|Fwd|TAATACGACTCACTATAGCAGTTGTGTGACACGG|
+L201: |PDCD1|gRNA2|Rev|TTCTAGCTCTAAAACCTTCCGTGTCACACAACTG|
+L202: |PDCD1|gRNA3|Fwd|TAATACGACTCACTATAGTGACGTTACCTCGTGC|
+L203: |PDCD1|gRNA3|Rev|TTCTAGCTCTAAAACGGCCGCACGAGGTAACGTC|
+L204: |APP|gRNA1|Fwd|TAATACGACTCACTATAGCAGAATTCCGACATGA|
+L205: |APP|gRNA1|Rev|TTCTAGCTCTAAAACGAGTCATGTCGGAATTCTG|
+L206: |B2M|gRNA4|Fwd|TAATACGACTCACTATAGCCAGAAAGAGAGAGTA|
+L207: |B2M|gRNA4|Rev|TTCTAGCTCTAAAACGCGCTACTCTCTCTTTCTG|
+L208: |B2M|gRNA6|Fwd|TAATACGACTCACTATAGGCCGAGATGTCTCGCT|
+L209: |B2M|gRNA6|Rev|TTCTAGCTCTAAAACCGGAGCGAGACATCTCGGC|
+L210: |B2M|gRNA8|Fwd|TAATACGACTCACTATAGCCACCTCTTGATGGGG|
+L211: |B2M|gRNA8|Rev|TTCTAGCTCTAAAACCTAGCCCCATCAAGAGGTG|
+L212: |B2M|gRNA13|Fwd|TAATACGACTCACTATAGCTACTCTCTCTTTCTG|
+L213: |B2M|gRNA13|Rev|TTCTAGCTCTAAAACGGCCAGAAAGAGAGAGTAG|
+L214: |AAVS1|gRNA1|Fwd|TAATACGACTCACTATAGGCCAGTAGCCAGCCCC|
+L215: |AAVS1|gRNA1|Rev|TTCTAGCTCTAAAACGGACGGGGCTGGCTACTGG|
+L216: |OCT4|gRNA1|Fwd|TAATACGACTCACTATAGTCTCCCATGCATTCAA|
+L217: |OCT4|gRNA1|Rev|TTCTAGCTCTAAAACCAGTTTGAATGCATGGGAG|
+L218: |Primers for PCR amplifying the target regions|Col2|Col3|Col4|
+L219: |---|---|---|---|
+L220: |PDCD1|gRNA1|Fwd|GGACAACGCCACCTTCACCTGC|
+L221: |PDCD1|gRNA1|Rev|CTACGACCCTGGAGCTCCTGAT|
+L222: |PDCD1|gRNA2|Fwd|GGACAACGCCACCTTCACCTGC|
+L223: |PDCD1|gRNA2|Rev|CTACGACCCTGGAGCTCCTGAT|
+L224: |PDCD1|gRNA3|Fwd|TCCTAACCCCTGACCTTTGTGC|
+L225: |PDCD1|gRNA3|Rev|CGGTGCGCCTGGCTCCTATTGT|
+L226: |APP|gRNA1|Fwd|GGGTAGGCTTTGTCTTACAGTGTTAT|
+L227: |APP|gRNA1|Rev|ATCCTATAGGCAAGCATTGTATTTTTA|
+L228: |B2M|gRNA4|Fwd|CTGGCTTGGAGACAGGTGAC|
+L229: |B2M|gRNA4|Rev|GACGCTTATCGACGCCCTAA|
+L230: |B2M|gRNA6|Fwd|CTGGCTTGGAGACAGGTGAC|
+L231: |B2M|gRNA6|Rev|GACGCTTATCGACGCCCTAA|
+L232: |B2M|gRNA8|Fwd|CAAAATCTTGCCGCCTTCCC|
+L233: |B2M|gRNA8|Rev|ACTTTCCAAAATGAGAGGCATGA|
+L234: |B2M|gRNA13|Fwd|CTGGCTTGGAGACAGGTGAC|
+L235: |B2M|gRNA13|Rev|GACGCTTATCGACGCCCTAA|
+L236: |AAVS1|gRNA1|Fwd|GAATATGTCCCAGATAGCAC|
+L237: |AAVS1|gRNA1|Rev|GTTCTCAGTGGCCACCCTGC|
+L238: |OCT4|gRNA1|Fwd|CAGATCAGCCACATCGCCCA|
+L239: |OCT4|gRNA1|Rev|ATCAAGAACATCATTGAACT|
+L240: |**ssODNs**|**ssODNs**|**ssODNs**|**ssODNs**|
+L241: |Gene|gRNA#|gRNA#||
+L242: |PDCD1|gRNA2|gRNA2|TGACCACGCTCATGTGGAAGTCACGCCCGTTGGGCAGTTGTGTGAC<br>ACGGAAGCGCAGTCCTGGCCGGGCTGGCTGCGGTCCTCGGGGAA<br>GGCGGCCAG|
+L243: |APP|gRNA1|gRNA1|AAGACGGAGGAGATCTCTGAAGTGAATCTGGATGCAGAATTCCGAC<br>ATGACTCAGCATATGAAGTTCATCATCAAAAATTGGTACGTAAAATA<br>ATTTACC|
+L244: |B2M|gRNA4|gRNA4|GGGTAGGAGAGACTCACGCTGGATAGCCTCCAGGCCAGAAAGAGA<br>GAGTAGCGCGACGCACAGCTAAGGCCACGGAGCGAGACATCTCGG<br>CCCGAATGCT|
+L245: |B2M|gRNA6|gRNA6|GCTGGCGGGCATTCCTGAAGCTGACAGCATTCGGGCCGAGATGTC<br>TCGCTCCGTGCGCCTTAGCTGTGCTCGCGCTACTCTCTCTTTCTGG<br>CCTGGAGGC|
+L246: **Supplemental Table 4-1.DNA sequencing results of human iPSC transfected with RNP**
+L247: **targeting APP gene. Mutated sites are in red.**
+L248: Experiment Batch 1
+L249: Clone#7. GAAGATGGATGCAGAATTCCGAT--------------------ATATGAAGTT
+L250: Experiment Batch 2
+L251: Clone#15. GAAGATGGATGCAGAATTCCGAC---------ATGA-------ATATGAAGTT
+L252: Clone#18. GAAGATGGATGCAGAATTCCGAC---------ATGA--------TATGAAGTT
+L253: |Total clones sequenced<br>16|Col2|
+L254: |---|---|
+L255: |Wildtype<br>43.8%|Indels<br>56.3%|
+L256: **Supplemental Table 4-2.DNA sequencing results of human iPSC transfected with RNP**
+L257: **targeting APP gene and ssODN template carrying G to C mutation in PAM. Mutated sites are**
+L258: **in red.**
+L259: Experiment Batch 1
+L260: Clone#6. GAAGATGGATGCAGAATTCCGAC--------------------------------ATGA-----------GAAGTT
+L261: Clone#8. GAAGATGGATGCAGAATTCCGA--------------------------ATTGAATCATC-------ATATGAAGTT
+L262: Clone#15. GAAGATGGATGCAGAATTCCGAC--------------------------------ATGA--------TATGAAGTT
+L263: Experiment Batch 2
+L264: Clone#26. GAAGATGGATGCAGAATTCCGAC--------------------------------ATGA-------ATATGAAGTT
+L265: Clone#32. GAAGATGGATGCAGAATTCCGAC--------------------------------ATGA--------TATGAAGTT
+L266: |Total clones sequenced<br>38|Col2|Col3|
+L267: |---|---|---|
+L268: |Wildtype<br>10.5%|Mutations<br>89.5%|Mutations<br>89.5%|
+L269: |Wildtype<br>10.5%|InDels<br>47.4%|Scarless<br>point (G→C)<br>mutations<br>42.1%|
+L270: |Supplemental table 5. Pathological m A. Summary|Col2|
+L271: |---|---|
+L272: |Total gene number 22|Total gene number 22|
+L273: |Total mutation number 3,382<br>|Total mutation number 3,382<br>|
+L274: |Mutations<br>eliminating<br>PAM 526<br>(15.6%)|Mutations creating<br>PAM 322 (9.5%)|
+L275: **B. Full mutation list**
+L276: **HGMD accession#** **DNA mutation** **Amino acid change phenotype**
+L277: **Gene**
+L278: **name:ATP7B**
+L279: mutations
+L280: eliminate a
+L281: PAM (78)
+L282: CM980163 GGC-GTC Gly-Val Wilson disease
+L283: CM123052 GGA-GTA Gly-Val Wilson disease
+L284: HM050020 GGT-GTT Gly-Val Wilson disease
+L285: CM128750 CCC-CTC Pro-Leu Wilson disease
+L286: CM053128 GGC-GAC Gly-Asp Wilson disease
+L287: CM950109 GGC-GCC Gly-Ala Wilson disease
+L288: CM074060 TCC-TAC Ser-Tyr Wilson disease
+L289: CM973225 TCC-TGC Ser-Cys Wilson disease
+L290: CM960121 GGT-CGT Gly-Arg Wilson disease
+L291: CM983395 GGT-GCT Gly-Ala Wilson disease
+L292: CM053130 GGT-GTT Gly-Val Wilson disease
+L293: CM960122 GGG-GAG Gly-Glu Wilson disease
+L294: CM992593 GGG-TGG Gly-Trp Wilson disease
+L295: CM1210111 GCC-GAC Ala-Asp Wilson disease
+L296: CM1210110 GCC-GTC Ala-Val Wilson disease
+L297: CM125004 GCC-GTC Ala-Val Wilson disease
+L298: CM016106 AGG-ATG Arg-Met Wilson disease
+L299: CM024203 CCC-CAC Pro-His Wilson disease
+L300: CM067648 CCC-CTC Pro-Leu Wilson disease
+L301: CM950111 CGG-CTG Arg-Leu Wilson disease
+L302: CM053796 TGG-TGA Trp-Term Wilson disease
+L303: CM1111074 ACC-ATC Thr-Ile Wilson disease
+L304: CM128748 AGG-AGT Arg-Ser Wilson disease
+L305: CM076005 CGG-CCG Arg-Pro Wilson disease
+L306: CM123056 GGG-GAG Gly-Glu Wilson disease
+L307: CM111988 ACC-ATC Thr-Ile Wilson disease
+L308: CM117982 TCC-TAC Ser-Tyr Wilson disease
+L309: CM962394 GGA-GTA Gly-Val Wilson disease
+L310: CM074057 GGC-GAC Gly-Asp Wilson disease
+L311: CM960127 GGC-GTC Gly-Val Wilson disease
+L312: CM119350 TGG-TGT Trp-Cys
+L313: wilson diseasewith
+L314: early and/or severe
+L315: hepatic disease
+L316: CM980179 GGT-GAT Gly-Asp Wilson disease
+L317: CM994112 GGT-TGT Gly-Cys Wilson disease
+L318: CM032850 TCC-TAC Ser-Tyr Wilson disease
+L319: CM076007 GCC-GTC Ala-Val Wilson disease
+L320: CM107540 TCC-TTC Ser-Phe Wilson disease
+L321: CM1210113 GGG-GTG Gly-Val Wilson disease
+L322: CM051387 CCC-CAC Pro-His Wilson disease
+L323: CM114901 GGC-GAC Gly-Asp Wilson disease
+L324: CM075999 GGC-CGC Gly-Arg Wilson disease
+L325: CM076008 GGC-GTC Gly-Val Wilson disease
+L326: CM110340 CCC-CTC Pro-Leu Wilson disease
+L327: CM053785 ACC-AGC Thr-Ser Wilson disease
+L328: CM970143 GGC-GTC Gly-Val Wilson disease
+L329: CM992820 CGG-CCG Arg-Pro Wilson disease
+L330: CM992599 CCC-CTC Pro-Leu Wilson disease
+L331: CM992600 GGG-GAG Gly-Glu Wilson disease
+L332: CM960130 GGA-GAA Gly-Glu Wilson disease
+L333: CM980184 GGA-GTA Gly-Val Wilson disease
+L334: CM032851 CCA-CGA Pro-Arg Wilson disease
+L335: CM024365 GGC-GAC Gly-Asp Wilson disease
+L336: Hepatocerebral
+L337: CM095180 GGC-GCC Gly-Ala
+L338: degeneration
+L339: CM110342 GGA-GAA Gly-Glu Wilson disease
+L340: CM081179 GGA-GCA Gly-Ala Wilson disease
+L341: CM980187 TGG-TGT Trp-Cys Wilson disease
+L342: CM116729 GGT-GTT Gly-Val Wilson disease
+L343: CM053127 GGA-GAA Gly-Glu Wilson disease
+L344: CM970146 GGT-TGT Gly-Cys Wilson disease
+L345: CM980191 GGT-GTT Gly-Val Wilson disease
+L346: CM053129 GGG-GAG Gly-Glu Wilson disease
+L347: CM1210112 CCT-ACT Pro-Thr Wilson disease
+L348: CM970148 GGG-GTG Gly-Val Wilson disease
+L349: CM061645 CCG-CAG Pro-Gln Wilson disease
+L350: CM035477 CCG-TCG Pro-Ser Wilson disease
+L351: CM074058 GGT-GAT Gly-Asp Wilson disease
+L352: CM080090 GGT-TGT Gly-Cys Wilson disease
+L353: CM125013 GGC-CGC Gly-Arg Wilson disease
+L354: CM118182 GCC-GAC Ala-Asp Wilson disease
+L355: CM080086 AGG-AGC Arg-Ser Wilson disease
+L356: CM082493 GGT-CGT Gly-Arg Wilson disease
+L357: CM980194 GGT-GAT Gly-Asp Wilson disease
+L358: CM053131 GGT-GTT Gly-Val Wilson disease
+L359: CM076002 CCC-CGC Pro-Arg Wilson disease
+L360: CM057647 CCC-CTC Pro-Leu Wilson disease
+L361: CM107542 GGC-GAC Gly-Asp Wilson disease
+L362: CM053791 GGC-TGC Gly-Cys Wilson disease
+L363: CM053125 CCT-TCT Pro-Ser Wilson disease
+L364: CM082497 TGG-TGA Trp-Term Wilson disease
+L365: mutations
+L366: create a PAM CM077234 GAC-GGC Asp-Gly wilson disease
+L367: (45)
+L368: CM077234 GAC-GGC Asp-Gly wilson disease
+L369: CM129457 GCA-CCA Ala-Pro wilson disease
+L370: CM125002 GAG-GGG Glu-Gly Wilson disease
+L371: CM081181 GTC-GCC Val-Ala Wilson disease
+L372: CM970138 ATG-AGG Met-Arg Wilson disease
+L373: CM970139 CTC-CCC Leu-Pro Wilson disease
+L374: CM022324 TCT-CCT Ser-Pro Wilson disease
+L375: CM992594 TCT-CCT Ser-Pro Wilson disease
+L376: CM053126 GCG-GGG Ala-Gly Wilson disease
+L377: CM032847 GAC-GGC Asp-Gly Wilson disease
+L378: CM045739 ACG-AGG Thr-Arg Wilson disease
+L379: CM1210109 ACG-CCG Thr-Pro wilson disease
+L380: CM992595 ATG-AGG Met-Arg Wilson disease
+L381: CM109468 CTC-CCC Leu-Pro Wilson disease
+L382: CM994110 GAA-GGA Glu-Gly Wilson disease
+L383: CM950113 ATC-ACC Ile-Thr Wilson disease
+L384: CM125006 GAA-GGA Glu-Gly Wilson disease
+L385: CM123057 GTC-GGC Val-Gly Wilson disease
+L386: CM110338 GCG-CCG Ala-Pro Wilson disease
+L387: CM072876 GAC-GCC Asp-Ala Wilson disease
+L388: CM980178 ACT-CCT Thr-Pro Wilson disease
+L389: CM040681 GTT-GGT Val-Gly Wilson disease
+L390: CM111989 ACG-AGG Thr-Arg Wilson disease
+L391: CM081172 CAG-CCG Gln-Pro Wilson disease
+L392: CM080087 ATG-AGG Met-Arg Wilson disease
+L393: CM068336 CAT-CCT His-Pro Wilson disease
+L394: CM962395 CTC-CCC Leu-Pro Wilson disease
+L395: CM992822 GAA-GGA Glu-Gly Wilson disease
+L396: CM992601 CAG-CCG Gln-Pro Wilson disease
+L397: CM044579 GTC-GCC Val-Ala Wilson disease
+L398: CM061648 GCT-CCT Ala-Pro Wilson disease
+L399: CM980188 GCT-GGT Ala-Gly Wilson disease
+L400: CM061647 GCA-CCA Ala-Pro Wilson disease
+L401: CM1210108 CAG-CCG Gln-Pro Wilson disease
+L402: CM125010 CAG-CCG Gln-Pro Wilson disease
+L403: CM057645 ATC-ACC Ile-Thr Wilson disease
+L404: CM992602 GTC-GGC Val-Gly Wilson disease
+L405: CM125012 GCA-GGA Ala-Gly Wilson disease
+L406: CM003413 GAC-GGC Asp-Gly Wilson disease
+L407: CM064991 ACG-AGG Thr-Arg Wilson disease
+L408: CM970150 CGC-CCC Arg-Pro Wilson disease
+L409: CM053788 CTC-CCC Leu-Pro Wilson disease
+L410: CM001617 CTC-CCC Leu-Pro Wilson disease
+L411: CM053133 TGC-TCC Cys-Ser Wilson disease
+L412: CM107544 GCA-CCA Ala-Pro Wilson disease
+L413: **Gene**
+L414: **name:CP**
+L415: mutations
+L416: eliminate a CM035016 CCT-CGT Pro-Arg
+L417: PAM (5)
+L418: CM035016 CCT-CGT Pro-Arg Aceruloplasminaemia
+L419: CM066770 TGG-TCG Trp-Ser Aceruloplasminaemia
+L420: CM057327 GCC-GAC Ala-Asp Aceruloplasminaemia
+L421: Multiple sytem
+L422: CM035041 GGA-GAA Gly-Glu
+L423: atrophy
+L424: CM066769 GGC-GCC Gly-Ala Aceruloplasminaemia
+L425: **Gene**
+L426: **name:HEXA**
+L427: mutations
+L428: eliminate a CM910214 TGG-TGA Trp-Term Tay-Sachs disease
+L429: PAM (11)
+L430: CM910214 TGG-TGA Trp-Term Tay-Sachs disease
+L431: CM910217 TCC-TTC Ser-Phe Tay-Sachs disease
+L432: CM970717 TCC-TTC Ser-Phe Tay-Sachs disease
+L433: CM920336 GGT-GAT Gly-Asp Tay-Sachs disease
+L434: CM001188 GGT-GTT Gly-Val Tay-Sachs disease
+L435: CM126852 CCT-TCT Pro-Ser Tay-Sachs disease
+L436: CM970718 GGT-GAT Gly-Asp Tay-Sachs disease
+L437: CM900127 TGG-TGC Trp-Cys Tay-Sachs disease
+L438: CM034664 TGG-TGT Trp-Cys Gangliosidosis GM2
+L439: CM983745 GGT-GAT Gly-Asp Tay-Sachs disease
+L440: CM980972 TGG-TGC Trp-Cys Gangliosidosis GM2
+L441: mutations
+L442: create a PAM CM952144 CGC-GGC Arg-Gly Tay-Sachs disease
+L443: (5)
+L444: CM952144 CGC-GGC Arg-Gly Tay-Sachs disease
+L445: CM930395 TTC-TCC Phe-Ser Tay-Sachs disease
+L446: CM970719 TCT-CCT Ser-Pro Tay-Sachs disease
+L447: CM930397 ATG-AGG Met-Arg Tay-Sachs disease
+L448: CM125500 CGA-CCA Arg-Pro Tay-Sachs disease
+L449: **Gene**
+L450: **name:PPOX**
+L451: mutations
+L452: eliminate a
+L453: PAM (16)
+L454: CM0911069 GGA-TGA Gly-Term Porphyria, variegate
+L455: CM066970 GGC-GAC Gly-Asp Porphyria, variegate
+L456: CM992403 GGA-GAA Gly-Glu Porphyria, variegate
+L457: CM040243 GGA-GCA Gly-Ala Porphyria, variegate
+L458: CM030943 TGG-TGA Trp-Term Porphyria, variegate
+L459: CM001311 CGG-CCG Arg-Pro Porphyria, variegate
+L460: HM070048 GGC-GAC Gly-Asp Porphyria, variegate
+L461: CM981617 GGA-GAA Gly-Glu Porphyria, variegate
+L462: CM992413 TGG-TGA Trp-Term Porphyria, variegate
+L463: CM961147 GGT-CGT Gly-Arg Porphyria, variegate
+L464: CM011458 CCG-CGG Pro-Arg Reduced activity
+L465: CM031720 GGA-CGA Gly-Arg Porphyria, variegate
+L466: CM087304 GGA-GCA Gly-Ala Porphyria, variegate
+L467: CM992419 TGG-TGA Trp-Term Porphyria, variegate
+L468: CM992420 TGG-TGA Trp-Term Porphyria, variegate
+L469: CM992423 GGA-GTA Gly-Val Porphyria, variegate
+L470: mutations
+L471: create a PAM CM011457 ATC-ACC Ile-Thr Porphyria, variegate
+L472: (11)
+L473: CM961144 CAC-CCC His-Pro Porphyria, variegate
+L474: CM992402 CGT-CCT Arg-Pro Porphyria, variegate
+L475: CM992404 CTC-CCC Leu-Pro Porphyria, variegate
+L476: CM992405 GTG-GGG Val-Gly Porphyria, variegate
+L477: CM003896 CAT-CCT His-Pro Porphyria, variegate
+L478: CM992416 CTC-CCC Leu-Pro Porphyria, variegate
+L479: CM992417 GTG-GGG Val-Gly Porphyria, variegate
+L480: CM981618 GAC-GCC Asp-Ala Porphyria, variegate
+L481: CM992418 TCA-CCA Ser-Pro Porphyria, variegate
+L482: CM961148 GCT-CCT Ala-Pro Porphyria, variegate
+L483: **Gene**
+L484: **name:HBB**
+L485: mutations
+L486: eliminate a CM840028 CCT-CGT Pro-Arg Haemoglobin variant
+L487: PAM (61)
+L488: CM011457 ATC-ACC Ile-Thr Porphyria, variegate
+L489: CM840028 CCT-CGT Pro-Arg Haemoglobin variant
+L490: CM031994 CCT-GCT Pro-Ala Haemoglobin variant
+L491: CM940915 CCT-TCT Pro-Ser Haemoglobin variant
+L492: CM860058 GCC-GAC Ala-Asp Haemoglobin variant
+L493: CM990717 GCC-GTC Ala-Val Haemoglobin variant
+L494: CM092642 GCC-GTC Ala-Val Thalassaemia beta
+L495: CM900120 TGG-TGA Trp-Term Thalassaemia beta
+L496: CM087631 GGC-CGC Gly-Arg Haemoglobin variant
+L497: CM860029 GGC-GAC Gly-Asp Haemoglobin variant
+L498: CM870088 GGT-GAT Gly-Asp Haemoglobin variant
+L499: CM930370 GCC-GAC Ala-Asp Haemoglobin variant
+L500: CM973679 GCC-GGC Ala-Gly Haemoglobin variant
+L501: CM952029 GGC-GAC Gly-Asp Haemoglobin variant
+L502: CM930372 AGG-AGT Arg-Ser Haemoglobin variant
+L503: CM870034 CCT-ACT Pro-Thr Haemoglobin variant
+L504: CM001710 CCT-CAT Pro-His Haemoglobin variant
+L505: CM880151 CCT-CGT Pro-Arg Haemoglobin variant
+L506: CM993614 CCT-GCT Pro-Ala Haemoglobin variant
+L507: CM850014 CCT-TCT Pro-Ser Haemoglobin variant
+L508: CM830030 TGG-TCG Trp-Ser Haemoglobin variant
+L509: CM860011 TGG-TGA Trp-Term Thalassaemia beta
+L510: CM1110588 TGG-TGT Trp-Cys Haemoglobin variant
+L511: CM962426 ACC-AAC Thr-Asn Haemoglobin variant
+L512: CM066097 ACC-ATC Thr-Ile Haemoglobin variant
+L513: CM870035 TCC-TGC Ser-Cys Haemoglobin variant
+L514: CM931407 GGG-GAG Gly-Glu Haemoglobin variant
+L515: CM880152 TCC-TTC Ser-Phe Haemoglobin variant
+L516: CM830029 CCT-CGT Pro-Arg Haemoglobin variant
+L517: BM1132884 GGC-CGC Gly-Arg Thalassaemia beta
+L518: CM920320 GGC-GAC Gly-Asp Haemoglobin variant
+L519: CM076229 GGC-TGC Gly-Cys Haemoglobin variant
+L520: CM952452 CCT-CGT Pro-Arg Haemoglobin variant
+L521: CM024479 GGC-GAC Gly-Asp Haemoglobin variant
+L522: CM024478 GGC-GCC Gly-Ala Haemoglobin variant
+L523: CM942304 GCC-GAC Ala-Asp Haemolytic anaemia
+L524: CM057104 GCC-GGC Ala-Gly Thalassaemia beta
+L525: CM066099 GCC-GTC Ala-Val Haemoglobin variant
+L526: CM810022 GGC-GAC Gly-Asp Haemoglobin variant
+L527: CM950616 GGC-GTC Gly-Val Haemolytic anaemia
+L528: CM940920 GGC-GAC Gly-Asp Haemoglobin variant
+L529: CM0910548 ACC-AAC Thr-Asn Haemoglobin variant
+L530: CM870036 GCC-GAC Ala-Asp Haemoglobin variant
+L531: CM128485 GCC-GTC Ala-Val Haemoglobin variant
+L532: CM850041 CCT-CGT Pro-Arg Haemoglobin variant
+L533: CM099802 CCT-GCT Pro-Ala Haemoglobin variant
+L534: CM920323 AGG-ACG Arg-Thr Haemoglobin variant
+L535: CM044639 AGG-AGC Arg-Ser Haemoglobin variant
+L536: CM066874 GGC-GAC Gly-Asp Haemoglobin variant
+L537: CM930380 GCC-GAC Ala-Asp Thalassaemia beta
+L538: CM097720 GCC-GTC Ala-Val Haemoglobin variant
+L539: CM940924 GGC-GAC Gly-Asp Haemoglobin variant
+L540: CM045165 GGC-GCC Gly-Ala Haemoglobin variant
+L541: CM014199 ACC-ATC Thr-Ile Haemoglobin variant
+L542: CM066870 CCA-CAA Pro-Gln Erythrocytosis
+L543: CM995296 CCA-CGA Pro-Arg Haemoglobin variant
+L544: CM102820 GCC-GTC Ala-Val Thalassaemia beta
+L545: CM024482 GGT-GAT Gly-Asp Haemoglobin variant
+L546: CM860057 GCC-GAC Ala-Asp Haemoglobin variant
+L547: CM950621 GCC-GTC Ala-Val Haemoglobin variant
+L548: CM800018 GCC-GAC Ala-Asp Haemoglobin variant
+L549: CM099825 GCC-GTC Ala-Val Haemoglobin variant
+L550: mutations
+L551: create a PAM CM900119 ATG-AGG Met-Arg Thalassaemia beta
+L552: (48)
+L553: CM900119 ATG-AGG Met-Arg Thalassaemia beta
+L554: CM860010 CAT-CCT His-Pro Haemoglobin variant
+L555: CM994596 GAG-GGG Glu-Gly Haemoglobin variant
+L556: CM962425 CTG-CGG Leu-Arg Haemoglobin variant
+L557: CM930367 GTG-GGG Val-Gly Haemoglobin variant
+L558: CM960814 GTG-GGG Val-Gly Haemoglobin variant
+L559: CM810018 GAT-GGT Asp-Gly Haemoglobin variant
+L560: CM810019 GTT-GGT Val-Gly Haemoglobin variant
+L561: CM910202 CTG-CGG Leu-Arg Haemoglobin variant
+L562: CM950611 CTG-CGG Leu-Arg Haemoglobin variant
+L563: CM800015 CTG-CGG Leu-Arg Haemoglobin variant
+L564: CM941956 TTC-TCC Phe-Ser Haemoglobin variant
+L565: CM099696 CTG-CGG Leu-Arg Haemoglobin variant
+L566: CM085461 GAT-GGT Asp-Gly Haemoglobin variant
+L567: CM068517 GCT-CCT Ala-Pro Haemoglobin variant
+L568: CM860055 CAT-CCT His-Pro Haemoglobin variant
+L569: CM931128 GTG-GGG Val-Gly Haemoglobin variant
+L570: CM910205 CTC-CCC Leu-Pro Haemoglobin variant
+L571: CM800016 CTG-CGG Leu-Arg Haemoglobin variant
+L572: CM910589 GCT-CCT Ala-Pro Haemoglobin variant
+L573: CM087534 ACA-CCA Thr-Pro Thalassaemia beta
+L574: CM870090 CTG-CGG Leu-Arg Haemoglobin variant
+L575: CM850039 GAG-GGG Glu-Gly Haemoglobin variant
+L576: CM950617 CTG-CGG Leu-Arg Haemoglobin variant
+L577: CM994597 CAC-CCC His-Pro Haemoglobin variant
+L578: CM120278 TGT-TGG Cys-Trp Haemoglobin variant
+L579: CM045163 GAC-GGC Asp-Gly Haemoglobin variant
+L580: CM850040 CAC-CCC His-Pro Haemoglobin variant
+L581: CM920970 GTG-GGG Val-Gly Haemoglobin variant
+L582: CM810024 GAT-GGT Asp-Gly Haemoglobin variant
+L583: CM066872 GAG-GGG Glu-Gly Erythrocytosis
+L584: CM830032 AAC-ACC Asn-Thr Haemoglobin variant
+L585: CM109509 CTC-CCC Leu-Pro Haemoglobin variant
+L586: CM910591 CTG-CGG Leu-Arg Haemoglobin variant
+L587: CM910726 GTC-GCC Val-Ala Haemoglobin variant
+L588: CM960819 TGT-TGG Cys-Trp Haemoglobin variant
+L589: CM057102 CAT-CCT His-Pro Thalassaemia beta
+L590: CM830033 CAC-CCC His-Pro Haemoglobin variant
+L591: CM095603 TTC-TCC Phe-Ser Haemolytic anaemia
+L592: CM910208 GTG-GGG Val-Gly Haemoglobin variant
+L593: CM950620 CAG-CCG Gln-Pro Thalassaemia beta
+L594: CM014200 GCT-CCT Ala-Pro Haemoglobin variant
+L595: CM870038 CAG-CCG Gln-Pro Haemoglobin variant
+L596: CM930384 GCT-CCT Ala-Pro Haemoglobin variant
+L597: CM920327 GCT-CCT Ala-Pro Haemoglobin variant
+L598: CM962429 CTG-CGG Leu-Arg Haemoglobin variant
+L599: CM066867 CAC-CCC His-Pro Erythrocytosis
+L600: CM014202 CAC-CCC His-Leu Haemoglobin variant
+L601: **Gene**
+L602: **name:PKHD1**
+L603: mutations
+L604: Polycystic kidney
+L605: eliminate a CM051120 CCC-CGC Pro-Arg
+L606: disease
+L607: PAM (33)
+L608: Polycystic kidney
+L609: CM041053 TGG-TGA Trp-Term
+L610: disease
+L611: Polycystic kidney
+L612: CM051122 GGG-GTG Gly-Val
+L613: disease
+L614: Polycystic kidney
+L615: CM034265 GGC-GTC Gly-Val
+L616: disease
+L617: Polycystic kidney
+L618: CM100562 TGG-TGA Trp-Term
+L619: disease
+L620: Polycystic kidney
+L621: CM051125 TGG-TGA Trp-Term
+L622: disease
+L623: Polycystic kidney
+L624: CM051126 GGT-CGT Gly-Arg
+L625: disease
+L626: Polycystic kidney
+L627: CM100417 GGG-GAG Gly-Glu
+L628: disease
+L629: Polycystic kidney
+L630: CM051127 GGG-GCG Gly-Ala
+L631: disease
+L632: Polycystic kidney
+L633: CM051128 GGT-GAT Gly-Asp
+L634: disease
+L635: Polycystic kidney
+L636: CM100407 GGT-GTT Gly-Val
+L637: disease
+L638: Polycystic kidney
+L639: CM100570 GGC-GTC Gly-Val
+L640: disease
+L641: Polycystic kidney
+L642: CM032310 TGG-TGT Trp-Cys
+L643: disease
+L644: Polycystic kidney
+L645: CM051133 CCC-CGC Pro-Arg
+L646: disease
+L647: Polycystic kidney
+L648: CM100410 CCA-CGA Pro-Arg
+L649: disease
+L650: Polycystic kidney
+L651: CM054803 ACC-ATC Thr-Ile
+L652: disease
+L653: Polycystic kidney
+L654: CM032318 CCT-ACT Pro-Thr
+L655: disease
+L656: Polycystic kidney
+L657: CM051150 GGC-CGC Gly-Arg
+L658: disease
+L659: Polycystic kidney
+L660: CM100560 CCC-CTC Pro-Leu
+L661: disease
+L662: Polycystic kidney
+L663: CM051156 TGG-TGT Trp-Cys
+L664: disease
+L665: Polycystic kidney
+L666: CM100415 TGG-TTG Trp-Leu
+L667: disease
+L668: Polycystic kidney
+L669: CM034272 GGC-GAC Gly-Asp
+L670: disease
+L671: Polycystic kidney
+L672: CM100425 GGG-GAG Gly-Glu
+L673: disease
+L674: Polycystic kidney
+L675: CM100424 GGA-CGA Gly-Arg
+L676: disease
+L677: Polycystic kidney
+L678: CM052344 GGA-GAA Gly-Glu
+L679: disease
+L680: Polycystic kidney
+L681: CM051178 GGT-TGT Gly-Cys
+L682: disease
+L683: Polycystic kidney
+L684: CM051182 GGT-GTT Gly-Val
+L685: disease
+L686: Polycystic kidney
+L687: CM054819 TGG-TGA Trp-Term
+L688: disease
+L689: Polycystic kidney
+L690: CM051185 AGG-ACG Arg-Thr
+L691: disease
+L692: Polycystic kidney
+L693: CM034285 TGG-TGA Trp-Term
+L694: disease
+L695: Polycystic kidney
+L696: CM051188 CCT-CTT Pro-Leu
+L697: disease
+L698: Polycystic kidney
+L699: CM054812 CCA-ACA Pro-Thr
+L700: disease
+L701: Polycystic kidney
+L702: CM034288 CCA-TCA Pro-Ser
+L703: disease
+L704: mutations
+L705: Polycystic kidney
+L706: create a PAM CM051119 TTC-TCC Phe-Ser
+L707: disease
+L708: (24)
+L709: Polycystic kidney
+L710: CM051119 TTC-TCC Phe-Ser
+L711: disease
+L712: Polycystic kidney
+L713: CM100422 ATC-ACC Ile-Thr
+L714: disease
+L715: Polycystic kidney
+L716: CM100565 CGA-GGA Arg-Gly
+L717: disease
+L718: Polycystic kidney
+L719: CM032308 CGA-CCA Arg-Pro
+L720: disease
+L721: Polycystic kidney
+L722: CM100439 CAT-CCT His-Pro
+L723: disease
+L724: Polycystic kidney
+L725: CM034266 ACT-CCT Thr-Pro
+L726: disease
+L727: Polycystic kidney
+L728: CM051137 CAT-CCT His-Pro
+L729: disease
+L730: Polycystic kidney
+L731: CM051138 CTC-CCC Leu-Pro
+L732: disease
+L733: Polycystic kidney
+L734: CM020492 TGT-TGG Cys-Trp
+L735: disease
+L736: Polycystic kidney
+L737: CM100418 GTG-GGG Val-Gly
+L738: disease
+L739: Polycystic kidney
+L740: CM100440 GTT-GGT Val-Gly
+L741: disease
+L742: Polycystic kidney
+L743: CM054808 CAG-CCG Gln-Pro
+L744: disease
+L745: Polycystic kidney
+L746: CM032323 GAT-GGT Asp-Trp
+L747: disease
+L748: Polycystic kidney
+L749: CM065390 ATC-ACC Ile-Thr
+L750: disease
+L751: Polycystic kidney
+L752: CM034274 TGC-GGC Cys-Gly
+L753: disease
+L754: Polycystic kidney
+L755: CM104211 GTC-GCC Val-Ala
+L756: disease
+L757: Polycystic kidney
+L758: CM034277 CTT-CCT Leu-Pro
+L759: disease
+L760: Polycystic kidney
+L761: CM100413 GTT-GGT Val-Gly
+L762: disease
+L763: Polycystic kidney
+L764: CM041061 GAC-GGC Asp-Gly
+L765: disease
+L766: Polycystic kidney
+L767: CM051172 CAT-CCT His-Pro
+L768: disease
+L769: Polycystic kidney
+L770: CM034281 GTA-GGA Val-Gly
+L771: disease
+L772: Polycystic kidney
+L773: CM051176 CAT-CCT His-Pro
+L774: disease
+L775: Polycystic kidney
+L776: CM100559 GAC-GGC Asp-Gly
+L777: disease
+L778: Polycystic kidney
+L779: CM032335 GTC-GGC Val-Gly
+L780: disease
+L781: **Gene**
+L782: **name:PKD1**
+L783: mutations
+L784: Polycystic kidney
+L785: eliminate a CM010372 TCC-TTC Ser-Phe
+L786: disease 1
+L787: PAM (60)
+L788: Polycystic kidney
+L789: CM010372 TCC-TTC Ser-Phe
+L790: disease 1
+L791: Polycystic kidney
+L792: CM010373 TGG-TGT Trp-Cys
+L793: disease 1
+L794: Polycystic kidney
+L795: CM074427 GCC-GAC Ala-Asp
+L796: disease 1
+L797: Polycystic kidney
+L798: CM020485 GGT-TGT Gly-Cys
+L799: disease 1
+L800: Polycystic kidney
+L801: CM076424 TGG-TGA Trp-Term
+L802: disease 1
+L803: Polycystic kidney
+L804: CM057348 TCC-TTC Ser-Phe
+L805: disease 1
+L806: Polycystic kidney
+L807: CM1210856 GGA-TGA Gly-Term
+L808: disease 1
+L809: Polycystic kidney
+L810: CM034562 TGG-TGA Trp-Term
+L811: disease 1
+L812: Polycystic kidney
+L813: CM1210866 GGA-TGA Gly-Term
+L814: disease 1
+L815: Polycystic kidney
+L816: CM1210867 TGG-TGA Trp-Term
+L817: disease 1
+L818: Polycystic kidney
+L819: CM057350 TGG-TGA Trp-Term
+L820: disease 1
+L821: Polycystic kidney
+L822: CM1210871 TGG-TGA Trp-Term
+L823: disease 1
+L824: Polycystic kidney
+L825: CM076430 TGG-TGA Trp-Term
+L826: disease 1
+L827: Polycystic kidney
+L828: CM119593 TCC-TTC Ser-Phe
+L829: disease 1
+L830: Polycystic kidney
+L831: CM124000 GCC-GAC Ala-Asp
+L832: disease, autosomal
+L833: dominant
+L834: Polycystic kidney
+L835: CM022657 TGG-TGA Trp-Term
+L836: disease 1
+L837: Polycystic kidney
+L838: CM074415 ACC-ATC Thr-Ile
+L839: disease 1
+L840: Polycystic kidney
+L841: CM971178 TGG-TGA Trp-Term
+L842: disease 1
+L843: CM124018 GGC-GCC Gly-Ala
+L844: Polycystic kidney
+L845: disease, autosomal
+L846: dominant
+L847: Polycystic kidney
+L848: CM076411 GGC-GTC Gly-Val
+L849: disease 1
+L850: Polycystic kidney
+L851: CM121781 GCC-GGC Ala-Gly
+L852: disease 1
+L853: Polycystic kidney
+L854: CM021122 ACC-ATC Thr-Ile
+L855: disease 1
+L856: Polycystic kidney
+L857: CM076425 TGG-TGA Trp-Term
+L858: disease 1
+L859: Polycystic kidney
+L860: CM1210916 TCC-TGC Ser-Cys
+L861: disease 1
+L862: Polycystic kidney
+L863: CM108788 GGC-GAC Gly-Asp
+L864: disease 1
+L865: Polycystic kidney
+L866: CM1210885 TGG-TGA Trp-Term
+L867: disease 1
+L868: Polycystic kidney
+L869: CM119592 TCC-TTC Ser-Phe
+L870: disease 1
+L871: Polycystic kidney
+L872: CM1210941 GGC-GAC Gly-Asp
+L873: disease 1
+L874: CM124016 CCC-CTC Pro-Leu
+L875: Polycystic kidney
+L876: disease, autosomal
+L877: dominant
+L878: Polycystic kidney
+L879: CM121782 TGG-TGT Trp-Cys
+L880: disease 1
+L881: CM124011 GGC-GAC Gly-Asp
+L882: Polycystic kidney
+L883: disease, autosomal
+L884: dominant
+L885: Polycystic kidney
+L886: CM010384 GCC-GAC Ala-Asp
+L887: disease 1
+L888: Polycystic kidney
+L889: CM020489 GGC-GAC Gly-Asp
+L890: disease 1
+L891: Polycystic kidney
+L892: CM076386 CCC-CTC Pro-Leu
+L893: disease 1
+L894: Polycystic kidney
+L895: CM1210944 ACC-ATC Thr-Ile
+L896: disease 1
+L897: Polycystic kidney
+L898: CM076381 ACC-ATC Thr-Ile
+L899: disease 1
+L900: Polycystic kidney
+L901: CM1210945 GGC-CGC Gly-Arg
+L902: disease 1
+L903: Polycystic kidney
+L904: CM121783 GGT-GAT Gly-Asp
+L905: disease 1
+L906: Polycystic kidney
+L907: CM1210923 GGG-GAG Gly-Glu
+L908: disease 1
+L909: Polycystic kidney
+L910: CM1210946 GGG-TGG Gly-Trp
+L911: disease 1
+L912: Polycystic kidney
+L913: CM010389 TGG-TGA Trp-Term
+L914: disease 1
+L915: Polycystic kidney
+L916: CM1210898 TGG-TGA Trp-Term
+L917: disease 1
+L918: Polycystic kidney
+L919: CM1210925 CCT-CTT Pro-Leu
+L920: disease 1
+L921: Polycystic kidney
+L922: CM076426 TGG-TGA Trp-Term
+L923: disease 1
+L924: CM123944 TGG-TGA Trp-Term
+L925: Polycystic kidney
+L926: disease, autosomal
+L927: dominant
+L928: Polycystic kidney
+L929: CM074436 GGC-CGC Gly-Arg
+L930: disease 1
+L931: Polycystic kidney
+L932: CM076427 TGG-TGA Trp-Term
+L933: disease 1
+L934: Polycystic kidney
+L935: CM057349 TCC-TTC Ser-Phe
+L936: disease 1
+L937: Polycystic kidney
+L938: CM053384 TGG-TGA Trp-Term
+L939: disease 1
+L940: Polycystic kidney
+L941: CM021656 CCC-CTC Pro-Leu
+L942: disease 1
+L943: Polycystic kidney
+L944: CM1210948 GGC-GAC Gly-Asp
+L945: disease 1
+L946: Polycystic kidney
+L947: CM1210949 GCC-GAC Ala-Asp
+L948: disease 1
+L949: Polycystic kidney
+L950: CM090557 TGG-TCG Trp-Ser
+L951: disease 1
+L952: Polycystic kidney
+L953: CM109266 CGG-CAG Arg-Gln
+L954: disease 1
+L955: CM124002 CGG-CTG Arg-Leu
+L956: Polycystic kidney
+L957: disease, autosomal
+L958: dominant
+L959: Polycystic kidney
+L960: CM034563 TGG-TGA Trp-Term
+L961: disease 1
+L962: Polycystic kidney
+L963: CM076428 TGG-TGA Trp-Term
+L964: disease 1
+L965: Polycystic kidney
+L966: CM971194 TGG-TGA Trp-Term
+L967: disease 1
+L968: Polycystic kidney
+L969: CM981546 GGC-GAC Gly-Asp
+L970: disease 1
+L971: Polycystic kidney
+L972: CM992202 TGG-TGA Trp-Term
+L973: disease 1
+L974: mutations
+L975: Polycystic kidney
+L976: create a PAM CM1210912 TGC-TGG Cys-Trp
+L977: disease 1
+L978: (26)
+L979: Polycystic kidney
+L980: CM1210912 TGC-TGG Cys-Trp
+L981: disease 1
+L982: Polycystic kidney
+L983: CM108786 GAT-GGT Asp-Gly
+L984: disease 1
+L985: Polycystic kidney
+L986: CM034112 TGC-GGC Cys-Gly
+L987: disease 1
+L988: CM123999 TAC-TCC Tyr-Ser
+L989: CM124017 GTC-GCC Val-Ala
+L990: Polycystic kidney
+L991: disease, autosomal
+L992: dominant
+L993: Polycystic kidney
+L994: disease, autosomal
+L995: dominant
+L996: Polycystic kidney
+L997: CM1210932 GTA-GGA Val-Gly
+L998: disease 1
+L999: Polycystic kidney
+L1000: CM076398 CTG-CGG Leu-Arg
+L1001: disease 1
+L1002: Polycystic kidney
+L1003: CM108793 CTG-CGG Leu-Arg
+L1004: disease 1
+L1005: Polycystic kidney
+L1006: CM1210913 GTG-GGG Val-Gly
+L1007: disease 1
+L1008: Polycystic kidney
+L1009: CM1210936 GTG-GGG Val-Gly
+L1010: disease 1
+L1011: Polycystic kidney
+L1012: CM034115 ACT-CCT Thr-Pro
+L1013: disease 1
+L1014: Polycystic kidney
+L1015: CM076383 CAC-CCC His-Pro
+L1016: disease 1
+L1017: Polycystic kidney
+L1018: CM074423 CTC-CCC Leu-Pro
+L1019: disease 1
+L1020: CM124020 TCG-TGG Ser-Trp
+L1021: Polycystic kidney
+L1022: disease, autosomal
+L1023: dominant ?
+L1024: Polycystic kidney
+L1025: CM108795 ATC-ACC Ile-Thr
+L1026: disease 1
+L1027: CM971180 CGC-CCC Arg-Pro
+L1028: Polycystic kidney
+L1029: disease 1,
+L1030: association with
+L1031: Polycystic kidney
+L1032: CM1210918 CGC-CCC Arg-Pro
+L1033: disease 1
+L1034: Polycystic kidney
+L1035: CM971184 ATC-ACC Ile-Thr
+L1036: disease 1
+L1037: Polycystic kidney
+L1038: CM074437 TTC-TCC Phe-Ser
+L1039: disease 1
+L1040: Polycystic kidney
+L1041: CM108796 AGC-AGG Ser-Arg
+L1042: disease 1
+L1043: Polycystic kidney
+L1044: CM002089 CAT-CCT His-Pro
+L1045: disease 1
+L1046: Polycystic kidney
+L1047: CM121784 TAC-TCC Tyr-Ser
+L1048: disease 1
+L1049: Polycystic kidney
+L1050: CM076399 CTG-CGG Leu-Arg
+L1051: disease 1
+L1052: Polycystic kidney
+L1053: CM076400 CTG-CGG Leu-Arg
+L1054: disease 1
+L1055: Polycystic kidney
+L1056: CM076394 CTC-CCC Leu-Pro
+L1057: disease 1
+L1058: Polycystic kidney
+L1059: CM993191 CAG-CCG Gln-Pro
+L1060: disease 1
+L1061: **Gene**
+L1062: **name:NF2**
+L1063: mutations
+L1064: eliminate a CM002815 TGG-TGA Trp-Term Neurofibromatosis 2
+L1065: PAM (4)
+L1066: CM002815 TGG-TGA Trp-Term Neurofibromatosis 2
+L1067: CM070211 TGG-TGA Trp-Term Neurofibromatosis 2
+L1068: CM961033 GGC-TGC Gly-Cys Neurofibromatosis 2
+L1069: CM961034 TGG-TGA Trp-Term Neurofibromatosis 2
+L1070: mutations
+L1071: create a PAM CM070212 TTG-TGG Leu-Trp Neurofibromatosis 2
+L1072: (4)
+L1073: CM070212 TTG-TGG Leu-Trp Neurofibromatosis 2
+L1074: CM045421 AGC-ACC Ser-Thr Neurofibromatosis 2
+L1075: CM961040 CAG-CCG Gln-Pro Neurofibromatosis 2
+L1076: CM941099 GAA-GGA Glu-Gly Neurofibromatosis 2
+L1077: **Gene**
+L1078: **name:COCH**
+L1079: mutations Deafness, noneliminate a CM990378 CCA-TCA Pro-Ser syndromic,
+L1080: PAM (4) autosomal dominant
+L1081: CM990378 CCA-TCA Pro-Ser
+L1082: Deafness, nonsyndromic,
+L1083: autosomal dominant
+L1084: Deafness, nonsyndromic,
+L1085: autosomal dominant
+L1086: Deafness, nonsyndromic,
+L1087: autosomal dominant
+L1088: CM062521 GGG-TGG Gly-Trp
+L1089: CM980383 GGA-GAA Gly-Glu
+L1090: Hearing loss,
+L1091: CM123274 CCT-CAT Pro-His
+L1092: unilateral
+L1093: mutations Deafness, noneliminate a CM980382 GTA-GGA Val-Gly syndromic,
+L1094: PAM (3)
+L1095: CM980382 GTA-GGA Val-Gly
+L1096: Deafness, nonsyndromic,
+L1097: autosomal dominant
+L1098: Deafness, nonsyndromic,
+L1099: autosomal dominant
+L1100: CM076118 ATC-ACC Ile-Thr
+L1101: Deafness, non
+L1102: CM108268 TTC-TCC Phe-Ser syndromic,
+L1103: autosomal dominant
+L1104: **Gene**
+L1105: **name:GJB2**
+L1106: mutations
+L1107: Hearing impairment,
+L1108: eliminate a CM077935 TGG-TGA Trp-Term
+L1109: nonsyndromic
+L1110: PAM (37)
+L1111: CM108268 TTC-TCC Phe-Ser
+L1112: Hearing impairment,
+L1113: CM077935 TGG-TGA Trp-Term
+L1114: nonsyndromic
+L1115: CM034038 GGC-GAC Gly-Asp Deafness
+L1116: Keratitis-ichthyosisCM102365 GGG-GAG Gly-Glu
+L1117: deafness syndrome
+L1118: Keratitis-ichthyosisCM020941 GGT-CGT Gly-Arg
+L1119: deafness syndrome
+L1120: CM022364 GGT-GAT Gly-Asp Deafness
+L1121: Deafness, autosomal
+L1122: CM000167 GGT-GTT Gly-Val
+L1123: recessive 1
+L1124: CM042706 GGT-TGT Gly-Cys Deafness
+L1125: CM041348 TCC-TAC Ser-Tyr Deafness
+L1126: Keratitis-ichthyosisCM020942 TCC-TTC Ser-Phe
+L1127: deafness syndrome
+L1128: CM085449 ACC-ATC Thr-Ile Deafness
+L1129: Deafness, autosomal
+L1130: CM042708 TGG-TCG Trp-Ser
+L1131: dominant 3
+L1132: Deafness, autosomal
+L1133: CM993705 TGG-TGA Trp-Term
+L1134: recessive 1
+L1135: Deafness, autosomal
+L1136: CM980923 TGG-TGC Trp-Cys
+L1137: dominant 3
+L1138: Deafness, autosomal
+L1139: CM990689 GGA-GAA Gly-Glu
+L1140: recessive 1
+L1141: CM030878 GCC-GTC Ala-Val Deafness ?
+L1142: Deafness, autosomal
+L1143: CM050056 ACC-AAC Thr-Asn
+L1144: recessive 1
+L1145: Deafness, autosomal
+L1146: CM087021 CCA-CGA Pro-Arg
+L1147: recessive 1
+L1148: CM073094 CCA-GCA Pro-Ala Deafness
+L1149: CM050057 GGC-CGC Gly-Arg
+L1150: Knuckle pads,
+L1151: hyperkeratosis and
+L1152: deafness
+L1153: Deafness and
+L1154: CM000017 GGC-GCC Gly-Ala palmoplantar
+L1155: keratoderma
+L1156: CM041350 GGC-GTC Gly-Val Deafness
+L1157: CM000017 GGC-GCC Gly-Ala
+L1158: Sensorineural
+L1159: CM077556 CCC-CTC Pro-Leu
+L1160: hearing loss
+L1161: Deafness, autosomal
+L1162: CM970681 TGG-TGA Trp-Term
+L1163: recessive 1
+L1164: Deafness, autosomal
+L1165: CM094088 GGG-GTG Gly-Val
+L1166: recessive 1
+L1167: CM003935 ACC-AAC Thr-Asn Deafness
+L1168: Sensorineural
+L1169: CM077565 GGC-GAC Gly-Asp
+L1170: hearing loss
+L1171: CM034043 GGC-GCC Gly-Ala Deafness
+L1172: CM052247 GGC-GTC Gly-Val Vohwinkel syndrome
+L1173: Deafness, autosomal
+L1174: CM051517 TGG-TGA Trp-Term
+L1175: recessive 1
+L1176: CM101467 TGG-TGC Trp-Cys
+L1177: Deafness,
+L1178: nonsyndromic
+L1179: sensorineural
+L1180: Deafness, autosomal
+L1181: CM000170 CCT-CGT Pro-Arg
+L1182: recessive 1
+L1183: Deafness, autosomal
+L1184: CM055280 CCT-TCT Pro-Ser
+L1185: recessive 1
+L1186: Focal palmoplantar
+L1187: CM085452 TCC-TTC Ser-Phe
+L1188: keratoderma
+L1189: Deafness, autosomal
+L1190: CM992895 CGG-CCG Arg-Pro
+L1191: recessive 1
+L1192: CM042712 GGA-TGA Gly-Term Deafness
+L1193: Sensorineural
+L1194: CM077567 GTT-GGT Val-Gly
+L1195: hearing loss
+L1196: Sensorineural
+L1197: CM077557 CGG-CTG Arg-Leu
+L1198: hearing loss
+L1199: mutations
+L1200: Sensorineural
+L1201: create a PAM CM102620 CAG-CCG Gln-Pro
+L1202: hearing loss
+L1203: (17)
+L1204: Sensorineural
+L1205: CM102620 CAG-CCG Gln-Pro
+L1206: hearing loss
+L1207: Deafness, autosomal
+L1208: CM000168 AGC-ACC Ser-Thr
+L1209: recessive 1
+L1210: Sensorineural
+L1211: CM077555 ATG-AGG Met-Arg
+L1212: hearing loss
+L1213: CM065234 CTC-CCC Leu-Pro Deafness
+L1214: Deafness, autosomal
+L1215: CM051511 GCA-GGA Ala-Gly
+L1216: recessive 1
+L1217: Keratitis-ichthyosisCM084866 GAC-GCC Asp-Ala
+L1218: deafness syndrome
+L1219: CM030879 ATC-ACC Ile-Thr Deafness
+L1220: CM022366 CAG-CCG Gln-Pro Deafness
+L1221: CM099689 GCG-CCG Ala-Pro Deafness
+L1222: Sensorineural
+L1223: CM091845 GCG-GGG Ala-Gly
+L1224: hearing loss
+L1225: CM053904 CAT-CCT His-Pro Deafness
+L1226: Deafness, autosomal
+L1227: CM980928 AGT-AGG Ser-Arg
+L1228: recessive 1
+L1229: CM013722 GAA-GGA Glu-Gly Deafness
+L1230: CM053902 ATG-AGG Met-Arg Deafness
+L1231: Hearing impairment,
+L1232: CM096519 GTC-GCC Val-Ala
+L1233: nonsyndromic
+L1234: CM012138 ATC-ACC Ile-Thr Deafness
+L1235: CM053903 ACT-CCT Thr-Pro Deafness
+L1236: **Gene**
+L1237: **name:MYO7A**
+L1238: mutations
+L1239: eliminate a CM004267 CGG-CCG Arg-Pro Usher syndrome 1b
+L1240: PAM (19)
+L1241: CM004267 CGG-CCG Arg-Pro Usher syndrome 1b
+L1242: CM071875 CCC-CTC Pro-Leu Usher syndrome 1
+L1243: Leber congenital
+L1244: CM119666 ACC-ATC Thr-Ile
+L1245: amaurosis
+L1246: CM971013 GCC-GAC Ala-Asp Usher syndrome 1b
+L1247: CM004270 GCC-GTC Ala-Val Usher syndrome 1b
+L1248: CM961014 CCC-CTC Pro-Leu Usher syndrome 1b
+L1249: CM004271 GGC-GAC Gly-Asp Usher syndrome 1b
+L1250: Deafness, non
+L1251: CM041044 GGC-CGC Gly-Arg syndromic,
+L1252: autosomal dominant
+L1253: CM114224 GGC-GTC Gly-Val Usher syndrome 1
+L1254: CM061141 CGG-CCG Arg-Pro Usher syndrome 1
+L1255: CM061139 CCC-CGC Pro-Arg Usher syndrome 1
+L1256: CM990902 AGG-AGC Arg-Ser Usher syndrome 1b
+L1257: CM1110175 TGG-TGA Trp-Term Usher syndrome 1
+L1258: CM071879 GCC-GTC Ala-Val Usher syndrome 1
+L1259: CM091798 GCC-GAC Ala-Asp Usher syndrome 1b
+L1260: CM117301 GGA-TGA Gly-Term Usher syndrome 1b
+L1261: CM091799 GGA-GAA Gly-Glu Usher syndrome 1b
+L1262: CM971018 GGG-GAG Gly-Glu Usher syndrome 1b
+L1263: CM004275 GGC-GAC Gly-Asp Usher syndrome 1b
+L1264: mutations
+L1265: create a PAM CM1110176 CGT-CCT Arg-Pro Usher syndrome 1
+L1266: (5)
+L1267: CM041044 GGC-CGC Gly-Arg
+L1268: CM1110176 CGT-CCT Arg-Pro Usher syndrome 1
+L1269: CM071872 CGT-GGT Arg-Gly Usher syndrome 1
+L1270: Deafness, non
+L1271: CM971012 CGC-CCC Arg-Pro syndromic,
+L1272: autosomal recessive
+L1273: CM061138 CAG-CCG Gln-Pro Usher syndrome 1
+L1274: CM071874 ATC-ACC Ile-Thr Usher syndrome 1
+L1275: **Gene**
+L1276: **name:TECTA**
+L1277: CM971012 CGC-CCC Arg-Pro
+L1278: mutations
+L1279: eliminate a
+L1280: PAM (3)
+L1281: Deafness, autosomal
+L1282: CM115247 GCC-GTC Ala-Val
+L1283: dominant
+L1284: Deafness, autosomal
+L1285: CM115251 CCC-CGC Pro-Arg
+L1286: dominant
+L1287: Deafness, autosomal
+L1288: CM981906 GGT-GAT Gly-Asp
+L1289: dominant 12
+L1290: mutations
+L1291: create a PAM CM014985 TGC-GGC Cys-Gly Deafness
+L1292: (3)
+L1293: CM014985 TGC-GGC Cys-Gly Deafness
+L1294: Deafness, autosomal
+L1295: CM045200 TGC-GGC Cys-Gly
+L1296: dominant 12
+L1297: Deafness, autosomal
+L1298: CM992436 TGC-TCC Cys-Ser
+L1299: dominant 12
+L1300: **Gene**
+L1301: **name:DSPP**
+L1302: mutations
+L1303: Dentinogenesis
+L1304: eliminate a CM040731 GCC-GTC Ala-Val
+L1305: imperfecta type II
+L1306: PAM (3)
+L1307: Dentinogenesis
+L1308: CM040731 GCC-GTC Ala-Val
+L1309: imperfecta type II
+L1310: Dentinogenesis
+L1311: CM010216 CCA-ACA Pro-Thr
+L1312: imperfecta type I
+L1313: Dentinogenesis
+L1314: CM074146 CCA-TCA Pro-Ser
+L1315: imperfecta type II
+L1316: **Gene**
+L1317: **name:WFS1**
+L1318: mutations
+L1319: eliminate a CM087006 GGG-GAG Gly-Glu Wolfram syndrome
+L1320: PAM (23)
+L1321: CM087006 GGG-GAG Gly-Glu Wolfram syndrome
+L1322: CM043876 TGG-TGA Trp-Term Wolfram syndrome
+L1323: CM112215 ACC-ATC Thr-Ile Wolfram syndrome
+L1324: CM050354 TGG-TGA Trp-Term Wolfram syndrome
+L1325: CM992984 GGC-CGC Gly-Arg Wolfram syndrome
+L1326: CM043877 ACC-ATC Thr-Ile Wolfram syndrome
+L1327: CM050355 AGG-AGT Arg-Ser Wolfram syndrome
+L1328: CM087001 ACC-AGC Thr-Ser Wolfram syndrome
+L1329: CM033825 CCC-CGC Pro-Arg Wolfram syndrome
+L1330: CM032679 TGG-TGA Trp-Term Wolfram syndrome
+L1331: CM982041 TGG-TGA Trp-Term Wolfram syndrome
+L1332: Sensorineural
+L1333: CM020990 GGG-GAG Gly-Glu
+L1334: hearing loss
+L1335: Sensorineural
+L1336: CM020991 GGG-GTG Gly-Val
+L1337: hearing loss
+L1338: Sensorineural
+L1339: CM073425 TGG-TTG Trp-Leu
+L1340: hearing loss
+L1341: CM982042 GGC-GTC Gly-Val Wolfram syndrome
+L1342: CM992989 TGG-TGT Trp-Cys Wolfram syndrome
+L1343: CM090455 GGC-GAC Gly-Ser Wolfram syndrome
+L1344: CM112220 CCG-TCG Pro-Ser Wolfram syndrome
+L1345: CM041102 GGC-CGC Gly-Arg Wolfram syndrome
+L1346: CM012813 GGC-CGC Gly-Arg Wolfram syndrome
+L1347: Sensorineural
+L1348: CM013446 GGC-GAC Gly-Asp
+L1349: hearing loss
+L1350: Sensorineural
+L1351: CM052943 CGG-CCG Arg-Pro
+L1352: hearing loss
+L1353: CM053438 TGG-TGA Trp-Term Wolfram syndrome
+L1354: mutations
+L1355: create a PAM CM083208 CGC-CCC Arg-Pro Wolfram syndrome
+L1356: (15)
+L1357: CM083208 CGC-CCC Arg-Pro Wolfram syndrome
+L1358: CM015259 ATG-AGG Met-Arg Wolframin variant
+L1359: CM112217 TCG-TGG Ser-Trp Wolfram syndrome
+L1360: CM118453 AGC-AGG Ser-Arg Wolfram syndrome
+L1361: CM043878 CTG-CGG Leu-Arg Wolfram syndrome
+L1362: CM024439 GAG-GGG Glu-Gly Wolframin variant
+L1363: CM090453 CTG-CGG Leu-Arg Wolfram syndrome
+L1364: CM119609 ATG-AGG Met-Arg Wolfram syndrome
+L1365: CM108446 GCG-GGG Ala-Gly Wolfram syndrome
+L1366: Sensorineural
+L1367: CM081852 CGC-CCC Arg-Pro
+L1368: hearing loss
+L1369: CM087004 TGC-GGC Cys-Gly Wolfram syndrome
+L1370: CM112219 CTC-CCC Leu-Pro Wolfram syndrome
+L1371: CM015267 GAC-GGC Asp-Gly Wolframin variant
+L1372: CM118452 GTG-GGG Val-Gly Wolfram syndrome
+L1373: CM031404 CGC-CCC Arg-Pro Wolfram syndrome
+L1374: **Gene**
+L1375: **name:F11**
+L1376: mutations
+L1377: eliminate a CM091620 GGT-CGT Gly-Arg Factor XI deficiency
+L1378: PAM (27)
+L1379: CM091620 GGT-CGT Gly-Arg Factor XI deficiency
+L1380: CM062620 CCA-CAA Pro-Gln Factor XI deficiency
+L1381: CM097438 CCC-CTC Pro-Leu Factor XI deficiency
+L1382: CM056952 CCA-ACA Pro-Thr Factor XI deficiency
+L1383: CM086812 GGG-GCG Gly-Ala Factor XI deficiency
+L1384: CM030841 GGC-GAC Gly-Asp Factor XI deficiency
+L1385: CM030842 GGG-GAG Gly-Glu Factor XI deficiency
+L1386: CM066064 CCT-TCT Pro-Ser Factor XI deficiency
+L1387: CM053239 TCC-TTC Ser-Phe Factor XI deficiency
+L1388: CM990520 TGG-TGC Trp-Cys Factor XI deficiency
+L1389: CM051915 GGA-GAA Gly-Glu Factor XI deficiency
+L1390: CM121069 GGT-GAT Gly-Asp Factor XI deficiency
+L1391: CM950373 ACC-ATC Thr-Ile Factor XI deficiency
+L1392: CM080237 ACC-ATC Thr-Ile Factor XI deficiency
+L1393: CM920987 GGA-GAA Gly-Glu Factor XI deficiency
+L1394: CM042342 GGA-GCA Gly-Ala Factor XI deficiency
+L1395: CM091842 GGA-GCA Gly-Ala Factor XI deficiency
+L1396: CM090244 TGG-TTG Trp-Leu Factor XI deficiency
+L1397: CM970459 ACC-AAC Thr-Asn Factor XI deficiency
+L1398: CM041757 GGC-GTC Gly-Val Factor XI deficiency
+L1399: CM082626 TGG-TGC Trp-Cys Factor XI deficiency
+L1400: CM056953 TGG-TGT Trp-Cys Factor XI deficiency
+L1401: CM044883 TGG-TGC Trp-Cys Factor XI deficiency
+L1402: CM051916 CCC-CTC Pro-Leu Factor XI deficiency
+L1403: CM043486 GGA-GAA Gly-Glu Factor XI deficiency
+L1404: CM041758 TGG-TCG Trp-Ser Factor XI deficiency
+L1405: CM082624 GGC-TGC Gly-Cys Factor XI deficiency
+L1406: mutations
+L1407: create a PAM CM076174 GTC-GCC Val-Ala Factor XI deficiency
+L1408: (16)
+L1409: CM097406 AGC-AGG Ser-Arg Factor XI deficiency
+L1410: CM116684 CAG-CCG Gln-Pro Factor XI deficiency
+L1411: CM080239 ACT-CCT Thr-Pro Factor XI deficiency
+L1412: CM095841 TGT-TGG Cys-Trp Factor XI deficiency
+L1413: CM125455 ACT-CCT Thr-Pro Factor XI deficiency
+L1414: CM095842 CGA-CCA Arg-Pro Factor XI deficiency
+L1415: CM056954 TGC-GGC Cys-Gly Factor XI deficiency
+L1416: CM035504 TAC-TCC Tyr-Ser Factor XI deficiency
+L1417: CM044881 CTG-CCG Leu-Pro Factor XI deficiency
+L1418: CM051039 TAC-TCC Tyr-Ser Factor XI deficiency
+L1419: CM082621 CAC-CCC His-Pro Factor XI deficiency
+L1420: CM035501 ACA-CCA Thr-Pro Factor XI deficiency
+L1421: CM062630 TGC-TGG Cys-Trp Factor XI deficiency
+L1422: CM119142 GAT-GGT Asp-Gly Factor XI deficiency
+L1423: CM097457 GAT-GGT Asp-Gly Factor XI deficiency
+L1424: **Gene**
+L1425: **name:HFE**
+L1426: mutations
+L1427: eliminate a CM032270 AGG-AGC Arg-Ser Haemochromatosis
+L1428: PAM (4)
+L1429: CM076174 GTC-GCC Val-Ala Factor XI deficiency
+L1430: CM032270 AGG-AGC Arg-Ser Haemochromatosis
+L1431: CM990719 GGG-CGG Gly-Arg Haemochromatosis
+L1432: CM015326 GCC-GTC Ala-Val Haemochromatosis
+L1433: CM990722 AGG-ATG Arg-Met Haemochromatosis
+L1434: mutations
+L1435: create a PAM CM091838 TTG-TGG Leu-Trp Haemochromatosis
+L1436: (3)
+L1437: CM004391 TGC-TCC Cys-Ser Haemochromatosis
+L1438: CM032271 CAG-CCG Gln-Pro Haemochromatosis
+L1439: **Gene**
+L1440: **name:F8**
+L1441: mutations
+L1442: eliminate a CM0911148 GGT-GAT Gly-Asp Haemophilia A
+L1443: PAM (20)
+L1444: CM091838 TTG-TGG Leu-Trp Haemochromatosis
+L1445: CM0911148 GGT-GAT Gly-Asp Haemophilia A
+L1446: CM010836 GGT-TGT Gly-Cys Haemophilia A
+L1447: CM123839 TGG-TGA Trp-Term Haemophilia A
+L1448: CM121364 GGT-CGT Gly-Arg Haemophilia A
+L1449: CM960537 GGT-GAT Gly-Asp Haemophilia A
+L1450: CM106046 GGT-GCT Gly-Ala Haemophilia A
+L1451: CM129821 GGT-CGT Gly-Arg Haemophilia A
+L1452: CM080305 GGT-GAT Gly-Asp Haemophilia A
+L1453: CM014182 GGT-GCT Gly-Ala Haemophilia A
+L1454: CM920250 GGT-GTT Gly-Val Haemophilia A
+L1455: CM0911146 GGT-TGT Gly-Cys Haemophilia A
+L1456: CM080330 CCT-TCT Pro-Ser Haemophilia A
+L1457: CM062683 TCC-TTC Ser-Phe Haemophilia A
+L1458: CM055234 GGT-CGT Gly-Arg Haemophilia A
+L1459: CM073047 GGT-GCT Gly-Ala Haemophilia A
+L1460: CM054673 GGT-GTT Gly-Val Haemophilia A
+L1461: CM082663 GGT-TGT Gly-Cys Haemophilia A
+L1462: CM080328 TCC-TGC Ser-Cys Haemophilia A
+L1463: CM081247 CCA-CGA Pro-Arg Haemophilia A
+L1464: CM930210 GGA-CGA Gly-Arg Haemophilia A
+L1465: mutations
+L1466: create a PAM CM025245 ATG-AGG Met-Arg Haemophilia A
+L1467: (12)
+L1468: CM990526 AGT-AGG Ser-Arg Haemophilia A
+L1469: CM960535 CTG-CGG Leu-Arg Haemophilia A
+L1470: CM053258 GTG-GGG Val-Gly Haemophilia A
+L1471: CM053253 ACT-CCT Thr-Pro Haemophilia A
+L1472: CM071725 ATC-ACC Ile-Thr Haemophilia A
+L1473: CM025251 GCT-CCT Ala-Pro Haemophilia A
+L1474: CM980665 GAT-GGT Asp-Gly Haemophilia A
+L1475: CM102433 GTC-GCC Val-Ala Haemophilia A
+L1476: CM087473 AAC-ACC Asn-Thr Haemophilia A
+L1477: CM080311 GTC-GGC Val-Gly Haemophilia A
+L1478: CM082633 AGT-AGG Ser-Arg Haemophilia A
+L1479: **Gene**
+L1480: **name:F9**
+L1481: mutations
+L1482: eliminate a CM960581 GGA-GTA Gly-Val Haemophilia B
+L1483: PAM (22)
+L1484: CM025245 ATG-AGG Met-Arg Haemophilia A
+L1485: CM960581 GGA-GTA Gly-Val Haemophilia B
+L1486: CM045755 GGA-TGA Gly-Term Haemophilia B
+L1487: CM057685 GCC-GAC Ala-Asp Haemophilia B
+L1488: CM970482 GCC-GTC Ala-Val Warfarin sensitivity
+L1489: CM940414 CGG-CTG Arg-Leu Haemophilia B
+L1490: CM980721 AGG-ACG Arg-Thr Haemophilia B
+L1491: CM940411 AGG-AGC Arg-Ser Haemophilia B
+L1492: CM995237 AGG-AGT Arg-Ser Haemophilia B
+L1493: CM960568 GGT-GAT Gly-Asp Haemophilia B
+L1494: CM940418 GGG-GCG Gly-Ala Haemophilia B
+L1495: CM053885 GGG-GTG Gly-Val Haemophilia B
+L1496: CM940449 GGA-GTA Gly-Val Haemophilia B
+L1497: CM010262 CCA-ACA Pro-Thr Haemophilia B
+L1498: CM940456 CCA-CAA Pro-Gln Haemophilia B
+L1499: CM990569 CCA-CGA Pro-Arg Haemophilia B
+L1500: CM940458 CCA-GCA Pro-Ala Haemophilia B
+L1501: CM940459 CCA-TCA Pro-Ser Haemophilia B
+L1502: CM000151 GGC-GAC Gly-Asp Haemophilia B
+L1503: CM940463 GGC-GTC Gly-Val Haemophilia B
+L1504: CM940467 GGC-CGC Gly-Arg Haemophilia B
+L1505: CM940465 GGC-GAC Gly-Asp Haemophilia B
+L1506: CM960576 GGC-TGC Gly-Cys Haemophilia B
+L1507: mutations
+L1508: create a PAM CM001676 TGT-GGT Cys-Gly Haemophilia B
+L1509: (16)
+L1510: CM940505 TGT-TGG Cys-Trp Haemophilia B
+L1511: CM045742 AAC-ACC Asn-Thr Haemophilia B
+L1512: CM990567 TCA-CCA Ser-Pro Haemophilia B
+L1513: CM071738 GAA-GGA Glu-Gly Haemophilia B
+L1514: CM045770 GAA-GGA Glu-Gly Haemophilia B
+L1515: CM098269 TGT-GGT Cys-Gly Haemophilia B
+L1516: CM001669 GAA-GGA Glu-Gly Haemophilia B
+L1517: CM950426 CGA-CCA Arg-Pro Haemophilia B
+L1518: CM045771 GAA-GGA Glu-Gly Haemophilia B
+L1519: CM940446 GAT-GGT Asp-Gly Haemophilia B
+L1520: CM950427 GAT-GGT Asp-Gly Haemophilia B
+L1521: CM940451 CAG-CCG Gln-Pro Haemophilia B
+L1522: CM940454 TGT-TGG Cys-Trp Haemophilia B
+L1523: CM990570 TGC-TCC Cys-Ser Haemophilia B
+L1524: CM057696 TGC-TGG Cys-Trp Haemophilia B
+L1525: **Gene**
+L1526: **name:G6PD**
+L1527: mutations
+L1528: eliminate a CM950496 GCC-GGC Ala-Gly dehydrogenase
+L1529: PAM (28) deficiency
+L1530: CM001676 TGT-GGT Cys-Gly Haemophilia B
+L1531: CM950496 GCC-GGC Ala-Gly
+L1532: CM952134 TGG-TGC Trp-Cys
+L1533: CM026005 CCC-CAC Pro-His
+L1534: CM870009 CCC-CTC Pro-Leu
+L1535: CM061777 CCA-TCA Pro-Ser
+L1536: CM920277 TCC-TGC Ser-Cys
+L1537: Glucose-6-phosphate
+L1538: dehydrogenase
+L1539: deficiency
+L1540: Glucose-6-phosphate
+L1541: dehydrogenase
+L1542: deficiency
+L1543: Glucose-6-phosphate
+L1544: dehydrogenase
+L1545: deficiency
+L1546: Glucose-6-phosphate
+L1547: dehydrogenase
+L1548: deficiency
+L1549: Glucose-6-phosphate
+L1550: dehydrogenase
+L1551: deficiency
+L1552: Glucose-6-phosphate
+L1553: dehydrogenase
+L1554: deficiency
+L1555: Glucose-6-phosphate
+L1556: CM930268 GGG-GTG Gly-Val
+L1557: dehydrogenase
+L1558: CM930269 GGC-GAC Gly-Asp
+L1559: CM880032 TCC-TTC Ser-Phe
+L1560: CM890051 CGG-CTG Arg-Leu
+L1561: CM100166 CCC-CTC Pro-Leu
+L1562: CM950503 TCC-TTC Ser-Phe
+L1563: CM973143 GGG-GAG Gly-Glu
+L1564: CM973144 GGG-GAG Gly-Glu
+L1565: CM980789 CCC-CAC Pro-His
+L1566: CM950506 GCC-GAC Ala-Asp
+L1567: CM942061 GGG-GTG Gly-Val
+L1568: CM973147 GCC-GTC Ala-Val
+L1569: CM940798 CCC-CTC Pro-Leu
+L1570: CM056962 ACC-AAC Thr-Asn
+L1571: CM044626 CCG-TCG Pro-Ser
+L1572: CM920287 GGC-GAC Gly-Asp
+L1573: CM930280 GGC-TGC Gly-Cys
+L1574: CM102665 GGG-GTG Gly-Val
+L1575: CM970550 CCA-CGA Pro-Arg
+L1576: deficiency
+L1577: Glucose-6-phosphate
+L1578: dehydrogenase
+L1579: deficiency
+L1580: Glucose-6-phosphate
+L1581: dehydrogenase
+L1582: deficiency
+L1583: Glucose-6-phosphate
+L1584: dehydrogenase
+L1585: deficiency
+L1586: Glucose-6-phosphate
+L1587: dehydrogenase
+L1588: deficiency
+L1589: Glucose-6-phosphate
+L1590: dehydrogenase
+L1591: deficiency
+L1592: Glucose-6-phosphate
+L1593: dehydrogenase
+L1594: deficiency
+L1595: Glucose-6-phosphate
+L1596: dehydrogenase
+L1597: deficiency
+L1598: Glucose-6-phosphate
+L1599: dehydrogenase
+L1600: deficiency
+L1601: Glucose-6-phosphate
+L1602: dehydrogenase
+L1603: deficiency
+L1604: Glucose-6-phosphate
+L1605: dehydrogenase
+L1606: deficiency
+L1607: Glucose-6-phosphate
+L1608: dehydrogenase
+L1609: deficiency
+L1610: Glucose-6-phosphate
+L1611: dehydrogenase
+L1612: deficiency
+L1613: Glucose-6-phosphate
+L1614: dehydrogenase
+L1615: deficiency
+L1616: Glucose-6-phosphate
+L1617: dehydrogenase
+L1618: deficiency
+L1619: Glucose-6-phosphate
+L1620: dehydrogenase
+L1621: deficiency
+L1622: Glucose-6-phosphate
+L1623: dehydrogenase
+L1624: deficiency
+L1625: Glucose-6-phosphate
+L1626: dehydrogenase
+L1627: deficiency
+L1628: Glucose-6-phosphate
+L1629: dehydrogenase
+L1630: deficiency
+L1631: CM056326 CCC-CGC Pro-Arg
+L1632: CM930285 GGC-GTC Gly-Val
+L1633: Glucose-6-phosphate
+L1634: dehydrogenase
+L1635: deficiency
+L1636: Glucose-6-phosphate
+L1637: dehydrogenase
+L1638: deficiency
+L1639: Glucose-6-phosphate
+L1640: CM973153 CCC-CTC Pro-Leu dehydrogenase
+L1641: deficiency
+L1642: mutations Glucose-6-phosphate
+L1643: create a PAM CM930263 ATC-ACC Ile-Thr dehydrogenase
+L1644: (14) deficiency
+L1645: CM973153 CCC-CTC Pro-Leu
+L1646: CM930263 ATC-ACC Ile-Thr
+L1647: CM930264 CTC-CCC Leu-Pro
+L1648: CM950499 CTC-CCC Leu-Pro
+L1649: CM962574 AAC-ACC Asn-Thr
+L1650: CM920280 CGC-CCC Arg-Pro
+L1651: CM110926 GAC-GGC Asp-Gly
+L1652: CM077931 GTC-GCC Val-Ala
+L1653: CM051484 ATC-ACC Ile-Thr
+L1654: CM970548 TGC-TGG Cys-Phe
+L1655: CM077930 ATC-ACC Ile-Thr
+L1656: CM950512 CGC-GGC Arg-Gly
+L1657: CM970549 GTG-GGG Val-Gly
+L1658: CM920289 CGC-CCC Arg-Pro
+L1659: Glucose-6-phosphate
+L1660: dehydrogenase
+L1661: deficiency
+L1662: Glucose-6-phosphate
+L1663: dehydrogenase
+L1664: deficiency
+L1665: Glucose-6-phosphate
+L1666: dehydrogenase
+L1667: deficiency
+L1668: Glucose-6-phosphate
+L1669: dehydrogenase
+L1670: deficiency
+L1671: Glucose-6-phosphate
+L1672: dehydrogenase
+L1673: deficiency
+L1674: Glucose-6-phosphate
+L1675: dehydrogenase
+L1676: deficiency
+L1677: Glucose-6-phosphate
+L1678: dehydrogenase
+L1679: deficiency
+L1680: Glucose-6-phosphate
+L1681: dehydrogenase
+L1682: deficiency
+L1683: Glucose-6-phosphate
+L1684: dehydrogenase
+L1685: deficiency
+L1686: Glucose-6-phosphate
+L1687: dehydrogenase
+L1688: deficiency
+L1689: Glucose-6-phosphate
+L1690: dehydrogenase
+L1691: deficiency
+L1692: Glucose-6-phosphate
+L1693: dehydrogenase
+L1694: deficiency
+L1695: Glucose-6-phosphate
+L1696: dehydrogenase
+L1697: deficiency
+L1698: Glucose-6-phosphate
+L1699: CM930284 CGT-CCT Arg-Pro dehydrogenase
+L1700: deficiency
+L1701: **Gene**
+L1702: **name:HMBS**
+L1703: mutations Porphyria, acute
+L1704: CM970727 GGT-AGT Gly-Ser
+L1705: eliminate a intermittent
+L1706: CM930284 CGT-CCT Arg-Pro
+L1707: PAM (22)
+L1708: Porphyria, acute
+L1709: CM104051 GGT-GAT Gly-Asp
+L1710: intermittent
+L1711: Porphyria, acute
+L1712: CM023941 TCC-TTC Ser-Phe
+L1713: intermittent
+L1714: Porphyria, acute
+L1715: CM930402 GGA-AGA Gly-Arg
+L1716: intermittent
+L1717: Porphyria, acute
+L1718: CM104055 GCC-GAC Ala-Asp
+L1719: intermittent
+L1720: Porphyria, acute
+L1721: CM940937 CGG-CAG Arg-Gln
+L1722: intermittent
+L1723: Porphyria, acute
+L1724: CM950639 CCT-CTT Pro-Leu
+L1725: intermittent
+L1726: Porphyria, acute
+L1727: CM900130 CGG-CAG Arg-Gln
+L1728: intermittent
+L1729: Porphyria, acute
+L1730: CM900131 CGG-CAG Arg-Gln
+L1731: intermittent
+L1732: Porphyria, acute
+L1733: CM910224 TGG-TAG Trp-Term
+L1734: intermittent
+L1735: Porphyria, acute
+L1736: CM970733 GGC-GAC Gly-Asp
+L1737: intermittent
+L1738: Porphyria, acute
+L1739: CM990738 GCC-GAC Ala-Asp
+L1740: intermittent
+L1741: Porphyria, acute
+L1742: CM083526 GGC-GAC Gly-Asp
+L1743: intermittent
+L1744: Porphyria, acute
+L1745: CM040225 GGT-AGT Gly-Ser
+L1746: intermittent
+L1747: Porphyria, acute
+L1748: CM930405 GCC-GTC Ala-Val
+L1749: intermittent
+L1750: Porphyria, acute
+L1751: CM022218 GGC-GAC Gly-Asp
+L1752: intermittent
+L1753: Porphyria, acute
+L1754: CM950646 GGA-AGA Gly-Arg
+L1755: intermittent
+L1756: Porphyria, acute
+L1757: CM0911052 GGA-GAA Gly-Glu
+L1758: intermittent
+L1759: Porphyria, acute
+L1760: CM940946 TGG-TAG Trp-Term
+L1761: intermittent
+L1762: Porphyria, acute
+L1763: CM940947 TGG-TGA Trp-Term
+L1764: intermittent
+L1765: Porphyria, acute
+L1766: CM992341 GGC-AGC Gly-Ser
+L1767: intermittent
+L1768: Porphyria, acute
+L1769: CM970741 GGC-GAC Gly-Asp
+L1770: intermittent
+L1771: mutations
+L1772: Porphyria, acute
+L1773: create a PAM CM090525 CGC-CCC Arg-Pro
+L1774: intermittent
+L1775: (28)
+L1776: Porphyria, acute
+L1777: CM090525 CGC-CCC Arg-Pro
+L1778: intermittent
+L1779: Porphyria, acute
+L1780: CM992340 CAG-CCG Gln-Lys
+L1781: intermittent
+L1782: Porphyria, acute
+L1783: CM040224 CAG-CGG Gln-Arg
+L1784: intermittent
+L1785: Porphyria, acute
+L1786: CM004871 GAG-GGG Glu-Gly
+L1787: intermittent
+L1788: Porphyria, acute
+L1789: CM040753 CTT-CCT Leu-Pro
+L1790: intermittent
+L1791: CM990735 CTG-CGG Leu-Arg Porphyria, acute
+L1792: intermittent
+L1793: Porphyria, acute
+L1794: CM990736 GTG-GGG Val-Gly
+L1795: intermittent
+L1796: Porphyria, acute
+L1797: CM022214 CTG-CCG Leu-Pro
+L1798: intermittent
+L1799: Porphyria, acute
+L1800: CM950638 AAG-AGG Lys-Arg
+L1801: intermittent
+L1802: Porphyria, acute
+L1803: CM022215 GAC-GGC Asp-Gly
+L1804: intermittent
+L1805: Porphyria, acute
+L1806: CM022216 ATC-ACC ILE-Thr
+L1807: intermittent
+L1808: Porphyria, acute
+L1809: CM023943 GCT-GGT Ala-Gly
+L1810: intermittent
+L1811: Porphyria, acute
+L1812: CM083525 CGA-CCA Arg-Pro
+L1813: intermittent
+L1814: Porphyria, acute
+L1815: CM920345 CTG-CGG Leu-Arg
+L1816: intermittent
+L1817: Porphyria, acute
+L1818: CM061060 CAG-CGG Gln-Arg
+L1819: intermittent
+L1820: Porphyria, acute
+L1821: CM950642 CGA-GGA Arg-Gly
+L1822: intermittent
+L1823: Porphyria, acute
+L1824: CM0911048 CTG-CCG Leu-Pro
+L1825: intermittent
+L1826: Porphyria, acute
+L1827: CM062775 CTG-CCG Leu-Pro
+L1828: intermittent
+L1829: Porphyria, acute
+L1830: CM950644 CTG-CGG Leu-Arg
+L1831: intermittent
+L1832: Porphyria, acute
+L1833: CM040226 CTG-CCG Leu-Pro
+L1834: intermittent
+L1835: Porphyria, acute
+L1836: CM0911049 CTG-CGG Leu-Arg
+L1837: intermittent
+L1838: Porphyria, acute
+L1839: CM023945 CTG-CCG Leu-Pro
+L1840: intermittent
+L1841: Porphyria, acute
+L1842: CM002280 GCT-GGT Ala-Gly
+L1843: intermittent
+L1844: Porphyria, acute
+L1845: CM0911051 CTG-CGG leu-Arg
+L1846: intermittent
+L1847: Porphyria, acute
+L1848: CM980986 CTG-CCG Leu-Pro
+L1849: intermittent
+L1850: Porphyria, acute
+L1851: CM104059 CTG-CCG Leu-Pro
+L1852: intermittent
+L1853: Porphyria, acute
+L1854: CM104058 CTG-CGG Leu-Arg
+L1855: intermittent
+L1856: Porphyria, acute
+L1857: CM022219 CTG-CCG Leu-Pro
+L1858: intermittent
+L1859: **Gene**
+L1860: **name:CFTR**
+L1861: mutations
+L1862: eliminate a CM970256 CCT-CTT Pro-Leu Cystic fibrosis
+L1863: PAM (41)
+L1864: CM970256 CCT-CTT Pro-Leu Cystic fibrosis
+L1865: CM0910748 TCC-TAC Ser-Tyr Azoospermia
+L1866: CM962449 TCC-TTC Ser-Phe Cystic fibrosis
+L1867: CM983534 TGG-TGA Trp-Term Cystic fibrosis
+L1868: CM970257 TGG-TGT Trp-Cys Cystic fibrosis
+L1869: CM043457 GGA-AGA Gly-Arg Cystic fibrosis
+L1870: CM057570 GGA-CGA Gly-Arg Cystic fibrosis
+L1871: CM940234 GGA-GAA Gly-Glu Cystic fibrosis
+L1872: CM920138 GGA-TGA Gly-Term Cystic fibrosis
+L1873: CM994782 TGG-TGA Trp-Term Cystic fibrosis
+L1874: CM930097 CCT-CTT Pro-Leu Cystic fibrosis
+L1875: CM076095 CCT-TCT Pro-Ser Cystic fibrosis
+L1876: CM962450 GCC-GAC Ala-Asp Cystic fibrosis
+L1877: CM003236 CGG-CAG Arg-Gln Cystic fibrosis
+L1878: CM931141 TGG-TAG Trp-Term Cystic fibrosis
+L1879: CM910068 GGA-GAA Gly-Glu Cystic fibrosis
+L1880: CM970262 GGA-GTA Gly-Val Cystic fibrosis
+L1881: CM920981 GGA-TGA Gly-Term Cystic fibrosis
+L1882: CM950236 TCC-TTC Ser-Phe Cystic fibrosis
+L1883: CM962452 CCG-GCG Pro-Ala Cystic fibrosis
+L1884: CM940243 GGC-GAC Gly-Asp Cystic fibrosis
+L1885: CM941967 CCA-TCA Pro-Ser Cystic fibrosis
+L1886: CM970264 GCC-GAC Ala-Asp Cystic fibrosis
+L1887: CM067763 GGA-GTA Gly-Val Cystic fibrosis
+L1888: Hypertrypsinaemia,
+L1889: CM024670 GCC-GTC Ala-Val
+L1890: neonatal
+L1891: Congenital absence
+L1892: CM970273 CGG-CTG Arg-Leu
+L1893: of vas deferens
+L1894: Congenital absence
+L1895: CM024674 GCC-GAC Ala-Asp
+L1896: of vas deferens
+L1897: Congenital absence
+L1898: CM980335 CCT-GCT Pro-Ala
+L1899: of vas deferens
+L1900: Congenital absence
+L1901: CM970277 GGT-GTT Gly-Val
+L1902: of vas deferens
+L1903: Congenital absence
+L1904: CM980337 GGT-GCT Gly-Ala
+L1905: of vas deferens
+L1906: Congenital absence
+L1907: CM067770 CCT-TCT Pro-Ser
+L1908: of vas deferens
+L1909: Congenital absence
+L1910: CM920164 GGA-GCA Gly-Ala
+L1911: of vas deferens
+L1912: Congenital absence
+L1913: CM980348 AGG-ATG Arg-Met
+L1914: of vas deferens
+L1915: Congenital absence
+L1916: CM004892 CCA-CGA Pro-Arg
+L1917: of vas deferens
+L1918: Congenital absence
+L1919: CM972957 CCA-TCA Pro-Ser
+L1920: of vas deferens
+L1921: Congenital absence
+L1922: CM015360 GGT-GCT Gly-Ala
+L1923: of vas deferens
+L1924: CM057584 GGA-CGA Gly-Arg
+L1925: Cystic fibrosis with
+L1926: pancreatic
+L1927: insufficiency
+L1928: Congenital absence
+L1929: CM113212 GCC-GTC Ala-Val
+L1930: of vas deferens
+L1931: Congenital absence
+L1932: CM055122 CCA-TCA Pro-Ser
+L1933: of vas deferens
+L1934: CM067755 GAA-GGA Glu-Gly Congenital absence
+L1935: of vas deferens
+L1936: Obstructive
+L1937: CM024698 TCC-TTC Ser-Phe
+L1938: azoospermia
+L1939: mutations
+L1940: create a PAM CM010791 ATG-AGG Met-Arg Asthma
+L1941: (23)
+L1942: CM010791 ATG-AGG Met-Arg Asthma
+L1943: CM067745 AGC-GGC Ser-Gly Cystic fibrosis
+L1944: CM920140 GAT-GGT Asp-Gly Cystic fibrosis
+L1945: CM952045 TCT-CCT Ser-Pro Cystic fibrosis
+L1946: CM003234 GAT-GGT Asp-Gly Cystic fibrosis
+L1947: CM057577 CTG-CCG Leu-Pro Cystic fibrosis
+L1948: CM126469 CGA-GGA Arg-Gly Cystic fibrosis
+L1949: CM015351 CAG-CCG Gln-Pro Cystic fibrosis
+L1950: CM057578 CTG-CGG Leu-Arg Cystic fibrosis
+L1951: CM074735 GCT-GGT Ala-Gly Cystic fibrosis
+L1952: CM930100 CGC-CCC Arg-Pro Cystic fibrosis
+L1953: CM005456 CGC-GGC Arg-Gly Cystic fibrosis
+L1954: CM051410 CTC-CCC Leu-Pro Cystic fibrosis
+L1955: Congenital absence
+L1956: CM970269 ATG-AGG Met-Arg
+L1957: of vas deferens
+L1958: Congenital absence
+L1959: CM980336 GAT-GGT Asp-Gly
+L1960: of vas deferens
+L1961: Hypertrypsinaemia,
+L1962: CM990361 GAA-GGA Glu-Gly
+L1963: low sweat chloride
+L1964: Congenital absence
+L1965: CM983666 GAT-GGT Asp-Gly
+L1966: of vas deferens
+L1967: Congenital absence
+L1968: CM077237 AGC-AGG Ser-Arg
+L1969: of vas deferens
+L1970: Congenital absence
+L1971: CM980347 CGA-GGA Arg-Gly
+L1972: of vas deferens
+L1973: Congenital absence
+L1974: CM970290 GTG-GGG Val-Gly
+L1975: of vas deferens
+L1976: CM074734 GAC-GGC Asp-Gly
+L1977: Respiratory
+L1978: symptoms of cystic
+L1979: fibrosis
+L1980: Congenital absence
+L1981: CM015359 GCT-CCT Ala-Pro
+L1982: of vas deferens
+L1983: Congenital absence
+L1984: CM941983 GAT-GGT Asp-Gly
+L1985: of vas deferens
+L1986: **Gene**
+L1987: **name:UROS**
+L1988: mutations
+L1989: Porphyria,
+L1990: eliminate a CM900224 CCT-CTT Pro-Leu
+L1991: erythropoietic
+L1992: PAM (5)
+L1993: Porphyria,
+L1994: CM900224 CCT-CTT Pro-Leu
+L1995: erythropoietic
+L1996: Porphyria,
+L1997: CM128678 GGA-AGA Gly-Arg
+L1998: erythropoietic
+L1999: Porphyria,
+L2000: CM951266 GGC-AGC Gly-Ser
+L2001: erythropoietic
+L2002: Porphyria,
+L2003: CM067488 GGC-GTC Gly-Val
+L2004: erythropoietic
+L2005: Porphyria,
+L2006: CM961413 CCA-CAA Pro-Gln
+L2007: erythropoietic
+L2008: mutations
+L2009: create a PAM
+L2010: (4)
+L2011: Porphyria,
+L2012: CM042498 TCT-CCT Ser-Pro
+L2013: erythropoietic
+L2014: Porphyria,
+L2015: CM961411 CAG-CCG Gln-Pro
+L2016: erythropoietic
+L2017: Porphyria,
+L2018: CM961412 TCT-CCT Ser-Pro
+L2019: erythropoietic
+L2020: Porphyria,
+L2021: CM067487 CTT-CCT Leu-Pro
+L2022: erythropoietic
+L2023: **Supplemental Table 6-1.DNA sequencing results of human iPSC transfected with RNP**
+L2024: **targeting PDCD1 gene. Mutated sites are in red.**
+L2025: Experiment Batch 1
+L2026: Experiment Batch 2
+L2027: Clone#19. ACGCCCGTTGGGCAGTTG----------------CAGTCCTGGC
+L2028: |Total clones sequenced<br>23|Col2|
+L2029: |---|---|
+L2030: |Wildtype<br>52.2%|Indels<br>47.8%|
+L2031: **Supplemental Table 6-2.DNA sequencing results of human iPSC transfected with RNP**
+L2032: **targeting PDCD1 gene and ssODN template carrying G deletion in PAM. Mutated sites are in**
+L2033: **red.**
+L2034: Experiment Batch 1
+L2035: Experiment Batch 2
+L2036: Clone#28. AC---------------------------------------CACGCCTGGC
+L2037: Clone#34. ACGCCCGTTGGGCAG-TTAAG------C----G-G------CAGTCCTGGC
+L2038: |Total clones sequenced<br>45|Col2|Col3|
+L2039: |---|---|---|
+L2040: |Wildtype<br>37.8%|Mutations<br>89.5%|Mutations<br>89.5%|
+L2041: |Wildtype<br>37.8%|InDels<br>42.2%|Scarless<br>point (G→C)<br>mutations<br>20.0%|
+L2042: **Supplemental Table 7.** Primers used for off-target analysis
+L2043: |Primer Name|Sequence(5' to 3')|
+L2044: |---|---|
+L2045: |B2M-offtarget1-F|TACCCAAGGGGATTTTTGGT|
+L2046: |B2M -offtarget1-R|GATGGAAGTGAGGTGGGAAA|
+L2047: |B2M -offtarget2-F|ACCAAGTTTTGGGCACAGAC|
+L2048: |B2M -offtarget2-R|CCAAACCTGTTCCAAACGAT|
+L2049: |B2M -offtarget3-F|TCGGTGGTTGGAGACCTAAC|
+L2050: |B2M -offtarget3-R|CATATGCTGCAAAGCTGGTG|
+L2051: |B2M -offtarget4-F|CGACAGCAGAAATGAAACCA|
+L2052: |B2M -offtarget4-R|CTCCCAAAGTGCTGGGATTA|
+L2053: |B2M -offtarget5-F|CCATAACCCCAGAGTCCAGA|
+L2054: |B2M -offtarget5-R|ACCACGAGTTTTTGGAATGC|
+L2055: |B2M -offtarget6-F|TAATGGGGTGGGGATGATTA|
+L2056: |B2M -offtarget6-R|AAAGGGAAGAGGGCAAAAAG|
+L2057: |B2M -offtarget7-F|CGACAAGCCAAAGAGAAAGG|
+L2058: |B2M -offtarget7-R|GCTGGTCTTGAACTCCCAAC|
+L2059: |B2M -offtarget8-F|TTTCAGCCTCCAGGTCTCAT|
+L2060: |B2M -offtarget8-R|GGCACCTGTAGTCCCAGCTA|
+L2061: |B2M -offtarget9-F|CTGCACTTTTCCCCATGTCT|
+L2062: |B2M -offtarget9-R|CGAATTCTGGCTCTCCTGTC|
+L2063: |B2M -offtarget10-F|AGGGGTCCTGGCTCTTCTAA|
+L2064: |B2M -offtarget10-R|AACTGGGGCTCTATGTGTGC|
+L2065: |AAVS1 -offtarget1-F|GTGTCCTCCTGCCAGTTAGC|
+L2066: |AAVS1 -offtarget1-R|GTGGGACATCTCCTCAATGG|
+L2067: |AAVS1 -offtarget2-F|CCGTACACGCTTCCTCTCTT|
+L2068: |AAVS1 -offtarget2-R|GCATTGAGGGGGTTGAATAA|
+L2069: |AAVS1 -offtarget3-F|AAGCCACAGCTTGAGATGGT|
+L2070: |AAVS1 -offtarget3-R|TCAAATCTGGTCCTGGGAAG|
+L2071: |AAVS1 -offtarget4-F|AAATCCTGAGTCCCGACCTT|
+L2072: |AAVS1 -offtarget4-R|CAGCTGGGCATCCTGTAACT|
+L2073: |AAVS1 -offtarget5-F|GGGAATCCCAAGGGTACATT|
+L2074: |AAVS1 -offtarget5-R|TGTTGTGTGAGCCATCCAAT|
+L2075: |AAVS1 -offtarget6-F|CATGCTACCATCGTCACCAC|
+L2076: |AAVS1 -offtarget6-R|TGGGATCTCTTGGGACAGAC|
+L2077: |AAVS1 -offtarget7-F|AGGGAGCTTTGAGGGATCAT|
+L2078: |AAVS1 -offtarget7-R|CTGCCTTGTAGGGATTCTGG|
+L2079: |AAVS1 -offtarget8-F|CCACCTGGGTGACAGAAGAT|
+L2080: |AAVS1 -offtarget8-R|TCGAGGTGGTCAGGCTAAAC|
+L2081: |AAVS1 -offtarget9-F|CCTTGGCGAGAGAGAAACTG|
+L2082: |AAVS1 -offtarget9-R|ACTTAGAGCCGAGTGGGACA|
+L2083: |AAVS1 -offtarget10-F|AAGCCCAGCTCTTGCTTTTT|
+L2084: |AAVS1 -offtarget10-R|TTTTCAGGCTGGTGGAAGTT|
+L2085: **Supplemental Table 8.** Sequence analysis of predicted off-target loci of sgRNAs targeting B2M and AAVS1.
+L2086: No off target events were detected. PAM sequence is shown in blue, mismatches in the protospacer sequence
+L2087: are shaded grey. #mm: number of mismatches. Ins del: insertions or deletions.
+L2088: **B2M**
+L2089: **No.** **genomic location** **locus details** **Sequence** **#mm** **Ins del**
+L2090: sgRNA B2M CTCGCGCTACTCTCTCTTTC **TGG**
+L2091: 54037321:
+L2092: 2 chr9:108759543- Intergenic CTAGCACTCCTCCCTCTTTCTGG 4 no
+L2093: 108759565:
+L2094: **AAVS1**
+L2095: **No.** **genomic location** **locus details** **Sequence** **#mm** **Ins del**
+L2096: sgRNA AAVS1 GCCAGTAGCCAGCCCCGTCC **TGG**
+L2097: 101451500:
+L2098: **Supplemental Figure 1. Comparison of the protein expression levels after DNA transfection with**
+L2099: **different methods.** HEK293 Cells were tranfected with pCMV-GFP using lipofectamine, nucleofector or tube
+L2100: electroporation. Cell extractions were prepared after 48 hours. Western blot (A) was used to measure the
+L2101: amount of GFP protein expression and quantified (B) to compare.
+L2102: **Supplemental Figure 2. Confocal microscopy images of the dsRNA and protein transfected into human**
+L2103: **iPSC.** The images showed that dsRNA and IgG protein were successfully delivered inside nearly every cell.
+L2104: **Supplemental Figure 3. Efficiencies in reporter knock-in to safe harbor loci in human iPSCs by**
+L2105: **Celetrix’s tube electroporation and Lonza’s Nucleofector.** Left: knock-in of EGFP plasmid DNA reporter
+L2106: vector to Rosa26 locus. Right: Left: knock-in of EGFP plasmid DNA reporter vector to AAVS1 locus.
+L2107: **Supplemental Figure 4. Illustration of adverse physical effects associated with a conventional cuvette.**
+L2108: The voltage distribution in a conventional cuvette is highly uneven in two regions. Region 1: the top
+L2109: concave meniscus. The voltage distribution can be simulated by a simplified equivalent circuit, in
+L2110: which identical resistors are connected into multiple series in parallel with the same end-to-end total
+L2111: voltage. Since the middle top resistor is missing the two side resistors (blue) are first connected in
+L2112: parallel and then connected in series to the center resistor (red). Therefore the voltage in the edge
+L2113: areas is lower than average while it is significantly higher in the middle region beneath the curve;
+L2114: Region 2: the electrode surface areas. The areas contain numerous electric resistant air bubbles as a
+L2115: result of electrochemical reactions. The areas on both sides of each bubble have lower voltage, while
+L2116: the electrons are forced through the spaces between bubbles creating very high voltage regions.
+L2117: Uncropped gel pictures of Figure 4
+L2118: SOLDNER F, HOCKEMEYER D, BEARD C, GAO Q _, et al._ (2009). Parkinson's disease patient-derived induced pluripotent stem cells free of viral reprogramming
+L2119: factors. Cell 136, 964-77.
+[32ms]

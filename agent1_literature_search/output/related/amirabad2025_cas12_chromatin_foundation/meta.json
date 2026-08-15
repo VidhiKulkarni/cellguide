@@ -1,0 +1,26 @@
+{
+  "title": "Multimodal Modeling of CRISPR-Cas12 Activity Using Foundation Models and Chromatin Accessibility Data",
+  "authors": [
+    "Azim Dehghani Amirabad",
+    "Yanfei Zhang",
+    "Artem Moskalev",
+    "Sowmya Rajesh",
+    "Tommaso Mansi",
+    "Shuwei Li",
+    "Mangal Prakash",
+    "Rui Liao"
+  ],
+  "doi": null,
+  "arxiv_id": "2506.11182",
+  "journal": "arXiv preprint (Proceedings of the 42nd International Conference on Machine Learning, PMLR 267, 2025)",
+  "year": 2025,
+  "pub_date": "2025-06-12",
+  "paperclip_id": "arx_2506.11182",
+  "source": "arxiv",
+  "url": "https://arxiv.org/abs/2506.11182",
+  "abstract": "Predicting guide RNA (gRNA) activity is critical for effective CRISPR-Cas12 genome editing but remains challenging due to limited data, variation across protospacer adjacent motifs (PAMs-short sequence requirements for Cas binding), and reliance on large-scale training. We investigate whether pre-trained biological foundation model originally trained on transcriptomic data can improve gRNA activity estimation even without domain-specific pre-training. Using embeddings from existing RNA foundation model as input to lightweight regressor, we show substantial gains over traditional baselines. We also integrate chromatin accessibility data to capture regulatory context, improving performance further. Our results highlight the effectiveness of pre-trained foundation models and chromatin accessibility data for gRNA activity prediction.",
+  "content_type": "fulltext",
+  "content_lines": 70,
+  "relevance": "Directly demonstrates that adding ATAC-seq chromatin accessibility as a modality improves gRNA on-target activity prediction (Spearman 0.76 -> 0.78 over sequence-only; DeepCpf1 baseline 0.71), and documents a concrete ATAC-seq -> binary accessibility label pipeline for annotating guide target loci.",
+  "fetched_date": "2026-08-15"
+}

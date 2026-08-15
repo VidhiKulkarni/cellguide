@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC12319022",
+  "pmc_id": "PMC12319022",
+  "pmid": "40761563",
+  "doi": "10.3389/fpls.2025.1563711",
+  "title": "Unlocking the potential of CRISPR tools and databases for precision genome editing",
+  "authors": "Pooja Saraswat, Rajiv Ranjan",
+  "journal": "Frontiers in Plant Science",
+  "pub_year": 2025,
+  "pub_date": "2025-07-21",
+  "relevance_to_cellguide": "Review article surveying current CRISPR guide-design/off-target/screening tools (including CRISPOR, CHOPCHOP, ML trends) — useful orientation reading for Workstream B1 tool selection, though published in a plant-science journal so some content may be plant-specific; treat as a general tool-landscape overview, not a primary source."
+}

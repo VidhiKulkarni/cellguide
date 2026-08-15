@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11472043",
+  "pmc_id": "PMC11472043",
+  "pmid": "39275984",
+  "doi": "10.1093/nar/gkae759",
+  "title": "Learning to quantify uncertainty in off-target activity for CRISPR guide RNAs",
+  "authors": "Furkan Özden, Peter Minary",
+  "journal": "Nucleic Acids Research",
+  "pub_year": 2024,
+  "pub_date": "2024-10-14",
+  "relevance_to_cellguide": "Trained on CHANGE-seq data from the SAME 110 sgRNAs / 13 therapeutically relevant loci in human primary T cells used elsewhere in this literature set. Produces crispAI-aggregate, a genome-wide off-target specificity score with calibrated uncertainty — directly usable as the 'specificity' + 'uncertainty' terms in the plan's §4.4 scoring formula and §4.3 uncertainty evaluation metric."
+}

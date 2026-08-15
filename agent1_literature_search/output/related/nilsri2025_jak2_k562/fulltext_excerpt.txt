@@ -1,0 +1,8 @@
+CRISPR/Cas9-Based Modeling of JAK2 V617F Mutation in K562 Cells Reveals Enhanced Proliferation and Sensitivity to Therapeutic Agents
+International Journal of Molecular Sciences (2025)
+Nilsri N., Mekchaaum R., Kalasin S., Jongjitwimol J., Daowtak K.
+PMC12111430, DOI 10.3390/ijms26104600
+
+Abstract: The Janus kinase 2 (JAK2) protein fulfills an important role in hematopoiesis via the JAK/STAT pathway. The aim of the present study was to establish K562 cell lines with a point mutation in exon 14 (JAK2 p.V617F) using CRISPR/Cas9 RNP technology (Alt-R HiFi Cas9 + crRNA/tracrRNA, IDT design tool). Modified cells were confirmed by droplet digital PCR and Sanger sequencing, characterized for JAK2 expression and proliferation, and tested against IFN-α2a and arsenic trioxide. JAK2 V617F-mutated K562 clones showed increased JAK2 expression, faster proliferation, greater sensitivity to both therapeutic agents, and could differentiate into megakaryocyte-like cells upon PMA stimulation.
+
+Methodology note relevant to CellGuide: standard RNP-based K562 editing workflow (Alt-R gRNA design, HiFi Cas9, nucleofection, DDPCR + Sanger validation) — useful as a K562-specific wet-lab reference if the hackathon team needs to validate guides experimentally in K562, distinct from Ito et al.'s T-cell-focused protocol.

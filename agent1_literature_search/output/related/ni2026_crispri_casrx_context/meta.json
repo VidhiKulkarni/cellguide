@@ -1,0 +1,28 @@
+{
+  "title": "Comparative benchmarking of CRISPRi and CasRx in standardized pluripotent stem cell platforms reveals context-dependent knockdown performance",
+  "authors": [
+    "Lu Ni",
+    "Takuya Murakami",
+    "Satoshi Suzuki",
+    "Mari Hamao",
+    "Michiko Nakamura",
+    "Chikako Okubo",
+    "Kazutoshi Takahashi"
+  ],
+  "doi": "10.64898/2026.05.13.724469",
+  "journal": "bioRxiv (preprint)",
+  "year": 2026,
+  "pub_date": "2026-01-01",
+  "paperclip_id": "bio_fa83e9f288ff",
+  "source": "biorxiv",
+  "url": "https://doi.org/10.64898/2026.05.13.724469",
+  "paperclip_url": "https://paperclip.gxl.ai/citations/papers/bio_fa83e9f288ff",
+  "abstract": "Advances in transcriptome profiling have revealed transcriptomic differences across different cellular states. However, functional interpretation requires precise perturbation tools and experimental frameworks. This study benchmarked two widely used modalities: CRISPR interference (CRISPRi) and Cas13d/CasRx. A standardized workflow was established to generate human pluripotent stem cells (PSCs) with inducible ZIM3-dCas9 or CasRx expression. The cell lines were subjected to flow cytometry, copy number, and immunocytochemical analyses. The knockdown performance was validated via robust OCT4 suppression and the expected downstream effects on pluripotency genes. Time-course measurements indicated that CRISPRi produced faster and stronger repression but slower recovery after inducer withdrawal. In contrast, CasRx yielded slower and typically weaker knockdown with rapid reversibility. Furthermore, a key limitation of CRISPRi was demonstrated using the ATF5-NUP62 locus, wherein CRISPRi could co-repress genes with overlapping promoter regions. In contrast, CasRx avoids these limitations and supports isoform-resolved targeting of circular and alternatively spliced transcripts, albeit with variable efficiency. These results provide practical guidance for selecting complementary knockdown tools to improve the interpretability of transcriptomic function studies.",
+  "local_files": {
+    "fulltext": "fulltext.txt",
+    "fulltext_kind": "full",
+    "fulltext_lines": 33,
+    "note": "Complete Paperclip content.lines record (L1-L33), line-number prefixes preserved. L1 is the combined abstract/significance/highlights block; L2-L31 are intro/results/discussion/conclusions with figure legends inline; L33 is acknowledgements; L34 is the reference list."
+  },
+  "relevance": "Quantifies CRISPRi's dependence on promoter/TSS architecture: because dCas9-KRAB acts through TSS-proximal chromatin, guides at loci with overlapping or shared TSSs (ATF5-NUP62; HERV-H LTR7-driven TSSs) cause off-target co-repression — i.e. off-target risk for CRISPRi guides is a genomic/chromatin-context property, not just a spacer-sequence property."
+}

@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11507043",
+  "pmc_id": "PMC11507043",
+  "pmid": "39456711",
+  "doi": "10.3390/ijms252010928",
+  "title": "DeepIndel: An Interpretable Deep Learning Approach for Predicting CRISPR/Cas9-Mediated Editing Outcomes",
+  "authors": "Guishan Zhang, Huanzeng Xie, Xianhua Dai",
+  "journal": "International Journal of Molecular Sciences",
+  "pub_year": 2024,
+  "pub_date": "2024-10-11",
+  "relevance_to_cellguide": "Repair-outcome/frameshift prediction model (Tier 2 in plan's roadmap, alongside Leenay/SPROUT). Trained and cross-validated on K562, HEK293T, AND a T-cell dataset (N=1603) — directly relevant to the plan's v4 'functional KO' stage, since it predicts frameshift frequency (not just indel%), and its cross-dataset generalization test (train K562+HEK293T, test on T cells) is a template for the plan's own gene/locus-held-out cross-cell-type validation."
+}

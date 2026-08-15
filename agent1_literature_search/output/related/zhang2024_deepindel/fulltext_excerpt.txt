@@ -1,0 +1,12 @@
+DeepIndel: An Interpretable Deep Learning Approach for Predicting CRISPR/Cas9-Mediated Editing Outcomes
+International Journal of Molecular Sciences (2024)
+Zhang G., Xie H., Dai X.
+PMC11507043, DOI 10.3390/ijms252010928
+
+Abstract: CRISPR/Cas9 has been applied to edit the genome of various organisms, but our understanding of editing outcomes at specific sites after Cas9-mediated DNA cleavage is still limited. Several deep learning-based methods have been proposed for repair outcome prediction; however, there is still room for improvement in terms of performance regarding frameshifts and model interpretability. Here, we present DeepIndel, an end-to-end multi-label regression model for predicting repair outcomes based on the BERT-base module, predicting deletion frequency, 1bp insertion frequency, 1bp deletion frequency, and 1bp/2bp/total frameshift frequency from a 60bp sequence centered on the cut site. We demonstrate that our model outperforms existing methods (Apindel, CROTON) in terms of accuracy and generalizability across various metrics, achieving mean AUC 0.877, Spearman 0.927 on the K562 test set. We utilized Deep SHAP to visualize the importance of nucleotides at various positions and found that mononucleotides and trinucleotides in DNA sequences surrounding the cut site (positions 22-33 of a 60bp window centered on the cut site) play a significant role in repair outcome prediction, consistent with known PAM-proximal seed-sequence importance.
+
+Datasets: K562 (N=35,129, from Li et al./CROTON), HEK293T (N=4,591), and a primary T-cell dataset (N=1,603).
+
+Cross-dataset generalization test (directly relevant to CellGuide's T-cell/K562 cross-context validation approach): trained on K562+HEK293T, tested on the held-out T-cell dataset — DeepIndel outperformed Apindel/CROTON on all metrics except one frameshift task, showing repair-outcome models CAN transfer across cell types reasonably well when trained on pooled cell-line data, though performance still degrades somewhat vs. in-distribution testing.
+
+Discussion explicitly flags (as future work) that "the distribution of repair outcomes differs across various cell lines" and that incorporating chromatin/epigenetic features (citing evidence that "the outcomes of Cas9 editing depends on the chromatin state at the cut site") is a planned improvement — same ATAC-aware idea as the CellGuide plan, but for repair-outcome (not efficiency) prediction.

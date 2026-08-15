@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11347147",
+  "pmc_id": "PMC11347147",
+  "pmid": "38953163",
+  "doi": "10.1093/nar/gkae570",
+  "title": "Chromatin context-dependent effects of epigenetic drugs on CRISPR-Cas9 editing",
+  "authors": "Ruben Schep, Max Trauernicht, Xabier Vergara, Anoek Friskes, Ben Morris, Sebastian Gregoricchio, Stefano G Manzo, Wilbert Zwart, Roderick L Beijersbergen, René H Medema, Bas van Steensel",
+  "journal": "Nucleic Acids Research",
+  "pub_year": 2024,
+  "pub_date": "2024-08-27",
+  "relevance_to_cellguide": "Systematically tests 160 epigenetic drugs across 19 genomic chromatin contexts (using K562 and RPE-1 reporter lines) for their effect on Cas9 editing efficiency and NHEJ:MMEJ repair-pathway balance. Directly extends the plan's ATAC-accessibility hypothesis: shows chromatin state modulates both efficiency AND repair outcome, and that effects are locus-specific, not global."
+}

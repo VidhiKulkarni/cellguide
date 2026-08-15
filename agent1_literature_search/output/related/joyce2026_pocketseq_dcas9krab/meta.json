@@ -1,0 +1,23 @@
+{
+  "title": "POCKET-seq enables genome-wide profiling of on- and off-target transcriptional regulation events by dCas9-KRAB during CRISPR interference experiments",
+  "authors": [
+    "Christine M. Joyce",
+    "Griffin D. Kramer",
+    "Jonathan T. Vu",
+    "Katherine U. Tavasoli",
+    "Brooke M. Gardner",
+    "Chris D. Richardson"
+  ],
+  "doi": "10.64898/2026.06.01.729390",
+  "journal": "bioRxiv (preprint)",
+  "year": 2026,
+  "pub_date": "2026-01-01",
+  "paperclip_id": "bio_3ae3916f6cb7",
+  "source": "biorxiv",
+  "url": "https://doi.org/10.64898/2026.06.01.729390",
+  "abstract": "CRISPR interference screens use catalytically inactive dCas9 fused to a repressor domain to enable genetic perturbations at the transcriptomic level. Interpretation of results involves identification of guide RNAs associated with the screen phenotype, followed by secondary analysis. During validation of a genetic screen, we observed different phenotypes from non-overlapping guide RNAs targeting one gene. Here, we developed POCKET-seq to map the binding of dCas9 genome-wide. We show that off-target binding occurs frequently and can generate false-positive interactions when it occurs near the promoter of genes associated with the screen phenotype. POCKET-seq classifies these false-positive and true-positive interactions using gene ontology.",
+  "retrieved": "full text",
+  "fulltext_file": "fulltext.txt",
+  "fulltext_lines": 33,
+  "relevance": "CRISPRi/CRISPRa guide RNA design and chromatin accessibility: shows sequence-mismatch off-target predictors (CRISPOR) almost entirely miss measured dCas9-KRAB binding off-targets because they ignore local chromatin context - a direct argument for chromatin-aware specificity scoring."
+}

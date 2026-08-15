@@ -1,0 +1,13 @@
+[project]
+name = "cellguide-ai"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "claude-agent-sdk>=0.2.139",
+    "cryptography==46.0.0",
+    "matplotlib>=3.11.1",
+    "pandas>=3.0.5",
+    "python-dotenv>=1.2.2",
+    "scipy>=1.18.0",
+]

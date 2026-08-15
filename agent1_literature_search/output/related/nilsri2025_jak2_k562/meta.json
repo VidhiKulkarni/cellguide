@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC12111430",
+  "pmc_id": "PMC12111430",
+  "pmid": "40429745",
+  "doi": "10.3390/ijms26104600",
+  "title": "CRISPR/Cas9-Based Modeling of JAK2 V617F Mutation in K562 Cells Reveals Enhanced Proliferation and Sensitivity to Therapeutic Agents",
+  "authors": "Nungruthai Nilsri, Rujira Mekchaaum, Supaporn Kalasin, Jirapas Jongjitwimol, Krai Daowtak",
+  "journal": "International Journal of Molecular Sciences",
+  "pub_year": 2025,
+  "pub_date": "2025-05-11",
+  "relevance_to_cellguide": "Uses CRISPR/Cas9 RNP to knock a point mutation into K562 — background context/methodology for K562 as an editing target (RNP delivery, DDPCR/Sanger validation workflow), reinforcing K562's tractability as the plan's second cell context. Not about guide efficiency prediction; low centrality."
+}

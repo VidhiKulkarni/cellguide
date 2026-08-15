@@ -1,0 +1,12 @@
+gene_name,category,target_sequence,atac_score_tcell,atac_score_k562
+GZMA,T cell-associated genes,GAGGAACTCCTATAGATTTC,1.065,0
+GZMB,T cell-associated genes,GCAACCAATCCTGCTTCTGC,0.666,0
+CD3D,T cell-associated genes,GAACATAGCACGTTTCTCTC,1.119,0
+CD28,T cell-associated genes,TCGTCAGGACAAAGATGCTC,1.131,0
+EOMES,T cell-associated genes,GAGACTGCCGGAAAACTTCT,1.123,0
+CD3G,T cell-associated genes,GAAGAATGATAGCCAGGATG,0.883,0
+CD33,Myeloerythroid-associated genes,CGGTGCTCATAATCACCCCA,0.0232,8.589
+GATA1,Myeloerythroid-associated genes,GGTACTGCCCATCTCTACCA,0.0465,4.294
+HBB,Myeloerythroid-associated genes,GTGCTCGGTGCCTTTAGTGA,0.0465,13.956
+HBE1,Myeloerythroid-associated genes,AGTCAGCACCTTCTTGCCAT,0.0232,9.662
+TFR2,Myeloerythroid-associated genes,CACCGTCCCAGCTGATGAAG,0.031,15.03

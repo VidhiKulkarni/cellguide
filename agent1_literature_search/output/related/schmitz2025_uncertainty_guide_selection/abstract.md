@@ -1,0 +1,5 @@
+# Leveraging uncertainty quantification to optimize CRISPR guide RNA selection
+
+Schmitz C., Bradford J., Salomone R., Perrin D., *Biology Methods & Protocols* (2025). PMC12657131, DOI 10.1093/biomethods/bpaf054
+
+CRISPR-based genome editing relies on guide RNA sequences to target specific regions of interest. A large number of methods have been developed to predict how efficient different guides are at inducing indels. As more experimental data becomes available, methods based on machine learning have become more prominent. Here, we explore whether quantifying the uncertainty around these predictions can be used to design better guide selection strategies. We demonstrate how using a deep ensemble approach achieves better performance than utilizing a single model. This approach can also provide uncertainty quantification. This allows to design, for the first time, strategies that consider uncertainty in guide RNA selection. These strategies achieve precision over 90% and can identify suitable guides for >93% of genes in the mouse genome.

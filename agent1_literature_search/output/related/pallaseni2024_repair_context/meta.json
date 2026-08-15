@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11599590",
+  "pmc_id": "PMC11599590",
+  "pmid": "39592573",
+  "doi": "10.1038/s41467-024-54566-7",
+  "title": "The interplay of DNA repair context with target sequence predictably biases Cas9-generated mutations",
+  "authors": "Ananth Pallaseni, Elin Madli Peets, Gareth Girling, Luca Crepaldi, Ivan Kuzmin, Marilin Moor, Núria Muñoz-Subirana, Joost Schimmel, Özdemirhan Serçin, Balca R. Mardin, Marcel Tijsterman, Hedi Peterson, Michael Kosicki, Leopold Parts",
+  "journal": "Nature Communications",
+  "pub_year": 2024,
+  "pub_date": "2024-11-27",
+  "relevance_to_cellguide": "Large-scale (236,000+ mutational outcomes, 2,800+ synthetic targets, 18 repair-deficient mESC lines) mechanistic dissection of which DNA repair genes (Prkdc, Polm, Nbn, Polq) drive which mutation types. Relevant background for the plan's v2/v4 'repair outcome' and 'functional KO' stages — explains WHY repair outcome varies by genetic/cellular background, complementing SPROUT/Leenay (which the team couldn't source) and X-CRISP."
+}

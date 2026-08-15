@@ -1,0 +1,38 @@
+{
+  "title": "A systematic screening assay identifies efficient small guide RNAs for CRISPR activation",
+  "authors": [
+    "Elin Arvidsson",
+    "Diana Duarte Lobo",
+    "Ermelinda Sabarese",
+    "Fabio Duarte",
+    "Rui Jorge Nobre",
+    "Luis Quintino",
+    "Cecilia Lundberg"
+  ],
+  "doi": "10.3389/fbioe.2025.1336313",
+  "journal": "Frontiers in Bioengineering and Biotechnology",
+  "year": 2025,
+  "pub_date": "2025-01-23",
+  "paperclip_id": "PMC11799263",
+  "pmc_id": "PMC11799263",
+  "pmid": "39917018",
+  "source": "pmc",
+  "article_type": "research-article",
+  "url": "https://doi.org/10.3389/fbioe.2025.1336313",
+  "pmc_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11799263/",
+  "abstract": "CRISPR-mediated gene activation (CRISPRa) encompasses a growing field of biotechnological approaches with exciting implications for gene therapy. However, there is a lack of experimental validation tools for selecting efficient sgRNAs for downstream applications. Here, we present a screening assay capable of identifying efficient single- and double sgRNAs through fluorescence quantification in vitro. In addition, we provide a tailored Golden Gate cloning workflow for streamlined incorporation of selected sgRNA candidates into lentiviral (LVs) or adeno-associated viral vectors (AAVs). The overall workflow was validated using therapeutically relevant genes for neurodegenerative diseases, including Tfeb, Adam17, and Sirt1. The most efficient sgRNAs also demonstrated activation of endogenous gene expression at mRNA level. Correlation analysis of gene activation relative to sgRNA binding site distance to transcription start-site or nearby transcription factor binding sites failed to detect common characteristics influencing gene activation in the selected promoter regions. This data demonstrates the potential of the screening assay to identify functionally efficient sgRNA candidates across multiple genes along with streamlined cloning of viral vectors and may assist in accelerating future developments of CRISPRa-focused applications.",
+  "keywords": [
+    "CRISPRa",
+    "gene activation",
+    "gene therapy",
+    "Tfeb",
+    "Adam17",
+    "Sirt1",
+    "sgRNA screening",
+    "TSS distance",
+    "transcription factor binding sites"
+  ],
+  "local_text": "fulltext.txt",
+  "text_status": "pending",
+  "fetched": "2026-08-15"
+}

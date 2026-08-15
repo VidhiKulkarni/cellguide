@@ -1,0 +1,5 @@
+gene,cell_type,indel_pct,combined_score,sequence_efficacy,accessibility,specificity,passes_ito_rule
+GZMA,T,88.0,0.8644000000000001,0.661,1.0,1.0,True
+GZMA,K562,9.0,0.6244000000000001,0.661,0.19999999999999998,1.0,False
+GATA1,K562,81.0,0.8440000000000001,0.61,1.0,1.0,True
+GATA1,T,7.0,0.6339999999999999,0.61,0.3,1.0,False

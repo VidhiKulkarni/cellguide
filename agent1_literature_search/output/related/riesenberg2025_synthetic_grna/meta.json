@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC12095496",
+  "pmc_id": "PMC12095496",
+  "pmid": "40399255",
+  "doi": "10.1038/s41467-025-59947-0",
+  "title": "Robust prediction of synthetic gRNA activity and cryptic DNA repair by disentangling cellular CRISPR cleavage outcomes",
+  "authors": "Stephan Riesenberg, Philipp Kanis, Rosa Karlic, Tomislav Maricic",
+  "journal": "Nature Communications",
+  "pub_year": 2025,
+  "pub_date": "2025-05-21",
+  "relevance_to_cellguide": "Directly relevant caveat for the plan's primary endpoint (indel %): shows indel-only scoring systematically UNDERESTIMATES true gRNA activity because some cleavage events resolve without a scorable indel (e.g. precise re-ligation, large deletions missed by standard amplicon assays). Provides a linear model that reliably predicts synthetic (chemically synthesized, RNP-delivered) gRNA activity ACROSS CELL LINES — same synthetic-RNP delivery modality as Ito et al.'s T-cell protocol, worth comparing against the plan's DeepSpCas9/CHOPCHOP baseline."
+}

@@ -1,0 +1,5 @@
+# Efficient nonviral integration of large transgenes into human T cells using Cas9-CLIPT
+
+Tommasi A. et al., *Molecular Therapy. Methods & Clinical Development* (2025). PMC11930092, DOI 10.1016/j.omtm.2025.101437
+
+CRISPR-Cas9 ribonucleoproteins (RNPs) combined with a nucleic acid template encoding a chimeric antigen receptor (CAR) transgene can edit human cells to produce CAR T cells with precise CAR insertion at a single locus. Here, we introduce Cleaved, LInearized with Protein Template (Cas9-CLIPT), a circular plasmid containing a single target sequence for the Cas9 RNP, such that during manufacturing, Cas9-RNP binds and cleaves the plasmid to linearize the dsDNA in vitro. Cas9-CLIPT Nanoplasmids generate up to 1.7-fold higher rates of precise knock-in relative to linearized dsDNA, reaching efficiencies up to 60% with non-homologous end joining inhibition. Cas9-CLIPT-manufactured GD2 TRAC-CAR T cells are potent against GD2+ neuroblastoma cells and exhibit an enriched stem cell memory phenotype.

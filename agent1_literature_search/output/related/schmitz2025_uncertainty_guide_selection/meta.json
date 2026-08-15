@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC12657131",
+  "pmc_id": "PMC12657131",
+  "pmid": "41323028",
+  "doi": "10.1093/biomethods/bpaf054",
+  "title": "Leveraging uncertainty quantification to optimize CRISPR guide RNA selection",
+  "authors": "Carl Schmitz, Jacob Bradford, Robert Salomone, Dimitri Perrin",
+  "journal": "Biology Methods & Protocols",
+  "pub_year": 2025,
+  "pub_date": "2025-01-01",
+  "relevance_to_cellguide": "Directly on-topic for the plan's guide RANKING/selection problem (not just scoring): uses a deep-ensemble uncertainty-aware model to design guide selection STRATEGIES, achieving >90% precision. This is the closest match in the whole search to the plan's core deliverable ('multi-objective ranking... Top 3 guides + component scores + evidence') — worth reading in full if the team wants a template for combining prediction uncertainty into a ranking policy rather than a single score."
+}

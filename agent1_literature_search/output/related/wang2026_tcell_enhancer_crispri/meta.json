@@ -1,0 +1,25 @@
+{
+  "title": "Precision CRISPR annotation of the functional enhancer landscape in primary human T cells",
+  "authors": [
+    "Ping Wang",
+    "Josephine R. Giles",
+    "Hua Huang",
+    "Sasikanth Manne",
+    "Martha S. Jordan",
+    "Alexander C. Huang",
+    "Junwei Shi",
+    "E. John Wherry"
+  ],
+  "doi": "10.64898/2026.01.27.702006",
+  "journal": "bioRxiv (preprint)",
+  "year": 2026,
+  "pub_date": "2026-01-27",
+  "paperclip_id": "bio_8c841c416c11",
+  "source": "biorxiv",
+  "url": "https://doi.org/10.64898/2026.01.27.702006",
+  "abstract": "Precise modulation of T cell function through engineering the non-coding genome holds great promise for advancing next-generation immunotherapies. However, robust high-throughput approaches to annotate functional cis-regulatory elements (CRE) in human T cells remain limited. Here, we developed a simple and highly efficient CRISPR interference (CRISPRi) perturbation platform to systematically annotate CREs in human primary T cells. Using this platform, we identified novel CREs controlling PDCD1, HAVCR2, and TBX21 expression. Combinatorial CRE perturbations revealed synergistic CRE pairs that fine-tune PDCD1 and HAVCR2 expression, while Cas9-indel-based mutagenesis pinpointed the critical nucleotides within each enhancer that are essential for their activity. Functional experiments demonstrated that CRE-edited HAVCR2 outperformed conventional total gene knockout in enhancing CAR T cell anti-tumor efficacy. Moreover, CRE editing of PDCD1 and HAVCR2 repressed PD-1 and TIM-3 expression in human tumor-infiltrating lymphocyte CD8 T cells, highlighting regulatory role of these CREs in disease relevant exhausted T cells. Together, this approach offers a compact CRISPRi platform that enables high-throughput dissection of functionally relevant non-coding genomic regions in T cells, providing insights for mechanistic studies and precision genome engineering of advanced cellular therapies.",
+  "retrieved": "full text",
+  "fulltext_file": "fulltext.txt",
+  "fulltext_lines": 150,
+  "relevance": "CRISPRi/CRISPRa guide RNA design and chromatin accessibility: CRISPRi tiling of cis-regulatory elements in primary human T cells, directly connecting guide placement at accessible enhancer/promoter chromatin to functional gene repression in the CellGuide target cell type."
+}

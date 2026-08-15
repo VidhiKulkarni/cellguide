@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11696696",
+  "pmc_id": "PMC11696696",
+  "pmid": "39758829",
+  "doi": "10.1093/bioadv/vbae184",
+  "title": "Predicting CRISPR-Cas9 off-target effects in human primary cells using bidirectional LSTM with BERT embedding",
+  "authors": "Orhan Sari, Ziying Liu, Youlian Pan, Xiaojian Shao",
+  "journal": "Bioinformatics Advances",
+  "pub_year": 2025,
+  "pub_date": "2025-01-01",
+  "relevance_to_cellguide": "CrisprBERT off-target predictor trained/evaluated specifically on CHANGE-seq primary-T-cell data (same 110 sgRNA/13-loci dataset as Özden et al.) plus DeepCRISPR HEK293/K562 data. Directly relevant alternative off-target scorer for the plan's specificity term, and its discussion section explicitly argues cell-type-specific chromatin/epigenomic context improves off-target prediction — supporting evidence for the plan's core ATAC hypothesis (H2)."
+}

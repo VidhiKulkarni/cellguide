@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11863968",
+  "pmc_id": "PMC11863968",
+  "pmid": "40011959",
+  "doi": "10.1186/s13059-025-03488-8",
+  "title": "Genome-wide CRISPR guide RNA design and specificity analysis with GuideScan2",
+  "authors": "Henri Schmidt, Minsi Zhang, Dimitar Chakarov, Vineet Bansal, Haralambos Mourelatos, Francisco J. Sánchez-Rivera, Scott W. Lowe, Andrea Ventura, Christina S. Leslie, Yuri Pritykin",
+  "journal": "Genome Biology",
+  "pub_year": 2025,
+  "pub_date": "2025-02-26",
+  "relevance_to_cellguide": "A candidate open-source replacement for Benchling in the plan's Workstream B1 'candidate generator' (gene -> valid SpCas9 guides + scores) if Benchling access is limited — the plan's own risk table (§7) flags 'Guide-score/API access varies across tools... Benchling can be replaced by open guide enumeration/scoring.' GuideScan2 provides exactly that: memory-efficient genome-wide gRNA database construction + specificity scoring, with demonstrated identification of confounding low-specificity guides in published screens."
+}

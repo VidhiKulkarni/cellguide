@@ -1,0 +1,31 @@
+{
+  "title": "GLiDe: a web-based genome-scale CRISPRi sgRNA design tool for prokaryotes",
+  "authors": [
+    "Tongjun Xiang",
+    "Huibao Feng",
+    "Xin-hui Xing",
+    "Chong Zhang"
+  ],
+  "doi": "10.1186/s12859-024-06012-0",
+  "journal": "BMC Bioinformatics",
+  "year": 2025,
+  "pub_date": "2025-01-03",
+  "paperclip_id": "PMC11699761",
+  "pmc_id": "PMC11699761",
+  "pmid": "39754035",
+  "source": "pmc",
+  "article_type": "research-article",
+  "url": "https://doi.org/10.1186/s12859-024-06012-0",
+  "pmc_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11699761/",
+  "abstract": "CRISPRi screening has become a powerful approach for functional genomic research. However, the off-target effects resulting from the mismatch tolerance between sgRNAs and their intended targets is a primary concern in CRISPRi applications. We introduce Guide Library Designer (GLiDe), a web-based tool specifically created for the genome-scale design of sgRNA libraries tailored for CRISPRi screening in prokaryotic organisms. GLiDe incorporates a robust quality control framework, rooted in prior experimental knowledge, ensuring the accurate identification of off-target hits. It boasts an extensive built-in database, encompassing 1,397 common prokaryotic species as a comprehensive design resource. It also provides the capability to design sgRNAs for newly discovered organisms by accepting uploaded design resource. We further demonstrated that GLiDe exhibits enhanced precision in identifying off-target binding sites for the CRISPRi system. We present a web server that allows the construction of genome-scale CRISPRi sgRNA libraries for prokaryotes. It mitigates off-target effects through a robust quality control framework, leveraging prior experimental knowledge within an end-to-end, user-friendly pipeline.",
+  "keywords": [
+    "CRISPRi sgRNA design",
+    "Off-target binding identification",
+    "Public webserver",
+    "genome-scale library",
+    "prokaryotes"
+  ],
+  "local_text": "fulltext.txt",
+  "text_status": "pending",
+  "fetched": "2026-08-15"
+}

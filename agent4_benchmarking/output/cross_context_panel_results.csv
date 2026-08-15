@@ -1,0 +1,12 @@
+gene_name,category,sequence_efficacy_fixed,accessibility_tcell,accessibility_k562,direction_matches_paper
+GZMA,T cell-associated genes,0.467,1.0,0.0,True
+GZMB,T cell-associated genes,0.8,1.0,0.0,True
+CD3D,T cell-associated genes,0.933,1.0,0.0,True
+CD28,T cell-associated genes,0.867,1.0,0.0,True
+EOMES,T cell-associated genes,0.733,1.0,0.0,True
+CD3G,T cell-associated genes,0.8,1.0,0.0,True
+CD33,Myeloerythroid-associated genes,0.933,0.232,1.0,True
+GATA1,Myeloerythroid-associated genes,0.8,0.465,1.0,True
+HBB,Myeloerythroid-associated genes,0.8,0.465,1.0,True
+HBE1,Myeloerythroid-associated genes,0.867,0.232,1.0,True
+TFR2,Myeloerythroid-associated genes,0.867,0.31,1.0,True

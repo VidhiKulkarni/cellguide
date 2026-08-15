@@ -1,0 +1,14 @@
+{
+  "document_id": "PMC10783505",
+  "pmc_id": "PMC10783505",
+  "pmid": "37985205",
+  "doi": "10.1093/nar/gkad1076",
+  "title": "Epigenetic profiles guide improved CRISPR/Cas9-mediated gene knockout in human T cells",
+  "authors": "Yusuke Ito, Satoshi Inoue, Takahiro Nakashima, Haosong Zhang, Yang Li, Hitomi Kasuya, Tetsuya Matsukawa, Zhiwen Wu, Toshiaki Yoshikawa, Mirei Kataoka, Tetsuo Ishikawa, Yuki Kagoya",
+  "journal": "Nucleic Acids Research",
+  "pub_year": 2024,
+  "pub_date": "2024-01-11",
+  "source": "pmc",
+  "cited_in_plan_as": "Ito Y. et al. Epigenetic profiles guide improved CRISPR/Cas9-mediated gene editing in human T cells. Nucleic Acids Research 52(1):141-154 (2024).",
+  "note": "PMC-indexed title reads 'gene knockout' rather than 'gene editing' as in the hackathon plan's citation; same paper (author, journal, year, DOI, and content all match)."
+}

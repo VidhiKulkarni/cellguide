@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11839120",
+  "pmc_id": "PMC11839120",
+  "pmid": "39974883",
+  "doi": "10.1101/2025.02.06.636858",
+  "title": "X-CRISP: Domain-Adaptable and Interpretable CRISPR Repair Outcome Prediction",
+  "authors": "Colm Seale, Joana P. Gonçalves",
+  "journal": "bioRxiv",
+  "pub_year": 2025,
+  "pub_date": "2025-04-23",
+  "relevance_to_cellguide": "Highly relevant to the plan's v3 'unseen-cell transfer' roadmap stage (§6.1): demonstrates transfer learning of a repair-outcome model pretrained on mESC data to NEW cell lines (K562, HAP1, U2OS) using as few as 50 target-domain samples, directly answering 'can the model generalize to a cell type absent during training' — the exact question the plan poses for v3, though for repair outcome rather than efficiency."
+}

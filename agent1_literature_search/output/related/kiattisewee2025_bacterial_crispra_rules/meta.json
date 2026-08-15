@@ -1,0 +1,32 @@
+{
+  "title": "Systematic Mapping of Bacterial CRISPRa Design Rules and Implications for Synergistic Gene Activation",
+  "authors": [
+    "Cholpisit Kiattisewee",
+    "Ava V. Karanjia",
+    "Ryan A. L. Cardiff",
+    "Kira E. Olander",
+    "Pansa Leejareon",
+    "Sarah S. Alvi",
+    "James M. Carothers",
+    "Jesse G. Zalatan"
+  ],
+  "doi": "10.1101/2025.05.14.654134",
+  "journal": "bioRxiv (preprint)",
+  "year": 2025,
+  "pub_date": "2025-05-14",
+  "paperclip_id": "bio_dfc9de1472c0",
+  "source": "biorxiv",
+  "url": "https://doi.org/10.1101/2025.05.14.654134",
+  "abstract": "CRISPR gene activation (CRISPRa) tools have shown great promise for bacterial strain engineering but often require customization for each intended application. Our goal is to create generalizable CRISPRa tools that can overcome previous limitations of gene activation in bacteria. In eukaryotic cells, multiple activators can be combined for synergistic gene activation. To identify potential effectors for synergistic activation in bacteria, we systematically characterized bacterial activator proteins with a set of engineered synthetic promoters. We found that optimal target sites for different activators could vary by up to 200 bases in the region upstream of the transcription start site (TSS). These optimal target sites qualitatively matched previous reports for each activator, but the precise targeting rules varied between different promoters. By characterizing targeting rules in the same promoter context, we were able to test activator combinations with each effector positioned at its optimal target site. We did not find any activator combinations that produced synergistic activation, and we found that many combinations were antagonistic. This systematic investigation highlights fundamental mechanistic differences between bacterial and eukaryotic transcriptional activation systems, and suggests that alternative strategies will be necessary for strong bacterial gene activation at arbitrary endogenous targets.",
+  "keywords": [
+    "CRISPRa",
+    "bacterial gene activation",
+    "sgRNA target site design",
+    "TSS-relative targeting window",
+    "synthetic promoters",
+    "synergy"
+  ],
+  "local_text": "fulltext.txt",
+  "text_status": "full text (L1-L818, includes supplementary figure descriptions and references)",
+  "fetched": "2026-08-15"
+}

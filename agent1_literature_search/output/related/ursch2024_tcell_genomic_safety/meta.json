@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11722128",
+  "pmc_id": "PMC11722128",
+  "pmid": "39637860",
+  "doi": "10.1016/j.xcrm.2024.101846",
+  "title": "Modulation of TCR stimulation and pifithrin-α improves the genomic safety profile of CRISPR-engineered human T cells",
+  "authors": "Laurenz T. Ursch, Jule S. Müschen, Julia Ritter, Julia Klermund, Bettina E. Bernard, Saskia Kolb, Linda Warmuth, Geoffroy Andrieux, Gregor Miller, Marina Jiménez-Muñoz, Fabian J. Theis, Melanie Boerries, Dirk H. Busch, Toni Cathomen, Kathrin Schumann",
+  "journal": "Cell Reports Medicine",
+  "pub_year": 2024,
+  "pub_date": "2024-12-04",
+  "relevance_to_cellguide": "T-cell-intrinsic factors (TCR activation state, proliferation speed) independently drive indel size/large-deletion risk in primary human T cells, on top of guide/chromatin factors. Relevant caveat for the plan's T-cell RNP protocol design and its 'secondary endpoints: off-target specificity, rank stability' framing — activation state is a confound the team should record alongside cell type."
+}

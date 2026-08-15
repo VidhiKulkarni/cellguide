@@ -1,0 +1,31 @@
+{
+  "title": "Targeted epigenetic repression of oncogenic transcription factors via CRISPR/dCas9 locus-specific silencing",
+  "authors": [
+    "Shahama Taifour",
+    "Christopher Wallis",
+    "Edina Wang",
+    "Eleanor Woodward",
+    "Ash W.J. Tie",
+    "Charlene Waryah",
+    "Larissa Dymond",
+    "Andrew Woo",
+    "Peter Houghton",
+    "K Swaminathan Iyer",
+    "Marck Norret",
+    "Cameron W Evans",
+    "Louise Winteringham",
+    "Silvana Gaudieri",
+    "Pilar Blancafort"
+  ],
+  "doi": "10.64898/2026.06.27.734664",
+  "journal": "bioRxiv (preprint)",
+  "year": 2026,
+  "pub_date": "2026-01-01",
+  "paperclip_id": "bio_45e1ce856ea5",
+  "source": "biorxiv",
+  "url": "https://doi.org/10.64898/2026.06.27.734664",
+  "paperclip_url": "https://paperclip.gxl.ai/citations/papers/bio_45e1ce856ea5",
+  "abstract": "Despite the revolutionary impact of genome engineering tools in medicine, the safe and effective intracellular delivery of CRISPR remains a major obstacle for clinical applications. Here, we implement precision molecular medicine and delivery strategies based on CRISPR/dCas9 systems adapted for epigenetic repression (dCas9-KRAB) to silence oncogenic drivers with high genomic selectivity. As proof-of-principle, we target the EWSR1-FLI1 translocation, which encodes a chimeric and hard-to-drug oncogenic transcription factor driving approximately 85% of the cases of Ewing Sarcoma (EWS)-an aggressive malignancy affecting children and adolescents. We describe the development of a non-viral and programmable polymeric system for the delivery of dCas9-KRAB as ribonucleoprotein (RNP) payloads for selective EWSR1-FLI1 repression. We demonstrate highly efficient intracellular delivery of RNPs loaded in polyamide-amine (PAMAM) polymers functionalized by guanidino groups, resulting in robust silencing of EWSR1-FLI1 both in established cell line xenografts and in patient-derived xenografts (PDXs) of EWS. Moreover, silencing of EWSR1-FLI1 is accompanied by potent anti-tumor effects. To our knowledge, we describe the first non-viral platform for in vivo delivery of dCas9-KRAB/RNPs, which can be adapted for the repression of any oncogene. We further outline dCas9/RNP formulations for future therapeutic applications to treat poor-prognosis cancers driven by hard-to-drug oncogenes.",
+  "retrieved": "2026-08-15",
+  "fulltext_status": "full (62 of 62 content.lines)"
+}

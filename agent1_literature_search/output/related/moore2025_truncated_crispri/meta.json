@@ -1,0 +1,54 @@
+{
+  "title": "Multi-locus CRISPRi targeting with a single truncated guide RNA",
+  "authors": [
+    "Molly M. Moore",
+    "Siddarth Wekhande",
+    "Robbyn Issner",
+    "Alejandro Collins",
+    "Anna J. Cruz",
+    "Yanjing V. Liu",
+    "Nauman Javed",
+    "Salvador Casaní-Galdón",
+    "Jason D. Buenrostro",
+    "Charles B. Epstein",
+    "Eugenio Mattei",
+    "John G. Doench",
+    "Bradley E. Bernstein",
+    "Noam Shoresh",
+    "Fadi J. Najm"
+  ],
+  "doi": "10.1038/s41467-025-56144-x",
+  "journal": "Nature Communications",
+  "year": 2025,
+  "pub_date": "2025-02-04",
+  "paperclip_id": "PMC11794626",
+  "pmc_id": "PMC11794626",
+  "pmid": "39905017",
+  "source": "pmc",
+  "article_type": "research-article",
+  "keywords": ["Functional genomics", "Epigenomics", "CRISPR-Cas systems"],
+  "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11794626/",
+  "doi_url": "https://doi.org/10.1038/s41467-025-56144-x",
+  "paperclip_url": "https://paperclip.gxl.ai/citations/papers/PMC11794626",
+  "abstract": "A critical goal in functional genomics is evaluating which non-coding elements contribute to gene expression, cellular function, and disease. Functional characterization remains a challenge due to the abundance and complexity of candidate elements. Here, we develop a CRISPRi-based approach for multi-locus screening of putative transcription factor binding sites with a single truncated guide. A truncated guide with hundreds of sequence match sites can reliably disrupt enhancer activity, which expands the targeting scope of CRISPRi while maintaining repressive efficacy. We screen over 13,000 possible CTCF binding sites with 24 guides at 10 nucleotides in spacer length. These truncated guides direct CRISPRi-mediated deposition of repressive H3K9me3 marks and disrupt transcription factor binding at most sequence match target sites. This approach can be a valuable screening step for testing transcription factor binding motifs or other repeated genomic sequences and is easily implemented with existing tools.",
+  "local_files": {
+    "fulltext": "excerpt.md",
+    "fulltext_kind": "excerpt",
+    "source_total_lines": 4344,
+    "excerpt_lines": "L1-L180",
+    "sections_included": [
+      "Title", "Authors", "Affiliations", "Abstract", "Introduction",
+      "Results (Truncated guides direct CRISPRi to a sequence match site; Enhancer disruption with truncated guides; A CTCF-directed truncated guide library; Simultaneous targeting of CTCF binding sites; Characterization of disrupted CTCF sites)",
+      "Discussion",
+      "Methods (all subsections incl. Guide selection, ChIP-seq, RNA-seq, pooled screening, CTCF site determination, TF motif search)",
+      "Data availability", "References", "Acknowledgements"
+    ],
+    "sections_omitted": [
+      "Supplementary Figures 1-11 (OCR'd panel text)",
+      "Supplementary data tables (SuppData_1-6)",
+      "Reporting Summary",
+      "Peer Review File"
+    ]
+  },
+  "relevance": "Shows that guide spacer length (10 nt truncated guides) rather than full 20-mer complementarity governs CRISPRi targeting scope, and that repression success at each match site depends on local chromatin (H3K9me3 deposition, TF occupancy, accessibility) — a direct precedent for chromatin-context-dependent guide scoring."
+}

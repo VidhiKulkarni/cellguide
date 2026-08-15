@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11930092",
+  "pmc_id": "PMC11930092",
+  "pmid": "40123742",
+  "doi": "10.1016/j.omtm.2025.101437",
+  "title": "Efficient nonviral integration of large transgenes into human T cells using Cas9-CLIPT",
+  "authors": "Anna Tommasi, Dan Cappabianca, Madison Bugel, Kirstan Gimse, Karl Lund-Peterson, Hum Shrestha, Denis Arutyunov, James A. Williams, Seshidhar Reddy Police, Venkata Indurthi, Sage Z. Davis, Muhammed Murtaza, Christian M. Capitini, Krishanu Saha",
+  "journal": "Molecular Therapy. Methods & Clinical Development",
+  "pub_year": 2025,
+  "pub_date": "2025-02-18",
+  "relevance_to_cellguide": "Background/context for RNP-based primary T-cell engineering methodology (Cas9 RNP + template delivery for CAR-T manufacturing) — same delivery modality (RNP electroporation) as Ito et al.'s T-cell dataset. Lower priority: focused on knock-in/HDR engineering, not on the guide-ranking/indel-efficiency question central to the plan."
+}

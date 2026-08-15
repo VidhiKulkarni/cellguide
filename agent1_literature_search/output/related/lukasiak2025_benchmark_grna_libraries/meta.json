@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC11863645",
+  "pmc_id": "PMC11863645",
+  "pmid": "40011813",
+  "doi": "10.1186/s12864-025-11386-3",
+  "title": "A benchmark comparison of CRISPRn guide-RNA design algorithms and generation of small single and dual-targeting libraries to boost screening efficiency",
+  "authors": "Sebastian Lukasiak, Alex Kalinka, Nikhil Gupta, Angelos Papadopoulos, Khalid Saeed, Ultan McDermott, Gregory James Hannon, Douglas Ross-Thriepland, David Walter",
+  "journal": "BMC Genomics",
+  "pub_year": 2025,
+  "pub_date": "2025-02-26",
+  "relevance_to_cellguide": "Directly useful reference for the plan's Baseline A/B comparisons (§4.2) and 'benchmark design' (§4): benchmarks multiple publicly available genome-wide sgRNA design algorithms head-to-head, giving the team a template for comparing sequence-scoring tools before layering ATAC on top."
+}

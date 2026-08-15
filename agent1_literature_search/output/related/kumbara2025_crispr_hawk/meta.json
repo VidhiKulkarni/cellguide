@@ -1,0 +1,12 @@
+{
+  "document_id": "PMC12767513",
+  "pmc_id": "PMC12767513",
+  "pmid": "41497669",
+  "doi": "10.64898/2025.12.27.696698",
+  "title": "CRISPR-HAWK: Haplotype- and Variant-aware guide design toolkit for CRISPR-Cas",
+  "authors": "Alisa Kumbara, Manuel Tognon, Giulia Carone, Arianna Fontanesi, Nicola Bombieri, Rosalba Giugno, Luca Pinello",
+  "journal": "bioRxiv",
+  "pub_year": 2025,
+  "pub_date": "2025-12-27",
+  "relevance_to_cellguide": "Adjacent but relevant caveat: shows that individual/population genetic variants (not just chromatin/cell-type) can also alter guide performance (82.5% of guides at 7 therapeutic loci had variants modifying on-target activity), including creating or destroying PAM sites. Worth flagging as a longer-term extension beyond ATAC/chromatin context — relevant to the plan's 'evidence/provenance' framing if the team wants to note donor-genotype as another axis of context-dependence."
+}
