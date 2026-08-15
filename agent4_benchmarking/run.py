@@ -80,6 +80,7 @@ def run_benchmark(df: pd.DataFrame, weights: GuideScoreWeights) -> pd.DataFrame:
                 deepspcas9_score=row.deepspcas9_score,
                 chopchop_score=row.chopchop_score,
                 atac_signal=row.atac_signal,
+                delivery="rnp",  # Ito et al. 2024 used Cas9 RNP electroporation, not a vector
             ),
             weights,
         )
@@ -90,6 +91,7 @@ def run_benchmark(df: pd.DataFrame, weights: GuideScoreWeights) -> pd.DataFrame:
                 "spacer": row.spacer,
                 "indel_pct": row.indel_pct,
                 "combined_score": result.combined,
+                "recommended_score": result.recommended_score,
                 "sequence_efficacy": result.sequence_efficacy,
                 "accessibility": result.accessibility,
                 "specificity": result.specificity,
@@ -107,7 +109,7 @@ def baseline_comparison(results: pd.DataFrame) -> str:
     lines = ["### Baseline comparison (component-only vs combined)\n"]
     lines.append("| Component | Spearman ρ vs indel% | p-value |")
     lines.append("|---|---|---|")
-    for col in ["sequence_efficacy", "accessibility", "combined_score"]:
+    for col in ["sequence_efficacy", "accessibility", "combined_score", "recommended_score"]:
         rho, pval = spearmanr(results[col], results["indel_pct"])
         lines.append(f"| `{col}` | {rho:.3f} | {pval:.3g} |")
 

@@ -2,30 +2,39 @@
 """
 Agent 8 — Benchling sync (CellGuide AI pipeline, see ../CLAUDE.md).
 
-STUB pipeline glue — not runnable yet (see client.py for what's missing). Once
-BenchlingClient is implemented, this loop is: pull new results from Benchling -> feed each
-into Agent 6's `record` (updates the ranking) -> push the new top ranking + Agent 5's
-confidence back to Benchling.
+Closes the loop end-to-end:
+  1. Pull any new results Benchling has for guides Agent 6 doesn't know about yet ->
+     feed each into agent6_next_experiment/recommend.py's `record` (updates the ranking).
+  2. Push Agent 6's new top recommendation to Benchling as the next experiment to run.
 
-Usage (once client.py is implemented):
-    uv run agent8_benchling_sync/run.py --tenant your-org --schema-id <id>
+Requires BENCHLING_API_KEY, BENCHLING_TENANT_URL, BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID,
+BENCHLING_RESULTS_SCHEMA_ID in ../.env — see README.md for what to set up in Benchling
+first. Not runnable until those exist.
+
+Usage:
+    uv run agent8_benchling_sync/run.py --candidates ../agent4_benchmarking/output/results.csv
 """
 
 import argparse
-import os
 import subprocess
 import sys
 from pathlib import Path
 
-from client import BenchlingClient
+from dotenv import load_dotenv
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent
 RECOMMEND_SCRIPT = REPO_ROOT / "agent6_next_experiment" / "recommend.py"
 
+load_dotenv(REPO_ROOT / ".env")
+sys.path.insert(0, str(HERE))
+from client import BenchlingClient  # noqa: E402
+
 
 def sync(client: BenchlingClient, candidates_csv: Path) -> None:
-    for result in client.fetch_new_results():
+    new_results = client.fetch_new_results()
+    print(f"Found {len(new_results)} new result(s) in Benchling.")
+    for result in new_results:
         subprocess.run(
             [
                 sys.executable,
@@ -40,22 +49,31 @@ def sync(client: BenchlingClient, candidates_csv: Path) -> None:
             ],
             check=True,
         )
-        # TODO once push_ranking_update is implemented: read the fresh recommendations.csv
-        # row for (result.gene, result.cell_type) and client.push_ranking_update(...) it back.
+
+    recommend = subprocess.run(
+        [sys.executable, str(RECOMMEND_SCRIPT), "recommend", "--candidates", str(candidates_csv), "--top", "1"],
+        check=True, capture_output=True, text=True,
+    )
+    print(recommend.stdout)
+
+    import pandas as pd
+    top = pd.read_csv(HERE.parent / "agent6_next_experiment" / "output" / "recommendations.csv").iloc[0]
+    client.push_next_experiment(
+        gene=top["gene"],
+        cell_type=top.get("cell_type", ""),
+        spacer=top.get("spacer", ""),
+        priority=top["priority"],
+        rationale=f"combined_score={top['combined_score']:.3f}, uncertainty={top['uncertainty']:.3f}",
+    )
+    print(f"Pushed next-experiment recommendation to Benchling: {top['gene']} ({top.get('cell_type', '?')})")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Agent 8 — Benchling sync (stub)")
-    parser.add_argument("--tenant", required=True)
-    parser.add_argument("--schema-id", required=True)
+    parser = argparse.ArgumentParser(description="Agent 8 — Benchling sync")
     parser.add_argument("--candidates", type=Path, default=REPO_ROOT / "agent4_benchmarking" / "output" / "results.csv")
     args = parser.parse_args()
 
-    api_key = os.environ.get("BENCHLING_API_KEY")
-    if not api_key:
-        sys.exit("BENCHLING_API_KEY not set — add it to .env once you have a Benchling account (see client.py docstring)")
-
-    client = BenchlingClient(api_key=api_key, tenant=args.tenant, results_schema_id=args.schema_id)
+    client = BenchlingClient.from_env()
     sync(client, args.candidates)
 
 

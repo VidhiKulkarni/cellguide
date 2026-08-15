@@ -1,7 +1,7 @@
 {
   "score_components": {
     "sequence_efficacy": {
-      "spec_text": "`sequence_efficacy(g)` (on-target efficiency)\n\n- **Preferred inputs**: `deepspcas9_score` (0-100, native DeepSpCas9 scale) and/or `chopchop_score` (0-1, native CHOPCHOP/Doench scale) \u2014 the two tools Ito et al. 2024 found most predictive on their own 205-gRNA T-cell dataset (`papers/ito_2024/structured_extraction.md`). When both are given, they're averaged after normalizing to `[0,1]`.\n- **Fallback (no external scorer available)**: a transparent sequence heuristic \u2014 GC content (optimal ~50%, per `wang_2019_deephf`), PAM-proximal seed-region GC content (Doench-style seed weighting), and a poly-T penalty (U6 promoter terminates transcription on `TTTT+`). This is the \"GC content, motif\" heuristic requested in `CLAUDE.md`.\n- **Not implemented, left pluggable**: DeepHF (`papers/wang_2019_deephf/`) \u2014 best Spearman 0.867 in its own lentiviral HEK293T assay, but trained on synthetic integrated targets, not endogenous primary-cell loci; treat as one more optional external score to wire in, not a ready-made drop-in.\n- **Caveat baked into the design**: `riesenberg2025_synthetic_grna` shows indel% can *underestimate* true cutting activity \u2014 this score is a ranking signal, not a calibrated probability of editing.",
+      "spec_text": "`sequence_efficacy(g)` (on-target efficiency)\n\n- **Preferred inputs**: `deepspcas9_score` (0-100, native DeepSpCas9 scale) and/or `chopchop_score` (0-1, native CHOPCHOP/Doench scale) \u2014 the two tools Ito et al. 2024 found most predictive on their own 205-gRNA T-cell dataset (`papers/ito_2024/structured_extraction.md`). When both are given, they're averaged after normalizing to `[0,1]`.\n- **Fallback (no external scorer available)**: a transparent sequence heuristic \u2014 GC content (optimal ~50%, per `wang_2019_deephf`) and a poly-T penalty (U6 promoter terminates transcription on `TTTT+`, only applied when `delivery` indicates vector expression \u2014 see Component 2). This is the \"GC content, motif\" heuristic requested in `CLAUDE.md`. No separate seed-region GC term: it doubled-counted the (highly correlated, since the seed is a subset of the spacer) whole-spacer GC term and reused an unvalidated curve for a different window \u2014 dropped rather than kept as uncalibrated confidence.\n- **Not implemented, left pluggable**: DeepHF (`papers/wang_2019_deephf/`) \u2014 best Spearman 0.867 in its own lentiviral HEK293T assay, but trained on synthetic integrated targets, not endogenous primary-cell loci; treat as one more optional external score to wire in, not a ready-made drop-in.\n- **Caveat baked into the design**: `riesenberg2025_synthetic_grna` shows indel% can *underestimate* true cutting activity \u2014 this score is a ranking signal, not a calibrated probability of editing.",
       "cited_papers": [
         "ito_2024",
         "wang_2019_deephf",
@@ -23,7 +23,7 @@
       }
     },
     "accessibility": {
-      "spec_text": "`accessibility(g, c)` (cell context)\n\n- **Input**: `atac_signal` \u2014 median ATAC-seq read count/signal over the guide's target window in the target cell type (plan \u00a73.1/\u00a74.1: GSE221788 for T cells, GSE137647 for K562).\n- **Normalization**: `min(1, atac_signal / 0.1)`, reusing Ito et al.'s own empirical ATAC \u2265 0.1 cutoff as the point where the term saturates at 1.0.\n- **Returns 0 (not a guess) when no ATAC data is supplied** for that cell context, so a missing accessibility measurement doesn't silently masquerade as \"inaccessible.\"\n- **Important caveat, from `wang_2019_deephf`**: fine-tuning with DNase-I accessibility did *not* improve their model \u2014 accessibility only mattered in Ito et al.'s **transient RNP** delivery, not Wang's lentiviral-integration assay. `schep2024_chromatin_drugs` independently corroborates the RNP-context effect (chromatin state also shifts NHEJ:MMEJ repair balance). Do not apply this accessibility term to stably-integrated/lentiviral delivery contexts without re-validating.",
+      "spec_text": "`accessibility(g, c)` (cell context)\n\n- **Input**: `atac_signal` \u2014 median ATAC-seq read count/signal over the guide's target window in the target cell type (plan \u00a73.1/\u00a74.1: GSE221788 for T cells, GSE137647 for K562).\n- **Normalization**: `min(1, atac_signal / 0.1)`, reusing Ito et al.'s own empirical ATAC \u2265 0.1 cutoff as the point where the term saturates at 1.0.\n- **Returns `None` (excluded from `combined`, not guessed) when no ATAC data is supplied**, so a missing accessibility measurement doesn't silently masquerade as \"inaccessible\" (it used to return `0`, which \u2014 combined with `specificity`'s old default of `1.0` for the opposite case \u2014 meant two missing-data situations were guessed in opposite directions; both now propagate as \"unknown\" instead).\n- **`delivery` gate**: `GuideScoreInputs.delivery` (`\"rnp\"` / `\"lentiviral\"` / `\"vector\"` / `\"stable\"` / `None`) \u2014 when it indicates lentiviral/vector/stable expression, `accessibility` returns `None` unconditionally, *even if `atac_signal` is given*. This encodes the caveat below as an actual guard instead of prose that nothing enforces.\n- **Important caveat, from `wang_2019_deephf`**: fine-tuning with DNase-I accessibility did *not* improve their model \u2014 accessibility only mattered in Ito et al.'s **transient RNP** delivery, not Wang's lentiviral-integration assay. `schep2024_chromatin_drugs` independently corroborates the RNP-context effect (chromatin state also shifts NHEJ:MMEJ repair balance).",
       "cited_papers": [
         "wang_2019_deephf",
         "schep2024_chromatin_drugs"
@@ -40,7 +40,7 @@
       }
     },
     "specificity": {
-      "spec_text": "`specificity(g)` (off-target / inverse risk)\n\n- **Gap this fills**: Ito et al. 2024 \u2014 the plan's primary ground-truth paper \u2014 reports **no off-target data at all** (`papers/ito_2024/structured_extraction.md`). The specificity term must come entirely from other sources.\n- **Preferred inputs (recommended, not yet wired to real data)**: `external_specificity_score` from crispAI (`agent1_literature_search/output/related/ozden2024_crispai_uncertainty/`) or CrisprBERT (`agent1_literature_search/output/related/sari2025_crisprbert/`) \u2014 both trained on the same CHANGE-seq 110-sgRNA/13-locus **primary human T-cell** off-target dataset that overlaps Ito et al.'s cell system, making them the closest-context specificity predictors available.\n- **Fallback**: a CFD (Cutting Frequency Determination)-style aggregate over an enumerated off-target site list (`OffTargetSite(mismatches, mismatch_positions, cfd_pam_score)`), using the standard Doench et al. 2016 position-weight table (PAM-proximal mismatches penalized far more than PAM-distal). Off-target sites themselves are not enumerated by this module \u2014 plug in an external candidate generator (e.g. Cas-OFFinder, or `agent1_literature_search/output/related/schmidt2025_guidescan2/` GuideScan2, which also builds low-off-target guide libraries directly).\n- **Not modeled**: `ursch2024_tcell_genomic_safety`'s finding that T-cell **activation state** (not sequence) drives large deletions/translocations/aneuploidy \u2014 a genomic-safety signal orthogonal to sequence-based off-target prediction. Flagged as a known gap, not folded into `specificity()`.",
+      "spec_text": "`specificity(g)` (off-target / inverse risk)\n\n- **Gap this fills**: Ito et al. 2024 \u2014 the plan's primary ground-truth paper \u2014 reports **no off-target data at all** (`papers/ito_2024/structured_extraction.md`). The specificity term must come entirely from other sources.\n- **Preferred inputs (recommended, not yet wired to real data)**: `external_specificity_score` from crispAI (`agent1_literature_search/output/related/ozden2024_crispai_uncertainty/`) or CrisprBERT (`agent1_literature_search/output/related/sari2025_crisprbert/`) \u2014 both trained on the same CHANGE-seq 110-sgRNA/13-locus **primary human T-cell** off-target dataset that overlaps Ito et al.'s cell system, making them the closest-context specificity predictors available.\n- **Fallback**: a CFD (Cutting Frequency Determination)-style aggregate over an *enumerated* off-target site list (`OffTargetSite(mismatches, mismatch_positions, cfd_pam_score)`), using the standard Doench et al. 2016 position-weight table (PAM-proximal mismatches penalized far more than PAM-distal). An empty enumerated list (a search was run and found nothing) legitimately scores `1.0`. Off-target sites themselves are not enumerated by this module \u2014 plug in an external candidate generator (e.g. Cas-OFFinder, or `agent1_literature_search/output/related/schmidt2025_guidescan2/` GuideScan2, which also builds low-off-target guide libraries directly).\n- **Returns `None` (excluded from `combined`) when *neither* an external score *nor* an off-target list was supplied** \u2014 i.e. specificity was never actually assessed. This used to default to `1.0` (\"perfectly safe\"), which rewarded guides nobody had checked; every row in the old demo output had `specificity=1.0` purely from this default, silently padding 30% of the weight budget with zero real information.\n- **Not modeled**: `ursch2024_tcell_genomic_safety`'s finding that T-cell **activation state** (not sequence) drives large deletions/translocations/aneuploidy \u2014 a genomic-safety signal orthogonal to sequence-based off-target prediction. Flagged as a known gap, not folded into `specificity()`.",
       "cited_papers": [
         "ito_2024",
         "ozden2024_crispai_uncertainty",
@@ -83,7 +83,7 @@
     {
       "gene": "AIRE",
       "cell_type": NaN,
-      "combined_score": 0.8455655365000001,
+      "combined_score": 0.779379337857143,
       "sequence_efficacy": {
         "value": 0.61391384125,
         "sources": [
@@ -100,7 +100,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -113,7 +113,7 @@
     {
       "gene": "ARID1A",
       "cell_type": NaN,
-      "combined_score": 0.8187371826171874,
+      "combined_score": 0.7410531180245534,
       "sequence_efficacy": {
         "value": 0.5468429565429684,
         "sources": [
@@ -130,7 +130,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -143,7 +143,7 @@
     {
       "gene": "ARID1A",
       "cell_type": NaN,
-      "combined_score": 0.913633499145508,
+      "combined_score": 0.8766192844935828,
       "sequence_efficacy": {
         "value": 0.7840837478637696,
         "sources": [
@@ -160,7 +160,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -173,7 +173,7 @@
     {
       "gene": "BACH2",
       "cell_type": NaN,
-      "combined_score": 0.7181346664428709,
+      "combined_score": 0.59733523777553,
       "sequence_efficacy": {
         "value": 0.2953366661071775,
         "sources": [
@@ -190,7 +190,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -203,7 +203,7 @@
     {
       "gene": "BACH2",
       "cell_type": NaN,
-      "combined_score": 0.6529230003356932,
+      "combined_score": 0.504175714765276,
       "sequence_efficacy": {
         "value": 0.132307500839233,
         "sources": [
@@ -220,7 +220,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -233,7 +233,7 @@
     {
       "gene": "BATF3",
       "cell_type": NaN,
-      "combined_score": 0.8530358352661132,
+      "combined_score": 0.7900511932373047,
       "sequence_efficacy": {
         "value": 0.632589588165283,
         "sources": [
@@ -250,7 +250,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -263,7 +263,7 @@
     {
       "gene": "CD83",
       "cell_type": NaN,
-      "combined_score": 0.5984819145202636,
+      "combined_score": 0.426402735028948,
       "sequence_efficacy": {
         "value": 0.281204786300659,
         "sources": [
@@ -280,7 +280,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -293,7 +293,7 @@
     {
       "gene": "CD83",
       "cell_type": NaN,
-      "combined_score": 0.5932875442504881,
+      "combined_score": 0.418982206072126,
       "sequence_efficacy": {
         "value": 0.2682188606262204,
         "sources": [
@@ -310,7 +310,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -323,7 +323,7 @@
     {
       "gene": "CDKN2B",
       "cell_type": NaN,
-      "combined_score": 0.7359105301,
+      "combined_score": 0.6227293287142858,
       "sequence_efficacy": {
         "value": 0.33977632525,
         "sources": [
@@ -340,7 +340,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -353,7 +353,7 @@
     {
       "gene": "CDKN2B",
       "cell_type": NaN,
-      "combined_score": 0.81349147796,
+      "combined_score": 0.7335592542285714,
       "sequence_efficacy": {
         "value": 0.5337286949,
         "sources": [
@@ -370,7 +370,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -383,7 +383,7 @@
     {
       "gene": "CDKN2B",
       "cell_type": NaN,
-      "combined_score": 0.6797045211799999,
+      "combined_score": 0.5424350302571429,
       "sequence_efficacy": {
         "value": 0.19926130295,
         "sources": [
@@ -400,7 +400,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -413,7 +413,7 @@
     {
       "gene": "CDKN2C",
       "cell_type": NaN,
-      "combined_score": 0.5795801330599999,
+      "combined_score": 0.3994001900857142,
       "sequence_efficacy": {
         "value": 0.40870033265,
         "sources": [
@@ -430,7 +430,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -443,7 +443,7 @@
     {
       "gene": "CDKN2C",
       "cell_type": NaN,
-      "combined_score": 0.75382523346,
+      "combined_score": 0.6483217620857143,
       "sequence_efficacy": {
         "value": 0.38456308365,
         "sources": [
@@ -460,7 +460,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -473,7 +473,7 @@
     {
       "gene": "CDKN2C",
       "cell_type": NaN,
-      "combined_score": 0.55907791138,
+      "combined_score": 0.3701113019714286,
       "sequence_efficacy": {
         "value": 0.53144477845,
         "sources": [
@@ -490,7 +490,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -503,7 +503,7 @@
     {
       "gene": "CDKN2C ",
       "cell_type": NaN,
-      "combined_score": 0.5156500335599999,
+      "combined_score": 0.3080714765142857,
       "sequence_efficacy": {
         "value": 0.3651250839,
         "sources": [
@@ -520,7 +520,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -533,7 +533,7 @@
     {
       "gene": "CTBP1",
       "cell_type": NaN,
-      "combined_score": 0.75687464904,
+      "combined_score": 0.6526780700571428,
       "sequence_efficacy": {
         "value": 0.7934366226,
         "sources": [
@@ -550,7 +550,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -563,7 +563,7 @@
     {
       "gene": "CTBP1",
       "cell_type": NaN,
-      "combined_score": 0.83923310852,
+      "combined_score": 0.7703330121714286,
       "sequence_efficacy": {
         "value": 0.5980827713,
         "sources": [
@@ -580,7 +580,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -593,7 +593,7 @@
     {
       "gene": "CTBP1",
       "cell_type": NaN,
-      "combined_score": 0.7423849273600001,
+      "combined_score": 0.6319784676571429,
       "sequence_efficacy": {
         "value": 0.5832123184,
         "sources": [
@@ -610,7 +610,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -623,7 +623,7 @@
     {
       "gene": "CTBP1",
       "cell_type": NaN,
-      "combined_score": 0.63549134636,
+      "combined_score": 0.4792733519428572,
       "sequence_efficacy": {
         "value": 0.0887283659,
         "sources": [
@@ -640,7 +640,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -653,7 +653,7 @@
     {
       "gene": "DEK",
       "cell_type": NaN,
-      "combined_score": 0.522634713745117,
+      "combined_score": 0.3180495910644529,
       "sequence_efficacy": {
         "value": 0.3825867843627925,
         "sources": [
@@ -670,7 +670,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -683,7 +683,7 @@
     {
       "gene": "DEK",
       "cell_type": NaN,
-      "combined_score": 0.4924467330932616,
+      "combined_score": 0.2749239044189451,
       "sequence_efficacy": {
         "value": 0.190866832733154,
         "sources": [
@@ -700,7 +700,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -713,7 +713,7 @@
     {
       "gene": "DGKQ",
       "cell_type": NaN,
-      "combined_score": 0.84580595398,
+      "combined_score": 0.7797227914,
       "sequence_efficacy": {
         "value": 0.61451488495,
         "sources": [
@@ -730,7 +730,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -743,7 +743,7 @@
     {
       "gene": "DNAJC24",
       "cell_type": NaN,
-      "combined_score": 0.4876954132080078,
+      "combined_score": 0.2681363045828683,
       "sequence_efficacy": {
         "value": 0.2952385330200195,
         "sources": [
@@ -760,7 +760,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -773,7 +773,7 @@
     {
       "gene": "DNAJC24",
       "cell_type": NaN,
-      "combined_score": 0.5454941650390623,
+      "combined_score": 0.3507059500558034,
       "sequence_efficacy": {
         "value": 0.207235412597656,
         "sources": [
@@ -790,7 +790,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -803,7 +803,7 @@
     {
       "gene": "DNMT3A",
       "cell_type": NaN,
-      "combined_score": 0.47931,
+      "combined_score": 0.2561571428571429,
       "sequence_efficacy": {
         "value": 0.302775,
         "sources": [
@@ -820,7 +820,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -833,7 +833,7 @@
     {
       "gene": "DNMT3A",
       "cell_type": NaN,
-      "combined_score": 0.48351501618,
+      "combined_score": 0.2621643088285714,
       "sequence_efficacy": {
         "value": 0.28478754045,
         "sources": [
@@ -850,7 +850,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -863,7 +863,7 @@
     {
       "gene": "DNMT3A",
       "cell_type": NaN,
-      "combined_score": 0.5119199999999999,
+      "combined_score": 0.3027428571428571,
       "sequence_efficacy": {
         "value": 0.0648,
         "sources": [
@@ -880,7 +880,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -893,7 +893,7 @@
     {
       "gene": "DOT1L",
       "cell_type": NaN,
-      "combined_score": 0.6827681884765624,
+      "combined_score": 0.5468116978236606,
       "sequence_efficacy": {
         "value": 0.724420471191406,
         "sources": [
@@ -910,7 +910,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -923,7 +923,7 @@
     {
       "gene": "DOT1L",
       "cell_type": NaN,
-      "combined_score": 0.6883439727783202,
+      "combined_score": 0.5547771039690288,
       "sequence_efficacy": {
         "value": 0.5643599319458005,
         "sources": [
@@ -940,7 +940,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -953,7 +953,7 @@
     {
       "gene": "DOT1L",
       "cell_type": NaN,
-      "combined_score": 0.595298614501953,
+      "combined_score": 0.4218551635742186,
       "sequence_efficacy": {
         "value": 0.5057465362548825,
         "sources": [
@@ -970,7 +970,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -983,7 +983,7 @@
     {
       "gene": "DPH1",
       "cell_type": NaN,
-      "combined_score": 0.8022203613200001,
+      "combined_score": 0.7174576590285715,
       "sequence_efficacy": {
         "value": 0.7328009033,
         "sources": [
@@ -1000,7 +1000,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1013,7 +1013,7 @@
     {
       "gene": "DPH1",
       "cell_type": NaN,
-      "combined_score": 0.62475164604,
+      "combined_score": 0.4639309229142858,
       "sequence_efficacy": {
         "value": 0.0618791151,
         "sources": [
@@ -1030,7 +1030,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1043,7 +1043,7 @@
     {
       "gene": "DPH2",
       "cell_type": NaN,
-      "combined_score": 0.7038824539199999,
+      "combined_score": 0.5769749341714286,
       "sequence_efficacy": {
         "value": 0.2597061348,
         "sources": [
@@ -1060,7 +1060,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1073,7 +1073,7 @@
     {
       "gene": "DPH2",
       "cell_type": NaN,
-      "combined_score": 0.6627760315,
+      "combined_score": 0.5182514735714285,
       "sequence_efficacy": {
         "value": 0.20944007875,
         "sources": [
@@ -1090,7 +1090,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1103,7 +1103,7 @@
     {
       "gene": "DPH5",
       "cell_type": NaN,
-      "combined_score": 0.7443450927734374,
+      "combined_score": 0.6347787039620534,
       "sequence_efficacy": {
         "value": 0.3608627319335935,
         "sources": [
@@ -1120,7 +1120,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1133,7 +1133,7 @@
     {
       "gene": "DPH5",
       "cell_type": NaN,
-      "combined_score": 0.682026153564453,
+      "combined_score": 0.5457516479492186,
       "sequence_efficacy": {
         "value": 0.7225653839111326,
         "sources": [
@@ -1150,7 +1150,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1163,7 +1163,7 @@
     {
       "gene": "DUSP22",
       "cell_type": NaN,
-      "combined_score": 0.7170199813842772,
+      "combined_score": 0.5957428305489675,
       "sequence_efficacy": {
         "value": 0.292549953460693,
         "sources": [
@@ -1180,7 +1180,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1193,7 +1193,7 @@
     {
       "gene": "DUSP22",
       "cell_type": NaN,
-      "combined_score": 0.7461957321166992,
+      "combined_score": 0.6374224744524274,
       "sequence_efficacy": {
         "value": 0.417989330291748,
         "sources": [
@@ -1210,7 +1210,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1223,7 +1223,7 @@
     {
       "gene": "DUSP22",
       "cell_type": NaN,
-      "combined_score": 0.7882490081787108,
+      "combined_score": 0.6974985831124441,
       "sequence_efficacy": {
         "value": 0.470622520446777,
         "sources": [
@@ -1240,7 +1240,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1253,7 +1253,7 @@
     {
       "gene": "DUSP22",
       "cell_type": NaN,
-      "combined_score": 0.724927392578125,
+      "combined_score": 0.6070391322544644,
       "sequence_efficacy": {
         "value": 0.8883184814453124,
         "sources": [
@@ -1270,7 +1270,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1283,7 +1283,7 @@
     {
       "gene": "DUSP22",
       "cell_type": NaN,
-      "combined_score": 0.6370256134033202,
+      "combined_score": 0.4814651620047432,
       "sequence_efficacy": {
         "value": 0.6685640335083005,
         "sources": [
@@ -1300,7 +1300,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1313,7 +1313,7 @@
     {
       "gene": "EHMT1",
       "cell_type": NaN,
-      "combined_score": 0.7273649864196776,
+      "combined_score": 0.610521409170968,
       "sequence_efficacy": {
         "value": 0.318412466049194,
         "sources": [
@@ -1330,7 +1330,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1343,7 +1343,7 @@
     {
       "gene": "EHMT1",
       "cell_type": NaN,
-      "combined_score": 0.538427487182617,
+      "combined_score": 0.3406106959751672,
       "sequence_efficacy": {
         "value": 0.2765687179565425,
         "sources": [
@@ -1360,7 +1360,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1373,7 +1373,7 @@
     {
       "gene": "EHMT1",
       "cell_type": NaN,
-      "combined_score": 0.5330482330322264,
+      "combined_score": 0.3329260471888948,
       "sequence_efficacy": {
         "value": 0.4663705825805659,
         "sources": [
@@ -1390,7 +1390,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1403,7 +1403,7 @@
     {
       "gene": "EHMT2",
       "cell_type": NaN,
-      "combined_score": 0.70596326446,
+      "combined_score": 0.579947520657143,
       "sequence_efficacy": {
         "value": 0.26490816115,
         "sources": [
@@ -1420,7 +1420,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1433,7 +1433,7 @@
     {
       "gene": "EHMT2",
       "cell_type": NaN,
-      "combined_score": 0.65207646332,
+      "combined_score": 0.5029663761714286,
       "sequence_efficacy": {
         "value": 0.2411911582999999,
         "sources": [
@@ -1450,7 +1450,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1463,7 +1463,7 @@
     {
       "gene": "EHMT2",
       "cell_type": NaN,
-      "combined_score": 0.64960767518,
+      "combined_score": 0.4994395359714286,
       "sequence_efficacy": {
         "value": 0.35126918795,
         "sources": [
@@ -1480,7 +1480,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1493,7 +1493,7 @@
     {
       "gene": "FHL2",
       "cell_type": NaN,
-      "combined_score": 0.67670411072,
+      "combined_score": 0.5381487296,
       "sequence_efficacy": {
         "value": 0.3027602767999999,
         "sources": [
@@ -1510,7 +1510,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1523,7 +1523,7 @@
     {
       "gene": "FHL2",
       "cell_type": NaN,
-      "combined_score": 0.7243967224200001,
+      "combined_score": 0.6062810320285715,
       "sequence_efficacy": {
         "value": 0.53824180605,
         "sources": [
@@ -1540,7 +1540,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1553,7 +1553,7 @@
     {
       "gene": "FHL2",
       "cell_type": NaN,
-      "combined_score": 0.63249098968,
+      "combined_score": 0.4749871281142858,
       "sequence_efficacy": {
         "value": 0.4824774742,
         "sources": [
@@ -1570,7 +1570,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1583,7 +1583,7 @@
     {
       "gene": "FHL2",
       "cell_type": NaN,
-      "combined_score": 0.6380756759599999,
+      "combined_score": 0.4829652513714286,
       "sequence_efficacy": {
         "value": 0.6126891899,
         "sources": [
@@ -1600,7 +1600,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1613,7 +1613,7 @@
     {
       "gene": "FHL2",
       "cell_type": NaN,
-      "combined_score": 0.5449740000000001,
+      "combined_score": 0.3499628571428572,
       "sequence_efficacy": {
         "value": 0.234435,
         "sources": [
@@ -1630,7 +1630,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1643,7 +1643,7 @@
     {
       "gene": "FOXM1",
       "cell_type": NaN,
-      "combined_score": 0.58934976196,
+      "combined_score": 0.4133568028,
       "sequence_efficacy": {
         "value": 0.6071244049,
         "sources": [
@@ -1660,7 +1660,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1673,7 +1673,7 @@
     {
       "gene": "FOXM1",
       "cell_type": NaN,
-      "combined_score": 0.64369379578,
+      "combined_score": 0.4909911368285714,
       "sequence_efficacy": {
         "value": 0.68523448945,
         "sources": [
@@ -1690,7 +1690,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1703,7 +1703,7 @@
     {
       "gene": "FOXM1",
       "cell_type": NaN,
-      "combined_score": 0.6035611816399999,
+      "combined_score": 0.4336588309142857,
       "sequence_efficacy": {
         "value": 0.5849029541,
         "sources": [
@@ -1720,7 +1720,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1733,7 +1733,7 @@
     {
       "gene": "FOXM1",
       "cell_type": NaN,
-      "combined_score": 0.51637236022,
+      "combined_score": 0.3091033717428572,
       "sequence_efficacy": {
         "value": 0.30843090055,
         "sources": [
@@ -1750,7 +1750,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1763,7 +1763,7 @@
     {
       "gene": "FOXO1",
       "cell_type": NaN,
-      "combined_score": 0.75516386414,
+      "combined_score": 0.6502340916285715,
       "sequence_efficacy": {
         "value": 0.38790966035,
         "sources": [
@@ -1780,7 +1780,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1793,7 +1793,7 @@
     {
       "gene": "FOXO1",
       "cell_type": NaN,
-      "combined_score": 0.6330897384599999,
+      "combined_score": 0.4758424835142856,
       "sequence_efficacy": {
         "value": 0.4262243461499999,
         "sources": [
@@ -1810,7 +1810,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1823,7 +1823,7 @@
     {
       "gene": "FOXO1",
       "cell_type": NaN,
-      "combined_score": 0.75593250274,
+      "combined_score": 0.6513321467714287,
       "sequence_efficacy": {
         "value": 0.38983125685,
         "sources": [
@@ -1840,7 +1840,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1853,7 +1853,7 @@
     {
       "gene": "FOXO1",
       "cell_type": NaN,
-      "combined_score": 0.6413985138,
+      "combined_score": 0.4877121625714286,
       "sequence_efficacy": {
         "value": 0.3884962845,
         "sources": [
@@ -1870,7 +1870,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1883,7 +1883,7 @@
     {
       "gene": "FOXO3",
       "cell_type": NaN,
-      "combined_score": 0.5343981262199999,
+      "combined_score": 0.3348544660285714,
       "sequence_efficacy": {
         "value": 0.41199531555,
         "sources": [
@@ -1900,7 +1900,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1913,7 +1913,7 @@
     {
       "gene": "FURIN",
       "cell_type": NaN,
-      "combined_score": 0.8958223113999999,
+      "combined_score": 0.8511747305714286,
       "sequence_efficacy": {
         "value": 0.7395557785,
         "sources": [
@@ -1930,7 +1930,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1943,7 +1943,7 @@
     {
       "gene": "FURIN",
       "cell_type": NaN,
-      "combined_score": 0.6411191039999999,
+      "combined_score": 0.4873130057142857,
       "sequence_efficacy": {
         "value": 0.33004776,
         "sources": [
@@ -1960,7 +1960,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -1973,7 +1973,7 @@
     {
       "gene": "FURIN",
       "cell_type": NaN,
-      "combined_score": 0.6618435836800001,
+      "combined_score": 0.516919405257143,
       "sequence_efficacy": {
         "value": 0.2656089592,
         "sources": [
@@ -1990,7 +1990,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2003,7 +2003,7 @@
     {
       "gene": "GATA6",
       "cell_type": NaN,
-      "combined_score": 0.90190975952,
+      "combined_score": 0.8598710850285716,
       "sequence_efficacy": {
         "value": 0.7547743988,
         "sources": [
@@ -2020,7 +2020,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2033,7 +2033,7 @@
     {
       "gene": "HDAC1",
       "cell_type": NaN,
-      "combined_score": 0.67144711456,
+      "combined_score": 0.5306387350857142,
       "sequence_efficacy": {
         "value": 0.6383677863999999,
         "sources": [
@@ -2050,7 +2050,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2063,7 +2063,7 @@
     {
       "gene": "HDAC2",
       "cell_type": NaN,
-      "combined_score": 0.4954126091,
+      "combined_score": 0.2791608701428572,
       "sequence_efficacy": {
         "value": 0.37228152275,
         "sources": [
@@ -2080,7 +2080,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2093,7 +2093,7 @@
     {
       "gene": "HDAC8",
       "cell_type": NaN,
-      "combined_score": 0.4995715141296385,
+      "combined_score": 0.2851021630423409,
       "sequence_efficacy": {
         "value": 0.1501787853240964,
         "sources": [
@@ -2110,7 +2110,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2123,7 +2123,7 @@
     {
       "gene": "HIVEP3",
       "cell_type": NaN,
-      "combined_score": 0.9297346954345702,
+      "combined_score": 0.8996209934779574,
       "sequence_efficacy": {
         "value": 0.8243367385864255,
         "sources": [
@@ -2140,7 +2140,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2153,7 +2153,7 @@
     {
       "gene": "HNRNPH1",
       "cell_type": NaN,
-      "combined_score": 0.7551868286200001,
+      "combined_score": 0.6502668980285715,
       "sequence_efficacy": {
         "value": 0.38796707155,
         "sources": [
@@ -2170,7 +2170,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2183,7 +2183,7 @@
     {
       "gene": "HNRNPH1",
       "cell_type": NaN,
-      "combined_score": 0.8424383849999999,
+      "combined_score": 0.7749119785714286,
       "sequence_efficacy": {
         "value": 0.6060959625,
         "sources": [
@@ -2200,7 +2200,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2213,7 +2213,7 @@
     {
       "gene": "ID2",
       "cell_type": NaN,
-      "combined_score": 0.72847049714,
+      "combined_score": 0.6121007102,
       "sequence_efficacy": {
         "value": 0.32117624285,
         "sources": [
@@ -2230,7 +2230,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2243,7 +2243,7 @@
     {
       "gene": "ID2",
       "cell_type": NaN,
-      "combined_score": 0.66892900466,
+      "combined_score": 0.5270414352285715,
       "sequence_efficacy": {
         "value": 0.17232251165,
         "sources": [
@@ -2260,7 +2260,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2273,7 +2273,7 @@
     {
       "gene": "KDM1A",
       "cell_type": NaN,
-      "combined_score": 0.40401395034,
+      "combined_score": 0.1485913576285714,
       "sequence_efficacy": {
         "value": 0.14378487585,
         "sources": [
@@ -2290,7 +2290,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2303,7 +2303,7 @@
     {
       "gene": "KDM1A",
       "cell_type": NaN,
-      "combined_score": 0.49293229064,
+      "combined_score": 0.2756175580571429,
       "sequence_efficacy": {
         "value": 0.3083307266,
         "sources": [
@@ -2320,7 +2320,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2333,7 +2333,7 @@
     {
       "gene": "KDM1A",
       "cell_type": NaN,
-      "combined_score": 0.7581866912799999,
+      "combined_score": 0.6545524161142857,
       "sequence_efficacy": {
         "value": 0.3954667282,
         "sources": [
@@ -2350,7 +2350,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2363,7 +2363,7 @@
     {
       "gene": "KDM1A",
       "cell_type": NaN,
-      "combined_score": 0.59259719848,
+      "combined_score": 0.4179959978285714,
       "sequence_efficacy": {
         "value": 0.4989929962,
         "sources": [
@@ -2380,7 +2380,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2393,7 +2393,7 @@
     {
       "gene": "KDM1A",
       "cell_type": NaN,
-      "combined_score": 0.340339624404,
+      "combined_score": 0.0576280348628571,
       "sequence_efficacy": {
         "value": 0.04272406101,
         "sources": [
@@ -2410,7 +2410,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2423,7 +2423,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.8660919860839842,
+      "combined_score": 0.8087028372628345,
       "sequence_efficacy": {
         "value": 0.6892299652099605,
         "sources": [
@@ -2440,7 +2440,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2453,7 +2453,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.8816378479003906,
+      "combined_score": 0.8309112112862724,
       "sequence_efficacy": {
         "value": 0.7040946197509765,
         "sources": [
@@ -2470,7 +2470,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2483,7 +2483,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.6905750671386717,
+      "combined_score": 0.5579643816266739,
       "sequence_efficacy": {
         "value": 0.4536876678466794,
         "sources": [
@@ -2500,7 +2500,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2513,7 +2513,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.6417273498535156,
+      "combined_score": 0.4881819283621652,
       "sequence_efficacy": {
         "value": 0.564068374633789,
         "sources": [
@@ -2530,7 +2530,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2543,7 +2543,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.745871139526367,
+      "combined_score": 0.6369587707519528,
       "sequence_efficacy": {
         "value": 0.5334278488159175,
         "sources": [
@@ -2560,7 +2560,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2573,7 +2573,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.539892185974121,
+      "combined_score": 0.3427031228201728,
       "sequence_efficacy": {
         "value": 0.2802304649353024,
         "sources": [
@@ -2590,7 +2590,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2603,7 +2603,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.5687651000976561,
+      "combined_score": 0.3839501429966517,
       "sequence_efficacy": {
         "value": 0.3816627502441405,
         "sources": [
@@ -2620,7 +2620,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2633,7 +2633,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.8666249237060546,
+      "combined_score": 0.8094641767229351,
       "sequence_efficacy": {
         "value": 0.6665623092651365,
         "sources": [
@@ -2650,7 +2650,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2663,7 +2663,7 @@
     {
       "gene": "KEAP1",
       "cell_type": NaN,
-      "combined_score": 0.6431247177124023,
+      "combined_score": 0.4901781681605748,
       "sequence_efficacy": {
         "value": 0.1078117942810058,
         "sources": [
@@ -2680,7 +2680,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2693,7 +2693,7 @@
     {
       "gene": "KLF2",
       "cell_type": NaN,
-      "combined_score": 0.7287196731567382,
+      "combined_score": 0.6124566759381974,
       "sequence_efficacy": {
         "value": 0.3217991828918454,
         "sources": [
@@ -2710,7 +2710,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2723,7 +2723,7 @@
     {
       "gene": "KLF2",
       "cell_type": NaN,
-      "combined_score": 0.7808595733642578,
+      "combined_score": 0.6869422476632254,
       "sequence_efficacy": {
         "value": 0.4521489334106445,
         "sources": [
@@ -2740,7 +2740,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2753,7 +2753,7 @@
     {
       "gene": "KLF2",
       "cell_type": NaN,
-      "combined_score": 0.7693735351562501,
+      "combined_score": 0.6705336216517858,
       "sequence_efficacy": {
         "value": 0.423433837890625,
         "sources": [
@@ -2770,7 +2770,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2783,7 +2783,7 @@
     {
       "gene": "KLF2",
       "cell_type": NaN,
-      "combined_score": 0.7184275436401366,
+      "combined_score": 0.5977536337716238,
       "sequence_efficacy": {
         "value": 0.2960688591003415,
         "sources": [
@@ -2800,7 +2800,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2813,7 +2813,7 @@
     {
       "gene": "KLF2",
       "cell_type": NaN,
-      "combined_score": 0.7119114608764647,
+      "combined_score": 0.5884449441092354,
       "sequence_efficacy": {
         "value": 0.279778652191162,
         "sources": [
@@ -2830,7 +2830,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2843,7 +2843,7 @@
     {
       "gene": "KLF2",
       "cell_type": NaN,
-      "combined_score": 0.7078677444458006,
+      "combined_score": 0.5826682063511437,
       "sequence_efficacy": {
         "value": 0.2696693611145014,
         "sources": [
@@ -2860,7 +2860,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2873,7 +2873,7 @@
     {
       "gene": "MAF",
       "cell_type": NaN,
-      "combined_score": 0.93278451538,
+      "combined_score": 0.9039778791142858,
       "sequence_efficacy": {
         "value": 0.8319612884500001,
         "sources": [
@@ -2890,7 +2890,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2903,7 +2903,7 @@
     {
       "gene": "MSC",
       "cell_type": NaN,
-      "combined_score": 0.7753303680419921,
+      "combined_score": 0.6790433829171315,
       "sequence_efficacy": {
         "value": 0.43832592010498,
         "sources": [
@@ -2920,7 +2920,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2933,7 +2933,7 @@
     {
       "gene": "MSC",
       "cell_type": NaN,
-      "combined_score": 0.8277291717529296,
+      "combined_score": 0.7538988167898996,
       "sequence_efficacy": {
         "value": 0.5693229293823241,
         "sources": [
@@ -2950,7 +2950,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2963,7 +2963,7 @@
     {
       "gene": "MTA2",
       "cell_type": NaN,
-      "combined_score": 0.7010791183471679,
+      "combined_score": 0.5729701690673826,
       "sequence_efficacy": {
         "value": 0.3636977958679195,
         "sources": [
@@ -2980,7 +2980,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -2993,7 +2993,7 @@
     {
       "gene": "MTA2",
       "cell_type": NaN,
-      "combined_score": 0.6273897552490233,
+      "combined_score": 0.4676996503557477,
       "sequence_efficacy": {
         "value": 0.3534743881225585,
         "sources": [
@@ -3010,7 +3010,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3023,7 +3023,7 @@
     {
       "gene": "MTA2",
       "cell_type": NaN,
-      "combined_score": 0.7847749389648435,
+      "combined_score": 0.6925356270926337,
       "sequence_efficacy": {
         "value": 0.7184373474121091,
         "sources": [
@@ -3040,7 +3040,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3053,7 +3053,7 @@
     {
       "gene": "MTA2",
       "cell_type": NaN,
-      "combined_score": 0.6051560836791992,
+      "combined_score": 0.435937262398856,
       "sequence_efficacy": {
         "value": 0.240140209197998,
         "sources": [
@@ -3070,7 +3070,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3083,7 +3083,7 @@
     {
       "gene": "PCBP4",
       "cell_type": NaN,
-      "combined_score": 0.6278772979736327,
+      "combined_score": 0.4683961399623325,
       "sequence_efficacy": {
         "value": 0.413193244934082,
         "sources": [
@@ -3100,7 +3100,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3113,7 +3113,7 @@
     {
       "gene": "PRDM1",
       "cell_type": NaN,
-      "combined_score": 0.70909508514,
+      "combined_score": 0.5844215502000001,
       "sequence_efficacy": {
         "value": 0.27273771285,
         "sources": [
@@ -3130,7 +3130,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3143,7 +3143,7 @@
     {
       "gene": "PRDM1",
       "cell_type": NaN,
-      "combined_score": 0.83268751526,
+      "combined_score": 0.760982164657143,
       "sequence_efficacy": {
         "value": 0.58171878815,
         "sources": [
@@ -3160,7 +3160,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3173,7 +3173,7 @@
     {
       "gene": "PRDM1",
       "cell_type": NaN,
-      "combined_score": 0.82549189148,
+      "combined_score": 0.7507027021142857,
       "sequence_efficacy": {
         "value": 0.7909797287,
         "sources": [
@@ -3190,7 +3190,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3203,7 +3203,7 @@
     {
       "gene": "PRDM1",
       "cell_type": NaN,
-      "combined_score": 0.71402992248,
+      "combined_score": 0.5914713178285715,
       "sequence_efficacy": {
         "value": 0.2850748062,
         "sources": [
@@ -3220,7 +3220,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3233,7 +3233,7 @@
     {
       "gene": "PRDM2",
       "cell_type": NaN,
-      "combined_score": 0.6645344963073729,
+      "combined_score": 0.52076356615339,
       "sequence_efficacy": {
         "value": 0.1613362407684325,
         "sources": [
@@ -3250,7 +3250,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3263,7 +3263,7 @@
     {
       "gene": "PRDM2",
       "cell_type": NaN,
-      "combined_score": 0.3913977966308591,
+      "combined_score": 0.1305682809012274,
       "sequence_efficacy": {
         "value": 0.112244491577148,
         "sources": [
@@ -3280,7 +3280,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3293,7 +3293,7 @@
     {
       "gene": "PRDM2",
       "cell_type": NaN,
-      "combined_score": 0.5598939170837401,
+      "combined_score": 0.3712770244053431,
       "sequence_efficacy": {
         "value": 0.0684847927093505,
         "sources": [
@@ -3310,7 +3310,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3323,7 +3323,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.743552,
+      "combined_score": 0.6336457142857144,
       "sequence_efficacy": {
         "value": 0.70238,
         "sources": [
@@ -3340,7 +3340,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3353,7 +3353,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.7709459999999999,
+      "combined_score": 0.67278,
       "sequence_efficacy": {
         "value": 0.427365,
         "sources": [
@@ -3370,7 +3370,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3383,7 +3383,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.865578,
+      "combined_score": 0.8079685714285715,
       "sequence_efficacy": {
         "value": 0.663945,
         "sources": [
@@ -3400,7 +3400,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3413,7 +3413,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.7433627868599999,
+      "combined_score": 0.6333754098,
       "sequence_efficacy": {
         "value": 0.58565696715,
         "sources": [
@@ -3430,7 +3430,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3443,7 +3443,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.69760542298,
+      "combined_score": 0.5680077471142858,
       "sequence_efficacy": {
         "value": 0.6452635574500001,
         "sources": [
@@ -3460,7 +3460,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3473,7 +3473,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.4123249679599999,
+      "combined_score": 0.1604642399428571,
       "sequence_efficacy": {
         "value": 0.1068124199,
         "sources": [
@@ -3490,7 +3490,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3503,7 +3503,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.56641970826,
+      "combined_score": 0.3805995832285713,
       "sequence_efficacy": {
         "value": 0.3172992706499999,
         "sources": [
@@ -3520,7 +3520,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3533,7 +3533,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.4835028228799999,
+      "combined_score": 0.2621468898285714,
       "sequence_efficacy": {
         "value": 0.3425070571999999,
         "sources": [
@@ -3550,7 +3550,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3563,7 +3563,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.56416200256,
+      "combined_score": 0.3773742893714286,
       "sequence_efficacy": {
         "value": 0.5441550064,
         "sources": [
@@ -3580,7 +3580,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3593,7 +3593,7 @@
     {
       "gene": "PTEN",
       "cell_type": NaN,
-      "combined_score": 0.5784436050399999,
+      "combined_score": 0.3977765786285714,
       "sequence_efficacy": {
         "value": 0.5221090126,
         "sources": [
@@ -3610,7 +3610,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3623,7 +3623,7 @@
     {
       "gene": "RAD54L",
       "cell_type": NaN,
-      "combined_score": 0.7046358108520505,
+      "combined_score": 0.5780511583600723,
       "sequence_efficacy": {
         "value": 0.2615895271301265,
         "sources": [
@@ -3640,7 +3640,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3653,7 +3653,7 @@
     {
       "gene": "RAG1",
       "cell_type": NaN,
-      "combined_score": 0.7710733947799999,
+      "combined_score": 0.6729619925428572,
       "sequence_efficacy": {
         "value": 0.59643348695,
         "sources": [
@@ -3670,7 +3670,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3683,7 +3683,7 @@
     {
       "gene": "RARG",
       "cell_type": NaN,
-      "combined_score": 0.82580648804,
+      "combined_score": 0.7511521257714285,
       "sequence_efficacy": {
         "value": 0.5645162201,
         "sources": [
@@ -3700,7 +3700,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3713,7 +3713,7 @@
     {
       "gene": "RBM47",
       "cell_type": NaN,
-      "combined_score": 0.6841133972167968,
+      "combined_score": 0.5487334245954241,
       "sequence_efficacy": {
         "value": 0.321283493041992,
         "sources": [
@@ -3730,7 +3730,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3743,7 +3743,7 @@
     {
       "gene": "RBM47",
       "cell_type": NaN,
-      "combined_score": 0.8242306976318357,
+      "combined_score": 0.7489009966169082,
       "sequence_efficacy": {
         "value": 0.7293267440795894,
         "sources": [
@@ -3760,7 +3760,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3773,7 +3773,7 @@
     {
       "gene": "RCOR1",
       "cell_type": NaN,
-      "combined_score": 0.9008223877,
+      "combined_score": 0.8583176967142858,
       "sequence_efficacy": {
         "value": 0.75205596925,
         "sources": [
@@ -3790,7 +3790,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3803,7 +3803,7 @@
     {
       "gene": "RCOR1",
       "cell_type": NaN,
-      "combined_score": 0.4516977478,
+      "combined_score": 0.2167110682857143,
       "sequence_efficacy": {
         "value": 0.2052443695,
         "sources": [
@@ -3820,7 +3820,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3833,7 +3833,7 @@
     {
       "gene": "RCOR1",
       "cell_type": NaN,
-      "combined_score": 0.49377958832,
+      "combined_score": 0.2768279833142857,
       "sequence_efficacy": {
         "value": 0.3104489708,
         "sources": [
@@ -3850,7 +3850,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3863,7 +3863,7 @@
     {
       "gene": "RUNX1",
       "cell_type": NaN,
-      "combined_score": 0.5706887207,
+      "combined_score": 0.3866981724285714,
       "sequence_efficacy": {
         "value": 0.44422180175,
         "sources": [
@@ -3880,7 +3880,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3893,7 +3893,7 @@
     {
       "gene": "RUNX1",
       "cell_type": NaN,
-      "combined_score": 0.5690012985199999,
+      "combined_score": 0.3842875693142857,
       "sequence_efficacy": {
         "value": 0.3822532462999999,
         "sources": [
@@ -3910,7 +3910,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3923,7 +3923,7 @@
     {
       "gene": "RUNX2",
       "cell_type": NaN,
-      "combined_score": 0.64243553924,
+      "combined_score": 0.4891936274857142,
       "sequence_efficacy": {
         "value": 0.2748388481,
         "sources": [
@@ -3940,7 +3940,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3953,7 +3953,7 @@
     {
       "gene": "RUNX2",
       "cell_type": NaN,
-      "combined_score": 0.53649341736,
+      "combined_score": 0.3378477390857143,
       "sequence_efficacy": {
         "value": 0.4172335433999999,
         "sources": [
@@ -3970,7 +3970,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -3983,7 +3983,7 @@
     {
       "gene": "RUNX3",
       "cell_type": NaN,
-      "combined_score": 0.8286996688800001,
+      "combined_score": 0.755285241257143,
       "sequence_efficacy": {
         "value": 0.5717491722000001,
         "sources": [
@@ -4000,7 +4000,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4013,7 +4013,7 @@
     {
       "gene": "RUNX3",
       "cell_type": NaN,
-      "combined_score": 0.7324472045799999,
+      "combined_score": 0.6177817208285714,
       "sequence_efficacy": {
         "value": 0.3311180114499999,
         "sources": [
@@ -4030,7 +4030,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4043,7 +4043,7 @@
     {
       "gene": "SELL",
       "cell_type": NaN,
-      "combined_score": 0.7625133209199999,
+      "combined_score": 0.6607333156,
       "sequence_efficacy": {
         "value": 0.5750333023,
         "sources": [
@@ -4060,7 +4060,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4073,7 +4073,7 @@
     {
       "gene": "SELL",
       "cell_type": NaN,
-      "combined_score": 0.8760175476000001,
+      "combined_score": 0.822882210857143,
       "sequence_efficacy": {
         "value": 0.690043869,
         "sources": [
@@ -4090,7 +4090,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4103,7 +4103,7 @@
     {
       "gene": "SELL",
       "cell_type": NaN,
-      "combined_score": 0.7351176452599999,
+      "combined_score": 0.6215966360857142,
       "sequence_efficacy": {
         "value": 0.3377941131499999,
         "sources": [
@@ -4120,7 +4120,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4133,7 +4133,7 @@
     {
       "gene": "SELL",
       "cell_type": NaN,
-      "combined_score": 0.60434645234,
+      "combined_score": 0.4347806462,
       "sequence_efficacy": {
         "value": 0.23811613085,
         "sources": [
@@ -4150,7 +4150,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4163,7 +4163,7 @@
     {
       "gene": "SETDB1",
       "cell_type": NaN,
-      "combined_score": 0.7728569030761718,
+      "combined_score": 0.6755098615373883,
       "sequence_efficacy": {
         "value": 0.4321422576904294,
         "sources": [
@@ -4180,7 +4180,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4193,7 +4193,7 @@
     {
       "gene": "SETDB1",
       "cell_type": NaN,
-      "combined_score": 0.8219385986328125,
+      "combined_score": 0.7456265694754464,
       "sequence_efficacy": {
         "value": 0.554846496582031,
         "sources": [
@@ -4210,7 +4210,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4223,7 +4223,7 @@
     {
       "gene": "SETDB1",
       "cell_type": NaN,
-      "combined_score": 0.5359184204101561,
+      "combined_score": 0.3370263148716517,
       "sequence_efficacy": {
         "value": 0.1832960510253904,
         "sources": [
@@ -4240,7 +4240,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4253,7 +4253,7 @@
     {
       "gene": "SOCS1",
       "cell_type": NaN,
-      "combined_score": 0.90821,
+      "combined_score": 0.8688714285714286,
       "sequence_efficacy": {
         "value": 0.770525,
         "sources": [
@@ -4270,7 +4270,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4283,7 +4283,7 @@
     {
       "gene": "SOCS1",
       "cell_type": NaN,
-      "combined_score": 0.6438619999999999,
+      "combined_score": 0.4912314285714286,
       "sequence_efficacy": {
         "value": 0.109655,
         "sources": [
@@ -4300,7 +4300,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4313,7 +4313,7 @@
     {
       "gene": "SOCS3",
       "cell_type": NaN,
-      "combined_score": 0.8301078948974607,
+      "combined_score": 0.7572969927106583,
       "sequence_efficacy": {
         "value": 0.575269737243652,
         "sources": [
@@ -4330,7 +4330,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4343,7 +4343,7 @@
     {
       "gene": "SOCS3",
       "cell_type": NaN,
-      "combined_score": 0.8074518737792968,
+      "combined_score": 0.7249312482561383,
       "sequence_efficacy": {
         "value": 0.518629684448242,
         "sources": [
@@ -4360,7 +4360,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4373,7 +4373,7 @@
     {
       "gene": "SOCS3",
       "cell_type": NaN,
-      "combined_score": 0.6713666687011718,
+      "combined_score": 0.5305238124302455,
       "sequence_efficacy": {
         "value": 0.1784166717529295,
         "sources": [
@@ -4390,7 +4390,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4403,7 +4403,7 @@
     {
       "gene": "STAT3",
       "cell_type": NaN,
-      "combined_score": 0.6911296310424804,
+      "combined_score": 0.558756615774972,
       "sequence_efficacy": {
         "value": 0.227824077606201,
         "sources": [
@@ -4420,7 +4420,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4433,7 +4433,7 @@
     {
       "gene": "STAT4",
       "cell_type": NaN,
-      "combined_score": 0.5312658462524413,
+      "combined_score": 0.3303797803606306,
       "sequence_efficacy": {
         "value": 0.2294146156311035,
         "sources": [
@@ -4450,7 +4450,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4463,7 +4463,7 @@
     {
       "gene": "STAT4",
       "cell_type": NaN,
-      "combined_score": 0.5840842132568358,
+      "combined_score": 0.4058345903669082,
       "sequence_efficacy": {
         "value": 0.4777105331420894,
         "sources": [
@@ -4480,7 +4480,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4493,7 +4493,7 @@
     {
       "gene": "SUV39H1",
       "cell_type": NaN,
-      "combined_score": 0.6728473449707031,
+      "combined_score": 0.5326390642438615,
       "sequence_efficacy": {
         "value": 0.7581183624267576,
         "sources": [
@@ -4510,7 +4510,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4523,7 +4523,7 @@
     {
       "gene": "SUV39H1",
       "cell_type": NaN,
-      "combined_score": 0.6332433639526366,
+      "combined_score": 0.4760619485037666,
       "sequence_efficacy": {
         "value": 0.5428584098815915,
         "sources": [
@@ -4540,7 +4540,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4553,7 +4553,7 @@
     {
       "gene": "SUV39H1",
       "cell_type": NaN,
-      "combined_score": 0.4312873764038084,
+      "combined_score": 0.1875533948625834,
       "sequence_efficacy": {
         "value": 0.095718441009521,
         "sources": [
@@ -4570,7 +4570,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4583,7 +4583,7 @@
     {
       "gene": "SUV39H2",
       "cell_type": NaN,
-      "combined_score": 0.4843910179138181,
+      "combined_score": 0.2634157398768831,
       "sequence_efficacy": {
         "value": 0.1122275447845455,
         "sources": [
@@ -4600,7 +4600,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4613,7 +4613,7 @@
     {
       "gene": "TBX21",
       "cell_type": NaN,
-      "combined_score": 0.7538801651000976,
+      "combined_score": 0.6484002358572823,
       "sequence_efficacy": {
         "value": 0.384700412750244,
         "sources": [
@@ -4630,7 +4630,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4643,7 +4643,7 @@
     {
       "gene": "TBX21",
       "cell_type": NaN,
-      "combined_score": 0.8467162322998045,
+      "combined_score": 0.7810231889997209,
       "sequence_efficacy": {
         "value": 0.7855405807495115,
         "sources": [
@@ -4660,7 +4660,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4673,7 +4673,7 @@
     {
       "gene": "TCF7",
       "cell_type": NaN,
-      "combined_score": 0.740152877807617,
+      "combined_score": 0.6287898254394529,
       "sequence_efficacy": {
         "value": 0.3503821945190425,
         "sources": [
@@ -4690,7 +4690,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4703,7 +4703,7 @@
     {
       "gene": "TET2",
       "cell_type": NaN,
-      "combined_score": 0.5754012161254882,
+      "combined_score": 0.3934303087506974,
       "sequence_efficacy": {
         "value": 0.3982530403137205,
         "sources": [
@@ -4720,7 +4720,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4733,7 +4733,7 @@
     {
       "gene": "TET2",
       "cell_type": NaN,
-      "combined_score": 0.6003301162719725,
+      "combined_score": 0.4290430232456751,
       "sequence_efficacy": {
         "value": 0.4020752906799315,
         "sources": [
@@ -4750,7 +4750,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4763,7 +4763,7 @@
     {
       "gene": "TET2",
       "cell_type": NaN,
-      "combined_score": 0.5301540756225587,
+      "combined_score": 0.3287915366036552,
       "sequence_efficacy": {
         "value": 0.4591351890563965,
         "sources": [
@@ -4780,7 +4780,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4793,7 +4793,7 @@
     {
       "gene": "TET2",
       "cell_type": NaN,
-      "combined_score": 0.8134029327392578,
+      "combined_score": 0.7334327610560826,
       "sequence_efficacy": {
         "value": 0.7607573318481444,
         "sources": [
@@ -4810,7 +4810,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4823,7 +4823,7 @@
     {
       "gene": "TET2",
       "cell_type": NaN,
-      "combined_score": 0.6431855636596677,
+      "combined_score": 0.4902650909423826,
       "sequence_efficacy": {
         "value": 0.4514639091491694,
         "sources": [
@@ -4840,7 +4840,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4853,7 +4853,7 @@
     {
       "gene": "TIA1",
       "cell_type": NaN,
-      "combined_score": 0.5312902679443359,
+      "combined_score": 0.3304146684919083,
       "sequence_efficacy": {
         "value": 0.4619756698608395,
         "sources": [
@@ -4870,7 +4870,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4883,7 +4883,7 @@
     {
       "gene": "TIA1",
       "cell_type": NaN,
-      "combined_score": 0.4720393600463866,
+      "combined_score": 0.2457705143519809,
       "sequence_efficacy": {
         "value": 0.3719734001159665,
         "sources": [
@@ -4900,7 +4900,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4913,7 +4913,7 @@
     {
       "gene": "TNF",
       "cell_type": NaN,
-      "combined_score": 0.7869808349609374,
+      "combined_score": 0.6956869070870535,
       "sequence_efficacy": {
         "value": 0.4674520874023435,
         "sources": [
@@ -4930,7 +4930,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4943,7 +4943,7 @@
     {
       "gene": "TNF",
       "cell_type": NaN,
-      "combined_score": 0.7416320000000001,
+      "combined_score": 0.6309028571428572,
       "sequence_efficacy": {
         "value": 0.35408,
         "sources": [
@@ -4960,7 +4960,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -4973,7 +4973,7 @@
     {
       "gene": "TNF",
       "cell_type": NaN,
-      "combined_score": 0.8038516845703123,
+      "combined_score": 0.719788120814732,
       "sequence_efficacy": {
         "value": 0.509629211425781,
         "sources": [
@@ -4990,7 +4990,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5003,7 +5003,7 @@
     {
       "gene": "TOX",
       "cell_type": NaN,
-      "combined_score": 0.6941705490112304,
+      "combined_score": 0.5631007843017577,
       "sequence_efficacy": {
         "value": 0.462676372528076,
         "sources": [
@@ -5020,7 +5020,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5033,7 +5033,7 @@
     {
       "gene": "TOX",
       "cell_type": NaN,
-      "combined_score": 0.5570120697021483,
+      "combined_score": 0.3671600995744977,
       "sequence_efficacy": {
         "value": 0.526280174255371,
         "sources": [
@@ -5050,7 +5050,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5063,7 +5063,7 @@
     {
       "gene": "TOX",
       "cell_type": NaN,
-      "combined_score": 0.889832,
+      "combined_score": 0.842617142857143,
       "sequence_efficacy": {
         "value": 0.72458,
         "sources": [
@@ -5080,7 +5080,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5093,7 +5093,7 @@
     {
       "gene": "TOX",
       "cell_type": NaN,
-      "combined_score": 0.798246,
+      "combined_score": 0.71178,
       "sequence_efficacy": {
         "value": 0.4956149999999999,
         "sources": [
@@ -5110,7 +5110,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5123,7 +5123,7 @@
     {
       "gene": "TOX",
       "cell_type": NaN,
-      "combined_score": 0.5818348098754882,
+      "combined_score": 0.4026211569649831,
       "sequence_efficacy": {
         "value": 0.2980870246887205,
         "sources": [
@@ -5140,7 +5140,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5153,7 +5153,7 @@
     {
       "gene": "TOX2",
       "cell_type": NaN,
-      "combined_score": 0.6223061370849607,
+      "combined_score": 0.4604373386928012,
       "sequence_efficacy": {
         "value": 0.689515342712402,
         "sources": [
@@ -5170,7 +5170,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5183,7 +5183,7 @@
     {
       "gene": "TOX2",
       "cell_type": NaN,
-      "combined_score": 0.6531364746093751,
+      "combined_score": 0.5044806780133929,
       "sequence_efficacy": {
         "value": 0.4178411865234375,
         "sources": [
@@ -5200,7 +5200,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5213,7 +5213,7 @@
     {
       "gene": "TOX2",
       "cell_type": NaN,
-      "combined_score": 0.6276077362060546,
+      "combined_score": 0.4680110517229351,
       "sequence_efficacy": {
         "value": 0.2962693405151365,
         "sources": [
@@ -5230,7 +5230,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5243,7 +5243,7 @@
     {
       "gene": "TOX2",
       "cell_type": NaN,
-      "combined_score": 0.605422,
+      "combined_score": 0.4363171428571429,
       "sequence_efficacy": {
         "value": 0.647305,
         "sources": [
@@ -5260,7 +5260,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5273,7 +5273,7 @@
     {
       "gene": "TOX2",
       "cell_type": NaN,
-      "combined_score": 0.8359308471679685,
+      "combined_score": 0.7656154959542408,
       "sequence_efficacy": {
         "value": 0.5898271179199215,
         "sources": [
@@ -5290,7 +5290,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5303,7 +5303,7 @@
     {
       "gene": "TOX2",
       "cell_type": NaN,
-      "combined_score": 0.3951961441040038,
+      "combined_score": 0.1359944915771482,
       "sequence_efficacy": {
         "value": 0.1798653602600095,
         "sources": [
@@ -5320,7 +5320,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5333,7 +5333,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.7055940979003905,
+      "combined_score": 0.5794201398577009,
       "sequence_efficacy": {
         "value": 0.5782352447509765,
         "sources": [
@@ -5350,7 +5350,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5363,7 +5363,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.6689666748046874,
+      "combined_score": 0.527095249720982,
       "sequence_efficacy": {
         "value": 0.4574166870117184,
         "sources": [
@@ -5380,7 +5380,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5393,7 +5393,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.7325297332763672,
+      "combined_score": 0.6178996189662389,
       "sequence_efficacy": {
         "value": 0.558574333190918,
         "sources": [
@@ -5410,7 +5410,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5423,7 +5423,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.53552,
+      "combined_score": 0.3364571428571429,
       "sequence_efficacy": {
         "value": 0.47255,
         "sources": [
@@ -5440,7 +5440,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5453,7 +5453,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.6441720123291014,
+      "combined_score": 0.4916743033272877,
       "sequence_efficacy": {
         "value": 0.3954300308227534,
         "sources": [
@@ -5470,7 +5470,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5483,7 +5483,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.6719745788574218,
+      "combined_score": 0.5313922555106027,
       "sequence_efficacy": {
         "value": 0.4649364471435545,
         "sources": [
@@ -5500,7 +5500,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5513,7 +5513,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.5599461402893067,
+      "combined_score": 0.3713516289847238,
       "sequence_efficacy": {
         "value": 0.1848653507232664,
         "sources": [
@@ -5530,7 +5530,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5543,7 +5543,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.8040912231445312,
+      "combined_score": 0.7201303187779017,
       "sequence_efficacy": {
         "value": 0.534228057861328,
         "sources": [
@@ -5560,7 +5560,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5573,7 +5573,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.8286609802246092,
+      "combined_score": 0.7552299717494417,
       "sequence_efficacy": {
         "value": 0.571652450561523,
         "sources": [
@@ -5590,7 +5590,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5603,7 +5603,7 @@
     {
       "gene": "TSC1",
       "cell_type": NaN,
-      "combined_score": 0.839926,
+      "combined_score": 0.7713228571428572,
       "sequence_efficacy": {
         "value": 0.710815,
         "sources": [
@@ -5620,7 +5620,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5633,7 +5633,7 @@
     {
       "gene": "ZBTB16",
       "cell_type": NaN,
-      "combined_score": 0.8320556335449218,
+      "combined_score": 0.7600794764927454,
       "sequence_efficacy": {
         "value": 0.5801390838623044,
         "sources": [
@@ -5650,7 +5650,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5663,7 +5663,7 @@
     {
       "gene": "ZC3H12A",
       "cell_type": NaN,
-      "combined_score": 0.7814379196166992,
+      "combined_score": 0.6877684565952846,
       "sequence_efficacy": {
         "value": 0.453594799041748,
         "sources": [
@@ -5680,7 +5680,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5693,7 +5693,7 @@
     {
       "gene": "ZC3H12A",
       "cell_type": NaN,
-      "combined_score": 0.6920797210693357,
+      "combined_score": 0.5601138872419082,
       "sequence_efficacy": {
         "value": 0.4574493026733395,
         "sources": [
@@ -5710,7 +5710,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5723,7 +5723,7 @@
     {
       "gene": "ZC3H12C",
       "cell_type": NaN,
-      "combined_score": 0.6407063369750976,
+      "combined_score": 0.4867233385358537,
       "sequence_efficacy": {
         "value": 0.619265842437744,
         "sources": [
@@ -5740,7 +5740,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5753,7 +5753,7 @@
     {
       "gene": "ZC3H12C",
       "cell_type": NaN,
-      "combined_score": 0.5197337036132812,
+      "combined_score": 0.313905290876116,
       "sequence_efficacy": {
         "value": 0.4912092590332029,
         "sources": [
@@ -5770,7 +5770,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5783,7 +5783,7 @@
     {
       "gene": "ZEB2",
       "cell_type": NaN,
-      "combined_score": 0.506836343383789,
+      "combined_score": 0.29548049054827,
       "sequence_efficacy": {
         "value": 0.3430908584594725,
         "sources": [
@@ -5800,7 +5800,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5813,7 +5813,7 @@
     {
       "gene": "ZEB2",
       "cell_type": NaN,
-      "combined_score": 0.6204458084106443,
+      "combined_score": 0.4577797263009206,
       "sequence_efficacy": {
         "value": 0.336114521026611,
         "sources": [
@@ -5830,7 +5830,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5843,7 +5843,7 @@
     {
       "gene": "ZEB2",
       "cell_type": NaN,
-      "combined_score": 0.5138279968261718,
+      "combined_score": 0.3054685668945311,
       "sequence_efficacy": {
         "value": 0.3605699920654295,
         "sources": [
@@ -5860,7 +5860,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5873,7 +5873,7 @@
     {
       "gene": "ZEB2",
       "cell_type": NaN,
-      "combined_score": 0.4726650676727294,
+      "combined_score": 0.2466643823896134,
       "sequence_efficacy": {
         "value": 0.1991626691818235,
         "sources": [
@@ -5890,7 +5890,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5903,7 +5903,7 @@
     {
       "gene": "ZFP41",
       "cell_type": NaN,
-      "combined_score": 0.8057193969800001,
+      "combined_score": 0.7224562814000001,
       "sequence_efficacy": {
         "value": 0.65454849245,
         "sources": [
@@ -5920,7 +5920,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5933,7 +5933,7 @@
     {
       "gene": "ZNF469",
       "cell_type": NaN,
-      "combined_score": 0.94459510804,
+      "combined_score": 0.9208501543428572,
       "sequence_efficacy": {
         "value": 0.8614877701000001,
         "sources": [
@@ -5950,7 +5950,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5963,7 +5963,7 @@
     {
       "gene": "ZNF683",
       "cell_type": NaN,
-      "combined_score": 0.89727883912,
+      "combined_score": 0.8532554844571429,
       "sequence_efficacy": {
         "value": 0.7431970978,
         "sources": [
@@ -5980,7 +5980,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -5993,7 +5993,7 @@
     {
       "gene": "ZNF75D",
       "cell_type": NaN,
-      "combined_score": 0.6467874389648436,
+      "combined_score": 0.4954106270926338,
       "sequence_efficacy": {
         "value": 0.5767185974121091,
         "sources": [
@@ -6010,7 +6010,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",
@@ -6023,7 +6023,7 @@
     {
       "gene": "ZNF831",
       "cell_type": NaN,
-      "combined_score": 0.8589678649902341,
+      "combined_score": 0.7985255214146203,
       "sequence_efficacy": {
         "value": 0.6474196624755855,
         "sources": [
@@ -6040,7 +6040,7 @@
         ]
       },
       "specificity": {
-        "value": 1.0,
+        "value": NaN,
         "sources": [
           "ito_2024",
           "ozden2024_crispai_uncertainty",

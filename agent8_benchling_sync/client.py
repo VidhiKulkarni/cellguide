@@ -1,24 +1,49 @@
 """
 Agent 8 — Benchling sync (CellGuide AI pipeline, see ../CLAUDE.md).
 
-STUB — no Benchling account/API key is available yet. Every method below raises
-NotImplementedError with what's needed to make it real. Nothing here makes a network call.
+Uses the official `benchling-sdk` package to close the loop from the sponsor flow:
 
-To complete this integration, you need:
-  1. A Benchling API key (Settings -> Developer Console -> API keys in your tenant)
-  2. Your tenant subdomain, e.g. "your-org" for https://your-org.benchling.com
-  3. The schema ID (or name) of the custom entity / result table your workspace uses to
-     record CRISPR guide experiment results (gene, cell type, spacer, indel %) — this is
-     workspace-specific and can't be guessed; check Benchling's Feature Library / schema
-     registry for whatever your team already uses, or create one for this pipeline.
+    Guide ranking -> Next experiment -> Benchling -> Experimental result -> AIFG re-runs
 
-Benchling's REST API is documented at https://benchling.com/api/reference — the relevant
-resources are almost certainly `custom-entities` or `results` (POST to write, GET with
-`schemaId` + `modifiedAt>` filters to read incrementally).
+i.e. Agent 6's top recommendation gets written to Benchling (so the wet-lab team sees what
+to run next), and once they've recorded a real result there, this pulls it back so Agent 6
+can `record` it and re-rank.
+
+Requires, in `../.env`:
+  BENCHLING_API_KEY                    - Basic-auth API key (Benchling -> Developer Console -> API keys)
+  BENCHLING_TENANT_URL                 - e.g. https://your-org.benchling.com
+  BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID  - schema ID for "what to test next" records
+  BENCHLING_RESULTS_SCHEMA_ID          - schema ID for recorded experimental results
+
+None of these exist yet (no tenant/schema chosen as of writing this) — see `README.md` for
+exactly what to create in the Benchling UI (both live in the Hackathon26 / AIFG folder) and
+how to find the resulting IDs (`list_resources.py` in this folder helps once you have a
+tenant URL and API key).
+
+Field names below (GENE_FIELD etc.) must match your schemas' field *names* exactly
+(Benchling UI: schema field "name", not necessarily what's displayed) — edit them if you
+name the fields differently when creating the schemas.
 """
 
+import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
+
+from benchling_sdk.auth.api_key_auth import ApiKeyAuth
+from benchling_sdk.benchling import Benchling
+from benchling_sdk.helpers.serialization_helpers import fields
+from benchling_sdk.models import AssayResultCreate
+
+# "Next experiment" schema fields (what Agent 6 recommends testing)
+GENE_FIELD = "Gene"
+CELL_TYPE_FIELD = "Cell Type"
+SPACER_FIELD = "Spacer"
+PRIORITY_FIELD = "Priority"
+RATIONALE_FIELD = "Rationale"
+
+# "Experimental result" schema fields (what the wet-lab team records back)
+INDEL_PCT_FIELD = "Indel %"
+SOURCE_FIELD = "Source"
 
 
 @dataclass
@@ -32,33 +57,79 @@ class ExperimentResult:
 
 
 class BenchlingClient:
-    def __init__(self, api_key: str, tenant: str, results_schema_id: str):
-        """
-        api_key: Benchling API key (Bearer token)
-        tenant: subdomain, e.g. "your-org" (base URL becomes https://your-org.benchling.com)
-        results_schema_id: schema ID of the custom entity/result type holding guide results
-        """
-        self.api_key = api_key
-        self.tenant = tenant
+    def __init__(
+        self,
+        api_key: str,
+        tenant_url: str,
+        next_experiment_schema_id: str,
+        results_schema_id: str,
+        project_id: str | None = None,
+    ):
+        self.next_experiment_schema_id = next_experiment_schema_id
         self.results_schema_id = results_schema_id
+        self.project_id = project_id
+        self.benchling = Benchling(url=tenant_url, auth_method=ApiKeyAuth(api_key))
+
+    @classmethod
+    def from_env(cls) -> "BenchlingClient":
+        env = {
+            "BENCHLING_API_KEY": os.environ.get("BENCHLING_API_KEY"),
+            "BENCHLING_TENANT_URL": os.environ.get("BENCHLING_TENANT_URL"),
+            "BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID": os.environ.get("BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID"),
+            "BENCHLING_RESULTS_SCHEMA_ID": os.environ.get("BENCHLING_RESULTS_SCHEMA_ID"),
+        }
+        missing = [k for k, v in env.items() if not v]
+        if missing:
+            raise RuntimeError(
+                f"Missing from .env: {', '.join(missing)}. See agent8_benchling_sync/README.md "
+                "for what to create in Benchling and how to find these values."
+            )
+        return cls(
+            env["BENCHLING_API_KEY"],
+            env["BENCHLING_TENANT_URL"],
+            env["BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID"],
+            env["BENCHLING_RESULTS_SCHEMA_ID"],
+            os.environ.get("BENCHLING_PROJECT_ID"),
+        )
+
+    def push_next_experiment(self, gene: str, cell_type: str, spacer: str, priority: float, rationale: str) -> None:
+        """Write Agent 6's top recommendation to Benchling so the wet-lab team can see what
+        to run next. Called once per recommend() run — see run.py."""
+        result = AssayResultCreate(
+            schema_id=self.next_experiment_schema_id,
+            project_id=self.project_id,
+            fields=fields(
+                {
+                    GENE_FIELD: {"value": gene},
+                    CELL_TYPE_FIELD: {"value": cell_type},
+                    SPACER_FIELD: {"value": spacer},
+                    PRIORITY_FIELD: {"value": priority},
+                    RATIONALE_FIELD: {"value": rationale},
+                }
+            ),
+        )
+        self.benchling.assay_results.create([result])
 
     def fetch_new_results(self, since: datetime | None = None) -> list[ExperimentResult]:
-        """Pull experiment results recorded in Benchling since `since` (or all, if None).
+        """Pull guide experiment results recorded in Benchling since `since` (or all, if
+        None). Feeds agent6_next_experiment/recommend.py's `record` subcommand — one
+        `record` call per ExperimentResult returned here."""
+        kwargs = {"schema_id": self.results_schema_id}
+        if since is not None:
+            kwargs["modified_atgte"] = since.astimezone(timezone.utc).isoformat()
 
-        Intended to feed agent6_next_experiment/recommend.py's `record` subcommand — one
-        `record` call per ExperimentResult returned here.
-        """
-        raise NotImplementedError(
-            "Needs a Benchling API key + tenant + results schema ID. "
-            "GET https://{tenant}.benchling.com/api/v2/custom-entities?schemaId={results_schema_id}"
-            "&modifiedAt>{since.isoformat()}, then map each entity's fields to ExperimentResult."
-        )
-
-    def push_ranking_update(self, gene: str, cell_type: str, combined_score: float, confidence: float) -> None:
-        """Write Agent 3's updated combined_score + Agent 5's confidence back to Benchling
-        for the matching entity, so ranking state stays visible in the lab notebook."""
-        raise NotImplementedError(
-            "Needs the Benchling entity ID to PATCH (look it up by gene/cell_type first), "
-            "then PATCH https://{tenant}.benchling.com/api/v2/custom-entities/{entity_id} "
-            "with the combined_score/confidence fields."
-        )
+        out = []
+        for page in self.benchling.assay_results.list(**kwargs):
+            for result in page:
+                f = result.fields.to_dict()
+                out.append(
+                    ExperimentResult(
+                        gene=f[GENE_FIELD]["value"],
+                        cell_type=f[CELL_TYPE_FIELD]["value"],
+                        spacer=f[SPACER_FIELD]["value"],
+                        indel_pct=float(f[INDEL_PCT_FIELD]["value"]),
+                        recorded_at=result.modified_at,
+                        benchling_entity_id=result.id,
+                    )
+                )
+        return out

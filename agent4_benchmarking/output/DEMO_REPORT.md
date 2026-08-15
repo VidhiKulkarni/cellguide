@@ -13,10 +13,11 @@
 | `sequence_efficacy` | 0.447 | 0.553 |
 | `accessibility` | 0.738 | 0.262 |
 | `combined_score` | 0.800 | 0.2 |
+| `recommended_score` | 0.447 | 0.553 |
 
 `passes_ito_rule()` as a >50%-indel classifier: precision=1.000, recall=1.000 (TP=2, FP=0, FN=0, evaluable on 4/4 guides).
 
 ### T-cell-open vs K562-open panel check
 
-- **GATA1**: K562=0.844, T=0.634
-- **GZMA**: T=0.864, K562=0.624
+- **GATA1**: K562=0.777, T=0.477
+- **GZMA**: T=0.806, K562=0.463

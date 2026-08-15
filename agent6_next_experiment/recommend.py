@@ -9,7 +9,7 @@ Deterministic (no LLM). Two subcommands:
   record      Append a real experimental result to the log, then immediately re-run
               `recommend` so the ranking (and the next pick) reflects the new data.
 
-Priority = combined_score * uncertainty, where uncertainty prefers Agent 5's calibrated
+Priority = recommended_score * uncertainty, where uncertainty prefers Agent 5's calibrated
 confidence (output/confidence.json, confidence_numeric) when available for that
 gene/cell_type, and otherwise falls back to a transparent proxy: the population standard
 deviation across the three score components (sequence_efficacy, accessibility,
@@ -80,8 +80,9 @@ def cmd_recommend(args: argparse.Namespace) -> None:
         print("No untested candidates left in this candidate set.")
         return
 
+    score_col = "recommended_score" if "recommended_score" in df.columns else "combined_score"
     df["uncertainty"] = df.apply(lambda r: uncertainty(r, confidence_by_gene), axis=1)
-    df["priority"] = df["combined_score"] * df["uncertainty"]
+    df["priority"] = df[score_col] * df["uncertainty"]
     ranked = df.sort_values("priority", ascending=False).head(args.top)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -93,7 +94,7 @@ def cmd_recommend(args: argparse.Namespace) -> None:
         label = f"{row.gene} ({cell_type})" if pd.notna(cell_type) else row.gene
         print(
             f"  {label}: priority={row.priority:.3f} "
-            f"(combined_score={row.combined_score:.3f}, uncertainty={row.uncertainty:.3f})"
+            f"({score_col}={getattr(row, score_col):.3f}, uncertainty={row.uncertainty:.3f})"
         )
     print(f"\nWrote {OUTPUT_DIR / 'recommendations.csv'}")
 
@@ -129,7 +130,7 @@ def main() -> None:
     sub = parser.add_subparsers(dest="command", required=True)
 
     rec = sub.add_parser("recommend", help="Rank untested candidates by expected-value x uncertainty")
-    rec.add_argument("--candidates", type=Path, required=True, help="CSV with gene, cell_type, spacer, combined_score, and component columns")
+    rec.add_argument("--candidates", type=Path, required=True, help="CSV with gene, cell_type, spacer, recommended_score (or combined_score), and component columns")
     rec.add_argument("--top", type=int, default=5)
     rec.set_defaults(func=cmd_recommend)
 

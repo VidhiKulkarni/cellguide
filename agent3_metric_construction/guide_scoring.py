@@ -3,12 +3,41 @@ CellGuide AI — Agent 3: per-guide efficiency + specificity scoring.
 
 Implements the plan's §4.4 formula:
     score(g, c) = w_seq * sequence_efficacy(g) + w_atac * accessibility(g, c) + w_spec * specificity(g)
+... but with weights renormalized over whatever components actually have data (see
+score_guide), and with `recommended_score` exposed as the empirically better ranking value
+(see below) — both fixes came directly out of Agent 5's skeptical review
+(agent5_confidence_assessment/output/CONFIDENCE_REPORT.md) of the original version of this
+module. That review's specific findings and this file's response to each:
 
-Design principle (per docs/CellGuide_AI_Hackathon_Plan.pdf §2): keep every
-component inspectable and swappable. Each function here accepts an optional
-external model score (e.g. DeepHF, CHOPCHOP, crispAI, CrisprBERT) and falls
-back to a transparent sequence-only heuristic when none is supplied, so the
-pipeline never depends on a single black-box predictor.
+1. specificity() used to return 1.0 ("perfectly safe") whenever no off-target data was
+   supplied, silently rewarding guides nobody had checked. Fixed: specificity() now returns
+   None when truly nothing is known (no off-target list AND no external score) — an empty
+   *enumerated* off-target list (a real search that found nothing) still legitimately scores
+   1.0. score_guide() excludes None components and renormalizes the remaining weights,
+   instead of guessing in either direction.
+2. accessibility_score() had no way to express delivery method, despite this module's own
+   docstring warning that the accessibility term is validated for transient RNP only
+   (Ito et al. 2024) and does NOT transfer to lentiviral/stable delivery (Wang et al. 2019).
+   Fixed: GuideScoreInputs.delivery gates it — lentiviral/vector/stable contexts exclude
+   accessibility from the combined score (None, renormalized away) rather than silently
+   applying an unvalidated term.
+3. Real-data benchmarking (agent4_benchmarking/output/REPORT.md, n=199 Ito et al. guides)
+   found the linear `combined` score UNDERPERFORMS sequence_efficacy alone (rho=0.315 vs
+   0.441) — because Ito et al. never linearly blend ATAC into a ranking score; they use it
+   as an AND-gate filter on top of sequence scores (DeepSpCas9>=60 AND CHOPCHOP>=0.3 AND
+   ATAC>=0.1, see passes_ito_thresholds()). Fixed: GuideScoreResult.recommended_score
+   implements that — sequence_efficacy as the ranking value, passes_ito_rule as the
+   accompanying gate to check separately, matching what the paper (and the benchmark) both
+   support. `combined` is kept for transparency/comparison, not as the recommended value.
+4. sequence_motif_score() (the fallback used when no external on-target score is supplied)
+   double-counted GC content: spacer-wide GC and seed-region GC are highly correlated (the
+   seed is a literal subset of the spacer) but were weighted as if independent, and the
+   seed term reused the whole-spacer "50%-optimal" curve, an unvalidated transfer. Fixed:
+   dropped the separate seed-region term; the fallback is now spacer GC + poly-T only.
+5. poly_t_penalty() (U6-promoter transcription terminates on TTTT+) was applied
+   unconditionally, including to Ito et al.'s guides — which are chemically synthesized RNP
+   with no U6 promoter involved at all. Fixed: gated by GuideScoreInputs.delivery, same as
+   accessibility; only applies when delivery indicates U6-driven vector expression.
 
 Literature basis (see papers/ for full sources):
 - ito_2024: empirical rule DeepSpCas9>=60 AND CHOPCHOP>=0.3 AND ATAC>=0.1 ->
@@ -30,6 +59,9 @@ Literature basis (see papers/ for full sources):
 from dataclasses import dataclass
 from typing import Optional, Sequence
 
+Delivery = str  # "rnp" | "lentiviral" | "vector" | "stable" | None (unknown, treated as RNP-like)
+_VECTOR_DELIVERIES = {"lentiviral", "vector", "stable"}
+
 
 # ---------------------------------------------------------------------------
 # Sequence efficacy (on-target)
@@ -47,32 +79,32 @@ def gc_content_score(spacer: str) -> float:
     return max(0.0, 1.0 - abs(gc - 0.5) / 0.3)
 
 
-def poly_t_penalty(spacer: str) -> float:
-    """U6-promoter transcription terminates on TTTT+ -> guides containing it are penalized."""
+def poly_t_penalty(spacer: str, delivery: Optional[Delivery] = None) -> float:
+    """U6-promoter transcription terminates on TTTT+ -> guides containing it are penalized
+    *only* when delivery is U6-driven vector expression. Chemically synthesized RNP guides
+    (Ito et al.'s method, and the default here) involve no promoter, so the rule doesn't
+    mechanistically apply and is skipped (neutral 1.0) rather than misapplied."""
+    if delivery not in _VECTOR_DELIVERIES:
+        return 1.0
     return 0.0 if "TTTT" in spacer.upper() else 1.0
 
 
-def seed_gc_score(spacer: str, seed_len: int = 10) -> float:
-    """GC content of the PAM-proximal seed region (last `seed_len` nt), which dominates
-    Cas9 binding/cleavage specificity and activity (Doench-style seed-region weighting)."""
-    seed = spacer[-seed_len:]
-    return gc_content_score(seed)
+def sequence_motif_score(spacer: str, delivery: Optional[Delivery] = None) -> float:
+    """Transparent sequence heuristic: GC content + poly-T penalty. Used as the
+    sequence_efficacy fallback when no external on-target model score is given.
 
-
-def sequence_motif_score(spacer: str) -> float:
-    """Composite transparent sequence heuristic: GC content + seed-region GC + poly-T penalty.
-    Used as the sequence_efficacy fallback when no external on-target model score is given."""
-    return (
-        0.4 * gc_content_score(spacer)
-        + 0.4 * seed_gc_score(spacer)
-        + 0.2 * poly_t_penalty(spacer)
-    )
+    No separate seed-region GC term: the seed (last ~10nt) is a subset of the spacer, so a
+    second GC term over it double-counts a correlated feature, and reusing the whole-spacer
+    "50%-optimal" curve for that shorter window is an unvalidated transfer — dropped rather
+    than kept as an uncalibrated inflation of this heuristic's confidence."""
+    return 0.7 * gc_content_score(spacer) + 0.3 * poly_t_penalty(spacer, delivery)
 
 
 def sequence_efficacy(
     spacer: str,
     deepspcas9_score: Optional[float] = None,
     chopchop_score: Optional[float] = None,
+    delivery: Optional[Delivery] = None,
 ) -> float:
     """On-target efficacy in [0, 1]. Prefers Ito et al.'s own two sequence-only
     tools when available — deepspcas9_score on its native 0-100 scale, chopchop_score
@@ -85,21 +117,31 @@ def sequence_efficacy(
         normalized.append(max(0.0, min(1.0, chopchop_score)))
     if normalized:
         return sum(normalized) / len(normalized)
-    return sequence_motif_score(spacer)
+    return sequence_motif_score(spacer, delivery)
 
 
 # ---------------------------------------------------------------------------
 # Accessibility (cell context)
 # ---------------------------------------------------------------------------
 
-def accessibility_score(atac_signal: Optional[float], threshold: float = 0.1) -> float:
-    """Cell-context chromatin accessibility term, per Ito et al.'s empirical ATAC>=0.1 cutoff.
-    `atac_signal` is the median ATAC read-count/signal over the guide's target window in the
-    target cell type (see docs/CellGuide_AI_Hackathon_Plan.pdf §3.1, §4.1). Returns 0 when no
-    ATAC data is available for that context, so the term drops out of the combined score
-    rather than being guessed."""
+def accessibility_score(
+    atac_signal: Optional[float],
+    delivery: Optional[Delivery] = None,
+    threshold: float = 0.1,
+) -> Optional[float]:
+    """Cell-context chromatin accessibility term, per Ito et al.'s empirical ATAC>=0.1 cutoff
+    (validated for transient RNP delivery only). `atac_signal` is the median ATAC read-count/
+    signal over the guide's target window in the target cell type (see
+    docs/CellGuide_AI_Hackathon_Plan.pdf §3.1, §4.1).
+
+    Returns None (excluded from the combined score, not guessed) when: no ATAC data is
+    available, OR delivery indicates lentiviral/vector/stable expression — Wang et al. 2019
+    found accessibility fine-tuning did NOT help in that context, so applying this term
+    there would be extrapolating past what's been validated, not filling a data gap."""
+    if delivery in _VECTOR_DELIVERIES:
+        return None
     if atac_signal is None:
-        return 0.0
+        return None
     return min(1.0, atac_signal / threshold) if threshold > 0 else float(atac_signal > 0)
 
 
@@ -134,10 +176,13 @@ def _site_cfd_penalty(site: OffTargetSite) -> float:
 
 
 def cfd_specificity(offtargets: Sequence[OffTargetSite]) -> float:
-    """Aggregate specificity score in [0, 1] from an enumerated off-target site list
-    (e.g. from Cas-OFFinder/GuideScan2 — see papers/related/schmidt2025_guidescan2/).
-    1.0 = no tolerated off-target sites found; approaches 0 as tolerated sites accumulate.
-    This is the standard CFD aggregate: 1 / (1 + sum of per-site penalties)."""
+    """Aggregate specificity score in [0, 1] from an *enumerated* off-target site list
+    (e.g. from Cas-OFFinder/GuideScan2 — see agent1_literature_search/output/related/
+    schmidt2025_guidescan2/). 1.0 = a candidate search was run and found no tolerated
+    off-target sites; approaches 0 as tolerated sites accumulate. This is the standard CFD
+    aggregate: 1 / (1 + sum of per-site penalties). Only call this with a real (possibly
+    empty) enumerated list — an empty list here means "searched, found nothing," which is
+    different from specificity()'s `offtargets=None` ("never searched")."""
     if not offtargets:
         return 1.0
     total_penalty = sum(_site_cfd_penalty(s) for s in offtargets)
@@ -147,16 +192,23 @@ def cfd_specificity(offtargets: Sequence[OffTargetSite]) -> float:
 def specificity(
     offtargets: Optional[Sequence[OffTargetSite]] = None,
     external_score: Optional[float] = None,
-) -> float:
-    """Specificity in [0, 1] (1 = highly specific / low off-target risk).
-    Prefers a pluggable external off-target model — crispAI (papers/related/
-    ozden2024_crispai_uncertainty/) or CrisprBERT (papers/related/sari2025_crisprbert/),
-    both trained on the same primary-T-cell CHANGE-seq data Ito et al.'s cohort comes
-    from, which is recommended here because Ito et al. report no off-target data of
-    their own. Falls back to CFD aggregation over an enumerated off-target site list."""
+) -> Optional[float]:
+    """Specificity in [0, 1] (1 = highly specific / low off-target risk), or None when truly
+    unassessed. Prefers a pluggable external off-target model — crispAI
+    (agent1_literature_search/output/related/ozden2024_crispai_uncertainty/) or CrisprBERT
+    (agent1_literature_search/output/related/sari2025_crisprbert/), both trained on the same
+    primary-T-cell CHANGE-seq data Ito et al.'s cohort comes from, recommended here because
+    Ito et al. report no off-target data of their own. Falls back to CFD aggregation over an
+    enumerated off-target site list when `offtargets` is given (including an empty list —
+    that's real evidence, see cfd_specificity). Returns None — not 1.0 — when NEITHER an
+    external score NOR an off-target list was supplied, i.e. specificity was never actually
+    assessed for this guide; score_guide() excludes None components rather than treating
+    "never checked" as "confirmed safe"."""
     if external_score is not None:
         return max(0.0, min(1.0, external_score))
-    return cfd_specificity(offtargets or [])
+    if offtargets is not None:
+        return cfd_specificity(offtargets)
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -166,8 +218,11 @@ def specificity(
 @dataclass
 class GuideScoreWeights:
     """Default weights are a starting point (plan §4.4: "Start with transparent
-    weights ... compare against sequence-only"), not fit to data. Re-derive via
-    regression against papers/ito_2024/ ground truth in Agent 4."""
+    weights ... compare against sequence-only"), not fit to data. Real-data benchmarking
+    (agent4_benchmarking/output/REPORT.md) found the resulting linear `combined` score
+    underperforms sequence_efficacy alone — see GuideScoreResult.recommended_score for the
+    empirically better ranking value; these weights remain for the transparent, comparable
+    `combined` field."""
     w_seq: float = 0.4
     w_atac: float = 0.3
     w_spec: float = 0.3
@@ -181,28 +236,50 @@ class GuideScoreInputs:
     atac_signal: Optional[float] = None
     offtargets: Optional[Sequence[OffTargetSite]] = None
     external_specificity_score: Optional[float] = None
+    delivery: Optional[Delivery] = None  # "rnp" | "lentiviral" | "vector" | "stable" | None
 
 
 @dataclass
 class GuideScoreResult:
     sequence_efficacy: float
-    accessibility: float
-    specificity: float
+    accessibility: Optional[float]
+    specificity: Optional[float]
     combined: float
+    recommended_score: float
     passes_ito_rule: bool
 
 
 def score_guide(inputs: GuideScoreInputs, weights: GuideScoreWeights = GuideScoreWeights()) -> GuideScoreResult:
-    """Compute the CellGuide score for one guide in one cell context."""
-    seq_eff = sequence_efficacy(inputs.spacer, inputs.deepspcas9_score, inputs.chopchop_score)
-    acc = accessibility_score(inputs.atac_signal)
+    """Compute the CellGuide score for one guide in one cell context.
+
+    `combined`: the original transparent linear blend, kept for inspectability — weights
+    are renormalized over whichever of (sequence, accessibility, specificity) actually have
+    data for this guide, instead of guessing a value for a component nobody assessed.
+
+    `recommended_score`: what to actually rank by. Real-data validation (n=199 Ito et al.
+    guides) showed the linear blend underperforms sequence_efficacy alone (rho=0.315 vs
+    0.441) — Ito et al.'s own method never linearly blends ATAC in; they gate on it. So
+    recommended_score IS sequence_efficacy; check passes_ito_rule alongside it as the
+    accessibility gate, rather than folding accessibility into the score continuously.
+    """
+    seq_eff = sequence_efficacy(inputs.spacer, inputs.deepspcas9_score, inputs.chopchop_score, inputs.delivery)
+    acc = accessibility_score(inputs.atac_signal, inputs.delivery)
     spec = specificity(inputs.offtargets, inputs.external_specificity_score)
-    combined = weights.w_seq * seq_eff + weights.w_atac * acc + weights.w_spec * spec
+
+    components = [(weights.w_seq, seq_eff)]
+    if acc is not None:
+        components.append((weights.w_atac, acc))
+    if spec is not None:
+        components.append((weights.w_spec, spec))
+    total_weight = sum(w for w, _ in components)
+    combined = sum(w * v for w, v in components) / total_weight if total_weight else seq_eff
+
     return GuideScoreResult(
         sequence_efficacy=seq_eff,
         accessibility=acc,
         specificity=spec,
         combined=combined,
+        recommended_score=seq_eff,
         passes_ito_rule=passes_ito_thresholds(
             deepspcas9=inputs.deepspcas9_score,
             chopchop=inputs.chopchop_score,

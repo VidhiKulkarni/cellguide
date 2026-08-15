@@ -13,6 +13,7 @@
 | `sequence_efficacy` | 0.441 | 7.01e-11 |
 | `accessibility` | 0.084 | 0.239 |
 | `combined_score` | 0.315 | 5.72e-06 |
+| `recommended_score` | 0.441 | 7.01e-11 |
 
 `passes_ito_rule()` as a >50%-indel classifier: precision=0.862, recall=0.287 (TP=25, FP=4, FN=62, evaluable on 199/199 guides).
 
