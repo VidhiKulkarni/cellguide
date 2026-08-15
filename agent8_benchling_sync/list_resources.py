@@ -52,6 +52,11 @@ def main() -> None:
         for schema in page:
             print(f"  {schema.name!r}  id={schema.id}")
 
+    print("\n=== Custom Entity Schemas ===")
+    for page in benchling.schemas.list_entity_schemas():
+        for schema in page:
+            print(f"  {schema.name!r}  id={schema.id}")
+
 
 if __name__ == "__main__":
     main()

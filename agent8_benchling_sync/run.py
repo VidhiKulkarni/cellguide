@@ -41,7 +41,7 @@ def sync(client: BenchlingClient, candidates_csv: Path) -> None:
                 str(RECOMMEND_SCRIPT),
                 "record",
                 "--gene", result.gene,
-                "--cell-type", result.cell_type,
+                "--cell-type", result.cell_type or "",
                 "--spacer", result.spacer,
                 "--indel-pct", str(result.indel_pct),
                 "--source", "benchling",
@@ -58,14 +58,17 @@ def sync(client: BenchlingClient, candidates_csv: Path) -> None:
 
     import pandas as pd
     top = pd.read_csv(HERE.parent / "agent6_next_experiment" / "output" / "recommendations.csv").iloc[0]
+    cell_type = top.get("cell_type", "")
+    cell_type = "" if pd.isna(cell_type) else cell_type
     client.push_next_experiment(
         gene=top["gene"],
-        cell_type=top.get("cell_type", ""),
+        cell_type=cell_type,
         spacer=top.get("spacer", ""),
         priority=top["priority"],
-        rationale=f"combined_score={top['combined_score']:.3f}, uncertainty={top['uncertainty']:.3f}",
+        rationale=f"recommended_score={top['recommended_score']:.3f}, uncertainty={top['uncertainty']:.3f}",
     )
-    print(f"Pushed next-experiment recommendation to Benchling: {top['gene']} ({top.get('cell_type', '?')})")
+    label = f"{top['gene']} ({cell_type})" if cell_type else top["gene"]
+    print(f"Pushed next-experiment recommendation to Benchling: {label}")
 
 
 def main() -> None:

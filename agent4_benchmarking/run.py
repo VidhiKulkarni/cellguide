@@ -96,17 +96,46 @@ def run_benchmark(df: pd.DataFrame, weights: GuideScoreWeights) -> pd.DataFrame:
                 "accessibility": result.accessibility,
                 "specificity": result.specificity,
                 "passes_ito_rule": result.passes_ito_rule,
+                "deepspcas9_score": row.deepspcas9_score,
+                "chopchop_score": row.chopchop_score,
+                "atac_signal": row.atac_signal,
             }
         )
     return pd.DataFrame(results)
 
 
-def baseline_comparison(results: pd.DataFrame) -> str:
-    """Compare combined_score against its own components in isolation, and check the
-    Ito et al. AND-gate rule as a precision/recall classifier for >50% indel — this is
-    the comparison that shows whether the linear blend earns its complexity over a single
-    component, and whether Ito's actual (non-linear, gated) method holds up here too."""
+def _prf(predicted: pd.Series, actual: pd.Series) -> tuple[float, float, float, int, int, int]:
+    tp = int((predicted & actual).sum())
+    fp = int((predicted & ~actual).sum())
+    fn = int((~predicted & actual).sum())
+    precision = tp / (tp + fp) if (tp + fp) else float("nan")
+    recall = tp / (tp + fn) if (tp + fn) else float("nan")
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else float("nan")
+    return precision, recall, f1, tp, fp, fn
+
+
+def baseline_comparison(results: pd.DataFrame, weights: GuideScoreWeights) -> str:
+    """Compare combined_score against its own components in isolation, disclose the
+    *effective* weights actually used (specificity is unevaluated for this dataset — see
+    agent5_confidence_assessment/output/CONFIDENCE_REPORT.md finding 1 — so combined_score
+    is really a 2-component blend, not the advertised 3-component one), and check the Ito et
+    al. AND-gate rule (including its marginal contribution over sequence gates alone — Agent
+    5 finding: the accessibility gate *reduces* F1 relative to sequence gates alone)."""
     lines = ["### Baseline comparison (component-only vs combined)\n"]
+
+    n_with_spec = int(results["specificity"].notna().sum())
+    if n_with_spec == 0:
+        eff_seq = weights.w_seq / (weights.w_seq + weights.w_atac)
+        eff_atac = weights.w_atac / (weights.w_seq + weights.w_atac)
+        lines.append(
+            f"**Effective weights**: specificity was unevaluated for all {len(results)} guides "
+            f"(no off-target data wired in for this benchmark) — `combined_score` is actually "
+            f"`{eff_seq:.3f} * sequence_efficacy + {eff_atac:.3f} * accessibility`, not the "
+            f"advertised w_seq={weights.w_seq}/w_atac={weights.w_atac}/w_spec={weights.w_spec}.\n"
+        )
+    elif n_with_spec < len(results):
+        lines.append(f"**Note**: specificity was only evaluated for {n_with_spec}/{len(results)} guides.\n")
+
     lines.append("| Component | Spearman ρ vs indel% | p-value |")
     lines.append("|---|---|---|")
     for col in ["sequence_efficacy", "accessibility", "combined_score", "recommended_score"]:
@@ -114,18 +143,24 @@ def baseline_comparison(results: pd.DataFrame) -> str:
         lines.append(f"| `{col}` | {rho:.3f} | {pval:.3g} |")
 
     if "passes_ito_rule" in results.columns:
-        actual_efficient = results["indel_pct"] > 50
-        predicted_efficient = results["passes_ito_rule"]
-        tp = int((predicted_efficient & actual_efficient).sum())
-        fp = int((predicted_efficient & ~actual_efficient).sum())
-        fn = int((~predicted_efficient & actual_efficient).sum())
-        precision = tp / (tp + fp) if (tp + fp) else float("nan")
-        recall = tp / (tp + fn) if (tp + fn) else float("nan")
+        actual = results["indel_pct"] > 50
+        seq_gate = (results["deepspcas9_score"] >= 60) & (results["chopchop_score"] >= 0.3)
+        full_rule = results["passes_ito_rule"]
+
         lines.append("")
+        lines.append("### Does the accessibility gate earn its keep? (>50%-indel classifier)\n")
+        lines.append("| Rule | Precision | Recall | F1 | TP | FP | FN |")
+        lines.append("|---|---|---|---|---|---|---|")
+        for label, pred in [("Sequence gates only (no ATAC)", seq_gate), ("Full Ito rule (+ ATAC≥0.1)", full_rule)]:
+            p, r, f1, tp, fp, fn = _prf(pred, actual)
+            lines.append(f"| {label} | {p:.3f} | {r:.3f} | {f1:.3f} | {tp} | {fp} | {fn} |")
+        seq_f1 = _prf(seq_gate, actual)[2]
+        full_f1 = _prf(full_rule, actual)[2]
+        verdict = "REDUCES" if full_f1 < seq_f1 else "improves"
         lines.append(
-            f"`passes_ito_rule()` as a >50%-indel classifier: precision={precision:.3f}, "
-            f"recall={recall:.3f} (TP={tp}, FP={fp}, FN={fn}, evaluable on "
-            f"{int(predicted_efficient.notna().sum())}/{len(results)} guides)."
+            f"\nAdding the ATAC≥0.1 gate {verdict} F1 relative to sequence gates alone "
+            f"({seq_f1:.3f} -> {full_f1:.3f}) on this dataset — evaluable on "
+            f"{int(full_rule.notna().sum())}/{len(results)} guides."
         )
     return "\n".join(lines)
 
@@ -177,7 +212,7 @@ def main() -> None:
         f"- results table: `{results_path.name}`",
         f"- scatter figure: `{fig_path.name}`",
         "",
-        baseline_comparison(results),
+        baseline_comparison(results, weights),
         "",
         cross_context_check(results),
     ]

@@ -9,16 +9,18 @@ i.e. Agent 6's top recommendation gets written to Benchling (so the wet-lab team
 to run next), and once they've recorded a real result there, this pulls it back so Agent 6
 can `record` it and re-rank.
 
+Implemented against **Custom Entity** schemas (not Assay Result schemas — that's what
+actually got created in the Hackathon26/AIFG workspace; Custom Entities are Benchling's
+general-purpose "things in the registry" type, scoped by folder_id rather than project_id,
+and — unlike Results — *can* be updated in place, though this client always creates fresh
+records for a simple, auditable history instead of mutating one entity in place).
+
 Requires, in `../.env`:
   BENCHLING_API_KEY                    - Basic-auth API key (Benchling -> Developer Console -> API keys)
-  BENCHLING_TENANT_URL                 - e.g. https://your-org.benchling.com
-  BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID  - schema ID for "what to test next" records
-  BENCHLING_RESULTS_SCHEMA_ID          - schema ID for recorded experimental results
-
-None of these exist yet (no tenant/schema chosen as of writing this) — see `README.md` for
-exactly what to create in the Benchling UI (both live in the Hackathon26 / AIFG folder) and
-how to find the resulting IDs (`list_resources.py` in this folder helps once you have a
-tenant URL and API key).
+  BENCHLING_TENANT_URL                 - e.g. https://hackathon26.bnchdev.org
+  BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID  - schema ID for "what to test next" records (Custom Entity schema)
+  BENCHLING_RESULTS_SCHEMA_ID          - schema ID for recorded experimental results (Custom Entity schema)
+  BENCHLING_FOLDER_ID                  - the AIFG folder's ID (find both with list_resources.py)
 
 Field names below (GENE_FIELD etc.) must match your schemas' field *names* exactly
 (Benchling UI: schema field "name", not necessarily what's displayed) — edit them if you
@@ -27,12 +29,12 @@ name the fields differently when creating the schemas.
 
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 
 from benchling_sdk.auth.api_key_auth import ApiKeyAuth
 from benchling_sdk.benchling import Benchling
 from benchling_sdk.helpers.serialization_helpers import fields
-from benchling_sdk.models import AssayResultCreate
+from benchling_sdk.models import CustomEntityCreate
 
 # "Next experiment" schema fields (what Agent 6 recommends testing)
 GENE_FIELD = "Gene"
@@ -63,11 +65,11 @@ class BenchlingClient:
         tenant_url: str,
         next_experiment_schema_id: str,
         results_schema_id: str,
-        project_id: str | None = None,
+        folder_id: str,
     ):
         self.next_experiment_schema_id = next_experiment_schema_id
         self.results_schema_id = results_schema_id
-        self.project_id = project_id
+        self.folder_id = folder_id
         self.benchling = Benchling(url=tenant_url, auth_method=ApiKeyAuth(api_key))
 
     @classmethod
@@ -77,6 +79,7 @@ class BenchlingClient:
             "BENCHLING_TENANT_URL": os.environ.get("BENCHLING_TENANT_URL"),
             "BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID": os.environ.get("BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID"),
             "BENCHLING_RESULTS_SCHEMA_ID": os.environ.get("BENCHLING_RESULTS_SCHEMA_ID"),
+            "BENCHLING_FOLDER_ID": os.environ.get("BENCHLING_FOLDER_ID"),
         }
         missing = [k for k, v in env.items() if not v]
         if missing:
@@ -89,15 +92,16 @@ class BenchlingClient:
             env["BENCHLING_TENANT_URL"],
             env["BENCHLING_NEXT_EXPERIMENT_SCHEMA_ID"],
             env["BENCHLING_RESULTS_SCHEMA_ID"],
-            os.environ.get("BENCHLING_PROJECT_ID"),
+            env["BENCHLING_FOLDER_ID"],
         )
 
     def push_next_experiment(self, gene: str, cell_type: str, spacer: str, priority: float, rationale: str) -> None:
         """Write Agent 6's top recommendation to Benchling so the wet-lab team can see what
         to run next. Called once per recommend() run — see run.py."""
-        result = AssayResultCreate(
+        entity = CustomEntityCreate(
             schema_id=self.next_experiment_schema_id,
-            project_id=self.project_id,
+            folder_id=self.folder_id,
+            name=f"{gene} ({cell_type})",
             fields=fields(
                 {
                     GENE_FIELD: {"value": gene},
@@ -108,28 +112,26 @@ class BenchlingClient:
                 }
             ),
         )
-        self.benchling.assay_results.create([result])
+        self.benchling.custom_entities.create(entity)
 
     def fetch_new_results(self, since: datetime | None = None) -> list[ExperimentResult]:
         """Pull guide experiment results recorded in Benchling since `since` (or all, if
         None). Feeds agent6_next_experiment/recommend.py's `record` subcommand — one
         `record` call per ExperimentResult returned here."""
-        kwargs = {"schema_id": self.results_schema_id}
-        if since is not None:
-            kwargs["modified_atgte"] = since.astimezone(timezone.utc).isoformat()
-
         out = []
-        for page in self.benchling.assay_results.list(**kwargs):
-            for result in page:
-                f = result.fields.to_dict()
+        for page in self.benchling.custom_entities.list(schema_id=self.results_schema_id):
+            for entity in page:
+                if since is not None and entity.modified_at is not None and entity.modified_at < since:
+                    continue
+                f = entity.fields.to_dict()
                 out.append(
                     ExperimentResult(
                         gene=f[GENE_FIELD]["value"],
                         cell_type=f[CELL_TYPE_FIELD]["value"],
                         spacer=f[SPACER_FIELD]["value"],
                         indel_pct=float(f[INDEL_PCT_FIELD]["value"]),
-                        recorded_at=result.modified_at,
-                        benchling_entity_id=result.id,
+                        recorded_at=entity.modified_at,
+                        benchling_entity_id=entity.id,
                     )
                 )
         return out

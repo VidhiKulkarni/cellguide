@@ -98,23 +98,45 @@ is in [`CLAUDE.md`](CLAUDE.md).
 
 ## What we've actually found so far
 
-We ran this against real data, and it gave us an honest, slightly humbling result: our first
-version of the scoring formula (sequence + accessibility + off-target risk, all blended
-together) actually scored **worse** at predicting real editing efficiency than just using
-the sequence part alone (in stats terms: correlation of 0.315 for the blended formula vs.
-0.441 for sequence alone, out of 199 real guides).
+We ran this against real data, and it gave us an honest, humbling result — twice, as we dug
+deeper.
 
-Agent 5's critique dug into *why*: it found several concrete bugs — for example, the
-"off-target risk" part of the formula defaulted to "perfectly safe" whenever no off-target
-data existed, instead of saying "unknown." That silently made every guide look safer than it
-actually was. We've since fixed these (see
-[`agent3_metric_construction/SPEC.md`](agent3_metric_construction/SPEC.md) for the exact
-list), and the formula now exposes a `recommended_score` (sequence-only, since that's what
-the real data actually supports) instead of pretending the blended version was better.
+**Round 1**: our first version of the scoring formula (sequence + chromatin accessibility +
+off-target risk, all blended together) actually scored **worse** at predicting real editing
+efficiency than just using the sequence part alone (correlation of 0.315 for the blended
+formula vs. 0.441 for sequence alone, out of 199 real guides). Agent 5's critique found
+concrete bugs behind this — e.g. the "off-target risk" part of the formula defaulted to
+"perfectly safe" whenever no off-target data existed, instead of "unknown," silently making
+every guide look safer than it actually was. We fixed these (see
+[`agent3_metric_construction/SPEC.md`](agent3_metric_construction/SPEC.md)), and the formula
+now exposes `recommended_score` (sequence-only) instead of pretending the blended version
+was better.
 
-We think this negative-but-honest result is actually a point in this project's favor: it
-shows the validation step is real, not just for show — a rigged demo would have shown the
-fancy blended formula winning.
+**Round 2**, after re-running Agent 5 against the fixed formula, it went further and found
+the deeper problem: **chromatin accessibility — the entire premise this project is built
+on — hasn't actually demonstrated value on this benchmark, and the evidence is shakier than
+it first looked.**
+- Off-target risk (specificity) was never evaluated for any of the 199 guides — no
+  off-target data source is wired in yet, so the "3-component" formula is quietly a
+  2-component one.
+- The accessibility gate Ito et al. use (only trust a guide if its chromatin region is also
+  open) actually **reduces prediction quality** (F1 0.593 -> 0.431) compared to using
+  sequence alone, on this dataset.
+- The underlying ATAC-seq measurement is unstable: the source data has two replicate
+  measurements for the same guides, and switching between them flips which guides "pass" the
+  accessibility threshold for the majority of borderline cases.
+- The specific claim CellGuide is named after — that the *same* guide performs differently
+  in different cell types — has no data in this benchmark that can actually test it (the
+  cell-type-comparison data that exists has no editing-outcome measurements to check
+  against).
+
+Full numbers: [`agent4_benchmarking/output/REPORT.md`](agent4_benchmarking/output/REPORT.md)
+and [`agent4_benchmarking/output/REPLICATE_SENSITIVITY_REPORT.md`](agent4_benchmarking/output/REPLICATE_SENSITIVITY_REPORT.md).
+Full critique: [`agent5_confidence_assessment/output/CONFIDENCE_REPORT.md`](agent5_confidence_assessment/output/CONFIDENCE_REPORT.md).
+
+We think surfacing this — instead of quietly shipping a demo that only shows the flattering
+numbers — is itself evidence the validation loop here is real: a rigged pipeline doesn't
+keep finding new ways it might be wrong.
 
 Full write-up: [`agent4_benchmarking/output/REPORT.md`](agent4_benchmarking/output/REPORT.md)
 (the numbers) and
