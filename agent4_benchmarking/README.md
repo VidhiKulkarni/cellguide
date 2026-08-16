@@ -31,10 +31,10 @@ duplicate, and the mean values were used"); `atac_signal` is the `GSM6896554` re
 
 **Real results, revised once already after Agent 5 caught a methodology error** — on n=199
 guides, `combined_score` (ρ=0.315) underperforms `sequence_efficacy` alone (ρ=0.441) — see
-`output/REPORT.md` — so `recommended_score` is sequence-only. `specificity` was unevaluated
-for all 199 guides (no off-target data source wired in), so `combined_score`'s advertised
-w_seq=0.4/w_atac=0.3/w_spec=0.3 is really an undisclosed w_seq=0.571/w_atac=0.429 — now
-disclosed explicitly in the report.
+`output/REPORT.md` — so `recommended_score` is sequence-only. `specificity` (off-target risk)
+was never wired to real data and has since been removed from the scoring library entirely,
+not just left unevaluated — see `agent3_metric_construction/SPEC.md` "Known limitations."
+`combined_score` is now a plain 2-component blend (`w_seq=0.4/w_atac=0.3`), nothing hidden.
 
 For accessibility specifically: the first pass tested the *marginal* ATAC-indel correlation
 (ρ=0.084, n.s.) and concluded accessibility "has not demonstrated value." **That was the

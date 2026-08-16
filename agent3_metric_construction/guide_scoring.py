@@ -1,20 +1,24 @@
 """
-CellGuide AI — Agent 3: per-guide efficiency + specificity scoring.
+CellGuide AI — Agent 3: per-guide efficiency scoring.
 
 Implements the plan's §4.4 formula:
-    score(g, c) = w_seq * sequence_efficacy(g) + w_atac * accessibility(g, c) + w_spec * specificity(g)
+    score(g, c) = w_seq * sequence_efficacy(g) + w_atac * accessibility(g, c)
 ... but with weights renormalized over whatever components actually have data (see
 score_guide), and with `recommended_score` exposed as the empirically better ranking value
 (see below) — both fixes came directly out of Agent 5's skeptical review
 (agent5_confidence_assessment/output/CONFIDENCE_REPORT.md) of the original version of this
 module. That review's specific findings and this file's response to each:
 
-1. specificity() used to return 1.0 ("perfectly safe") whenever no off-target data was
-   supplied, silently rewarding guides nobody had checked. Fixed: specificity() now returns
-   None when truly nothing is known (no off-target list AND no external score) — an empty
-   *enumerated* off-target list (a real search that found nothing) still legitimately scores
-   1.0. score_guide() excludes None components and renormalizes the remaining weights,
-   instead of guessing in either direction.
+1. specificity() — REMOVED (not just fixed). It used to return 1.0 ("perfectly safe")
+   whenever no off-target data was supplied, silently rewarding guides nobody had checked;
+   a later fix made it return None instead, but no real off-target data source was ever
+   wired in (crispAI/CrisprBERT require API access we don't have; GuideScan2 requires a
+   genome-wide index we couldn't build in this environment — see agent1_literature_search/
+   output/related/schmidt2025_guidescan2/ for that dead end). Rather than keep a component
+   that has never once returned a real value, it's gone: no OffTargetSite, no
+   cfd_specificity(), no external_specificity_score input, no specificity field on
+   GuideScoreResult. If a real off-target data source becomes available later, re-add it
+   deliberately rather than resurrecting dead code.
 2. accessibility_score() had no way to express delivery method, despite this module's own
    docstring warning that the accessibility term is validated for transient RNP only
    (Ito et al. 2024) and does NOT transfer to lentiviral/stable delivery (Wang et al. 2019).
@@ -42,25 +46,28 @@ module. That review's specific findings and this file's response to each:
 Literature basis (see papers/ for full sources):
 - ito_2024: empirical rule DeepSpCas9>=60 AND CHOPCHOP>=0.3 AND ATAC>=0.1 ->
   reliably efficient guide in primary human T cells (transient RNP delivery).
-  Ito et al. report NO off-target data, so specificity must come from elsewhere.
 - wang_2019_deephf: best on-target model = RNN + hand-crafted features
   (GC content, melting temperature / secondary-structure accessibility);
   DNase-I accessibility fine-tuning did NOT help in their lentiviral-integrated
   assay, unlike Ito's transient-RNP result -> accessibility's value is
   delivery-context-dependent, not universal.
-- ozden2024_crispai_uncertainty / sari2025_crisprbert: off-target predictors
-  trained on the same CHANGE-seq primary-T-cell dataset Ito's cohort comes
-  from -> recommended external specificity scorers.
 - riesenberg2025_synthetic_grna: indel% can also *underestimate* true cutting
   activity -> treat sequence_efficacy as a ranking signal, not a calibrated
   probability.
 """
 
+import json
+import shutil
+import subprocess
 from dataclasses import dataclass
-from typing import Optional, Sequence
+from pathlib import Path
+from typing import Optional
 
 Delivery = str  # "rnp" | "lentiviral" | "vector" | "stable" | None (unknown, treated as RNP-like)
 _VECTOR_DELIVERIES = {"lentiviral", "vector", "stable"}
+
+_AZIMUTH_SCORER = Path(__file__).resolve().parent / "azimuth_scorer.py"
+_AZIMUTH_MAMBA = Path.home() / "miniforge3" / "bin" / "mamba"
 
 
 # ---------------------------------------------------------------------------
@@ -96,8 +103,114 @@ def sequence_motif_score(spacer: str, delivery: Optional[Delivery] = None) -> fl
     No separate seed-region GC term: the seed (last ~10nt) is a subset of the spacer, so a
     second GC term over it double-counts a correlated feature, and reusing the whole-spacer
     "50%-optimal" curve for that shorter window is an unvalidated transfer — dropped rather
-    than kept as an uncalibrated inflation of this heuristic's confidence."""
+    than kept as an uncalibrated inflation of this heuristic's confidence.
+
+    Caveat (agent4_benchmarking/output/MOTIF_AND_ACCESSIBILITY_CHECKS.md): tested against
+    real data with DeepSpCas9/CHOPCHOP deliberately ignored, this heuristic has no
+    statistically significant signal on its own (rho=0.043, p=0.544, n=199) — it's a
+    reasonable-looking fallback for when no external score is available, not a validated
+    predictor. Prefer supplying deepspcas9_score/chopchop_score whenever possible."""
     return 0.7 * gc_content_score(spacer) + 0.3 * poly_t_penalty(spacer, delivery)
+
+
+def azimuth_available() -> bool:
+    """Whether the isolated `azimuth` conda env (~/miniforge3/envs/azimuth) is set up on this
+    machine. Azimuth (Doench et al. 2016 Rule Set 2, PMID 26780180) needs an old scikit-learn/
+    biopython stack that can't coexist with this project's main Python 3.12 environment, so
+    it runs as a subprocess in its own conda env instead — see azimuth_scorer.py."""
+    return _AZIMUTH_MAMBA.exists() and _AZIMUTH_SCORER.exists()
+
+
+def azimuth_score(context_30mer: str) -> Optional[float]:
+    """Real Doench 2016 Rule Set 2 on-target score, via the isolated azimuth conda env.
+
+    Requires the FULL 30-mer context — [4nt upstream][20nt spacer][NGG PAM][3nt downstream]
+    — not just the bare 20nt spacer stored in GuideScoreInputs.spacer. A bare spacer padded
+    with placeholder flanking bases would NOT be a valid substitute: Azimuth's model uses
+    that flanking sequence (especially the PAM) as real features. Returns None (not a guess)
+    when the azimuth env isn't set up, the input isn't a real 30-mer, or the subprocess
+    fails — never fabricates a score from insufficient context.
+
+    Known caveat: the installed model was trained under scikit-learn 0.23.2 and is loaded
+    under 0.24.1 (the closest combination that would actually run in this environment —
+    see agent3_metric_construction/README.md) — sklearn itself warns this "might lead to
+    breaking code or invalid results." Predictions land in a sane range in spot checks, but
+    this hasn't been independently re-validated against a known-answer set."""
+    if not azimuth_available():
+        return None
+    if len(context_30mer) != 30:
+        return None
+    try:
+        result = subprocess.run(
+            [str(_AZIMUTH_MAMBA), "run", "-n", "azimuth", "python", str(_AZIMUTH_SCORER)],
+            input=json.dumps([context_30mer]),
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        scores = json.loads(result.stdout.strip().splitlines()[-1])
+        return scores[0]  # None if azimuth_scorer.py itself couldn't score it
+    except (subprocess.SubprocessError, json.JSONDecodeError, IndexError, ValueError):
+        return None
+
+
+def azimuth_score_batch(context_30mers: list[str]) -> list[Optional[float]]:
+    """Same model as azimuth_score(), but scores every sequence in ONE subprocess call
+    instead of one call per sequence — each `mamba run -n azimuth ...` invocation has real
+    startup overhead (conda env activation, loading the pickled model), so scoring many
+    candidate guides one at a time (e.g. score_new_gene.py scanning a whole gene) is
+    impractically slow. Use this for anything beyond a single guide. Returns a list the same
+    length as the input, with None per-entry for anything that isn't a valid 30-mer or that
+    the subprocess couldn't score — never fabricates a value for a failed entry."""
+    if not azimuth_available() or not context_30mers:
+        return [None] * len(context_30mers)
+    try:
+        result = subprocess.run(
+            [str(_AZIMUTH_MAMBA), "run", "-n", "azimuth", "python", str(_AZIMUTH_SCORER)],
+            input=json.dumps(context_30mers),
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        scores = json.loads(result.stdout.strip().splitlines()[-1])
+        if len(scores) != len(context_30mers):
+            return [None] * len(context_30mers)
+        return scores
+    except (subprocess.SubprocessError, json.JSONDecodeError, ValueError):
+        return [None] * len(context_30mers)
+
+
+SOURCE_REAL_TOOLS = "real tool score(s) (DeepSpCas9/CHOPCHOP) — validated against real Ito et al. 2024 outcomes, rho=0.441, n=199 (agent4_benchmarking/output/REPORT.md)"
+SOURCE_AZIMUTH = "Azimuth (Doench et al. 2016) predictive model on real 30-mer genomic context — a real trained model, but not independently re-validated in this pipeline (see guide_scoring.README's sklearn-version caveat)"
+SOURCE_GC_MOTIF_HEURISTIC = "GC/motif heuristic fallback — proven to have NO statistically significant predictive power on its own (rho=0.043, p=0.544, n=199, agent4_benchmarking/output/MOTIF_AND_ACCESSIBILITY_CHECKS.md); treat this score as a placeholder, not a real efficacy estimate"
+
+
+def sequence_efficacy_with_source(
+    spacer: str,
+    deepspcas9_score: Optional[float] = None,
+    chopchop_score: Optional[float] = None,
+    delivery: Optional[Delivery] = None,
+    context_30mer: Optional[str] = None,
+    precomputed_azimuth_score: Optional[float] = None,
+) -> tuple[float, str]:
+    """Same as sequence_efficacy(), but also returns a human-readable string saying which
+    tier actually produced the value — this is the "tell the user what data this came from"
+    mechanism: every score is traceable to real-tool / real-model / unvalidated-heuristic,
+    not just a bare float that requires reading source code to interpret."""
+    normalized = []
+    if deepspcas9_score is not None:
+        normalized.append(max(0.0, min(1.0, deepspcas9_score / 100.0)))
+    if chopchop_score is not None:
+        normalized.append(max(0.0, min(1.0, chopchop_score)))
+    if normalized:
+        return sum(normalized) / len(normalized), SOURCE_REAL_TOOLS
+    if precomputed_azimuth_score is not None:
+        return max(0.0, min(1.0, precomputed_azimuth_score)), SOURCE_AZIMUTH
+    if context_30mer is not None:
+        az = azimuth_score(context_30mer)
+        if az is not None:
+            return max(0.0, min(1.0, az)), SOURCE_AZIMUTH
+    return sequence_motif_score(spacer, delivery), SOURCE_GC_MOTIF_HEURISTIC
 
 
 def sequence_efficacy(
@@ -105,19 +218,18 @@ def sequence_efficacy(
     deepspcas9_score: Optional[float] = None,
     chopchop_score: Optional[float] = None,
     delivery: Optional[Delivery] = None,
+    context_30mer: Optional[str] = None,
 ) -> float:
-    """On-target efficacy in [0, 1]. Prefers Ito et al.'s own two sequence-only
-    tools when available — deepspcas9_score on its native 0-100 scale, chopchop_score
-    already on 0-1 — averaging whichever are supplied; falls back to the transparent
-    GC/motif heuristic when neither is given."""
-    normalized = []
-    if deepspcas9_score is not None:
-        normalized.append(max(0.0, min(1.0, deepspcas9_score / 100.0)))
-    if chopchop_score is not None:
-        normalized.append(max(0.0, min(1.0, chopchop_score)))
-    if normalized:
-        return sum(normalized) / len(normalized)
-    return sequence_motif_score(spacer, delivery)
+    """On-target efficacy in [0, 1]. Preference order: (1) Ito et al.'s own two sequence-only
+    tools when available — deepspcas9_score on its native 0-100 scale, chopchop_score already
+    on 0-1 — averaging whichever are supplied (this is what's validated against real Ito
+    outcome data, ρ=0.441, n=199 — see agent4_benchmarking/output/REPORT.md); (2) a real
+    trained model (Azimuth/Doench 2016) if the full 30-mer genomic context is available and
+    the azimuth conda env is set up (see azimuth_score()) — for guides that aren't in Ito's
+    own dataset and so have no deepspcas9_score/chopchop_score to use; (3) the transparent
+    GC/motif heuristic, which has no proven signal on its own (see sequence_motif_score) —
+    last resort only. See sequence_efficacy_with_source() for which tier was actually used."""
+    return sequence_efficacy_with_source(spacer, deepspcas9_score, chopchop_score, delivery, context_30mer)[0]
 
 
 # ---------------------------------------------------------------------------
@@ -146,72 +258,6 @@ def accessibility_score(
 
 
 # ---------------------------------------------------------------------------
-# Specificity (off-target)
-# ---------------------------------------------------------------------------
-
-@dataclass
-class OffTargetSite:
-    mismatches: int
-    mismatch_positions: Sequence[int]  # 0 = PAM-distal end, 19 = PAM-proximal
-    cfd_pam_score: float = 1.0  # non-NGG PAM penalty, 1.0 for canonical NGG
-
-
-# Doench et al. 2016 CFD mismatch-position weight table (position-dependent tolerance;
-# PAM-proximal mismatches are far more disruptive than PAM-distal ones).
-_CFD_POSITION_WEIGHTS = [
-    0.91, 0.91, 0.91, 0.91, 0.91, 0.91, 0.91, 0.91, 0.91, 0.91,
-    0.87, 0.78, 0.68, 0.61, 0.55, 0.42, 0.33, 0.24, 0.18, 0.11,
-]
-
-
-def _site_cfd_penalty(site: OffTargetSite) -> float:
-    """Approximate CFD-style penalty for one off-target site: product of per-mismatch
-    position weights, scaled by the PAM score. 1.0 = fully tolerated (dangerous),
-    0.0 = fully rejected (safe)."""
-    penalty = site.cfd_pam_score
-    for pos in site.mismatch_positions:
-        idx = min(max(pos, 0), len(_CFD_POSITION_WEIGHTS) - 1)
-        penalty *= _CFD_POSITION_WEIGHTS[idx]
-    return penalty
-
-
-def cfd_specificity(offtargets: Sequence[OffTargetSite]) -> float:
-    """Aggregate specificity score in [0, 1] from an *enumerated* off-target site list
-    (e.g. from Cas-OFFinder/GuideScan2 — see agent1_literature_search/output/related/
-    schmidt2025_guidescan2/). 1.0 = a candidate search was run and found no tolerated
-    off-target sites; approaches 0 as tolerated sites accumulate. This is the standard CFD
-    aggregate: 1 / (1 + sum of per-site penalties). Only call this with a real (possibly
-    empty) enumerated list — an empty list here means "searched, found nothing," which is
-    different from specificity()'s `offtargets=None` ("never searched")."""
-    if not offtargets:
-        return 1.0
-    total_penalty = sum(_site_cfd_penalty(s) for s in offtargets)
-    return 1.0 / (1.0 + total_penalty)
-
-
-def specificity(
-    offtargets: Optional[Sequence[OffTargetSite]] = None,
-    external_score: Optional[float] = None,
-) -> Optional[float]:
-    """Specificity in [0, 1] (1 = highly specific / low off-target risk), or None when truly
-    unassessed. Prefers a pluggable external off-target model — crispAI
-    (agent1_literature_search/output/related/ozden2024_crispai_uncertainty/) or CrisprBERT
-    (agent1_literature_search/output/related/sari2025_crisprbert/), both trained on the same
-    primary-T-cell CHANGE-seq data Ito et al.'s cohort comes from, recommended here because
-    Ito et al. report no off-target data of their own. Falls back to CFD aggregation over an
-    enumerated off-target site list when `offtargets` is given (including an empty list —
-    that's real evidence, see cfd_specificity). Returns None — not 1.0 — when NEITHER an
-    external score NOR an off-target list was supplied, i.e. specificity was never actually
-    assessed for this guide; score_guide() excludes None components rather than treating
-    "never checked" as "confirmed safe"."""
-    if external_score is not None:
-        return max(0.0, min(1.0, external_score))
-    if offtargets is not None:
-        return cfd_specificity(offtargets)
-    return None
-
-
-# ---------------------------------------------------------------------------
 # Combined CellGuide score
 # ---------------------------------------------------------------------------
 
@@ -222,10 +268,9 @@ class GuideScoreWeights:
     (agent4_benchmarking/output/REPORT.md) found the resulting linear `combined` score
     underperforms sequence_efficacy alone — see GuideScoreResult.recommended_score for the
     empirically better ranking value; these weights remain for the transparent, comparable
-    `combined` field."""
+    `combined` field. Two components only — specificity was removed, see module docstring."""
     w_seq: float = 0.4
     w_atac: float = 0.3
-    w_spec: float = 0.3
 
 
 @dataclass
@@ -234,16 +279,26 @@ class GuideScoreInputs:
     deepspcas9_score: Optional[float] = None  # native 0-100 scale
     chopchop_score: Optional[float] = None  # native 0-1 scale
     atac_signal: Optional[float] = None
-    offtargets: Optional[Sequence[OffTargetSite]] = None
-    external_specificity_score: Optional[float] = None
     delivery: Optional[Delivery] = None  # "rnp" | "lentiviral" | "vector" | "stable" | None
+    context_30mer: Optional[str] = None  # [4nt upstream][20nt spacer][NGG PAM][3nt downstream] — for azimuth_score()
+    precomputed_azimuth_score: Optional[float] = None  # if you already batch-scored this guide via
+    # azimuth_score_batch() (much faster for many guides), pass the result here instead of
+    # context_30mer to skip a redundant single-guide subprocess call
+
+
+SOURCE_MEASURED_ATAC = "measured ATAC-seq signal for this cell type"
+SOURCE_ACCESSIBILITY_UNAVAILABLE_NO_DATA = "unavailable: no ATAC signal was supplied for this guide/cell-type"
+SOURCE_ACCESSIBILITY_UNAVAILABLE_DELIVERY = "unavailable: delivery method indicates lentiviral/vector/stable expression, and this term is only validated for transient RNP (Wang et al. 2019 vs Ito et al. 2024 — see SPEC.md Component 2)"
 
 
 @dataclass
 class GuideScoreResult:
     sequence_efficacy: float
+    sequence_efficacy_source: str  # human-readable: which tier actually produced the value —
+    # see SOURCE_REAL_TOOLS / SOURCE_AZIMUTH / SOURCE_GC_MOTIF_HEURISTIC
     accessibility: Optional[float]
-    specificity: Optional[float]
+    accessibility_source: str  # human-readable, always set even when accessibility is None —
+    # see SOURCE_MEASURED_ATAC / SOURCE_ACCESSIBILITY_UNAVAILABLE_*
     combined: float
     recommended_score: float
     passes_ito_rule: bool
@@ -253,8 +308,8 @@ def score_guide(inputs: GuideScoreInputs, weights: GuideScoreWeights = GuideScor
     """Compute the CellGuide score for one guide in one cell context.
 
     `combined`: the original transparent linear blend, kept for inspectability — weights
-    are renormalized over whichever of (sequence, accessibility, specificity) actually have
-    data for this guide, instead of guessing a value for a component nobody assessed.
+    are renormalized over whichever of (sequence, accessibility) actually have data for this
+    guide, instead of guessing a value for a component nobody assessed.
 
     `recommended_score`: what to actually rank by. Real-data validation (n=199 Ito et al.
     guides) showed the linear blend underperforms sequence_efficacy alone (rho=0.315 vs
@@ -262,22 +317,29 @@ def score_guide(inputs: GuideScoreInputs, weights: GuideScoreWeights = GuideScor
     recommended_score IS sequence_efficacy; check passes_ito_rule alongside it as the
     accessibility gate, rather than folding accessibility into the score continuously.
     """
-    seq_eff = sequence_efficacy(inputs.spacer, inputs.deepspcas9_score, inputs.chopchop_score, inputs.delivery)
+    seq_eff, seq_eff_source = sequence_efficacy_with_source(
+        inputs.spacer, inputs.deepspcas9_score, inputs.chopchop_score, inputs.delivery,
+        inputs.context_30mer, inputs.precomputed_azimuth_score,
+    )
     acc = accessibility_score(inputs.atac_signal, inputs.delivery)
-    spec = specificity(inputs.offtargets, inputs.external_specificity_score)
+    if acc is not None:
+        acc_source = SOURCE_MEASURED_ATAC
+    elif inputs.delivery in _VECTOR_DELIVERIES:
+        acc_source = SOURCE_ACCESSIBILITY_UNAVAILABLE_DELIVERY
+    else:
+        acc_source = SOURCE_ACCESSIBILITY_UNAVAILABLE_NO_DATA
 
     components = [(weights.w_seq, seq_eff)]
     if acc is not None:
         components.append((weights.w_atac, acc))
-    if spec is not None:
-        components.append((weights.w_spec, spec))
     total_weight = sum(w for w, _ in components)
     combined = sum(w * v for w, v in components) / total_weight if total_weight else seq_eff
 
     return GuideScoreResult(
         sequence_efficacy=seq_eff,
+        sequence_efficacy_source=seq_eff_source,
         accessibility=acc,
-        specificity=spec,
+        accessibility_source=acc_source,
         combined=combined,
         recommended_score=seq_eff,
         passes_ito_rule=passes_ito_thresholds(

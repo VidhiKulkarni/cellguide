@@ -116,8 +116,10 @@ was better.
 initially concluded chromatin accessibility — this project's core premise — hadn't
 demonstrated value on this benchmark:
 - Off-target risk (specificity) was never evaluated for any of the 199 guides — no
-  off-target data source is wired in yet, so the "3-component" formula is quietly a
-  2-component one. **This one still stands.**
+  off-target data source ever got wired in (crispAI/CrisprBERT need API access we don't have;
+  GuideScan2 needs a genome index we couldn't build). **It's since been removed from the
+  scoring library entirely** rather than kept as a permanently-empty field — see
+  `agent3_metric_construction/SPEC.md`. The score is a 2-component blend now, openly.
 - The underlying ATAC-seq measurement is unstable: the source data has two replicate
   measurements for the same guides, and switching between them flips which guides "pass" the
   accessibility threshold for the majority of borderline cases. **This one still stands too**

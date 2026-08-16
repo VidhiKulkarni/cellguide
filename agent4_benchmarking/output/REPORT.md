@@ -1,14 +1,14 @@
 # Agent 4 — benchmark report
 
 - n = 199 guides
-- weights: w_seq=0.4, w_atac=0.3, w_spec=0.3
+- weights: w_seq=0.4, w_atac=0.3
 - Spearman correlation (combined_score vs indel %): ρ = 0.315, p = 5.72e-06
 - results table: `results.csv`
 - scatter figure: `correlation.png`
 
 ### Baseline comparison (component-only vs combined)
 
-**Effective weights**: specificity was unevaluated for all 199 guides (no off-target data wired in for this benchmark) — `combined_score` is actually `0.571 * sequence_efficacy + 0.429 * accessibility`, not the advertised w_seq=0.4/w_atac=0.3/w_spec=0.3.
+`combined_score = 0.4*sequence_efficacy + 0.3*accessibility` (renormalized when accessibility is unavailable for a guide).
 
 | Component | Spearman ρ vs indel% | p-value |
 |---|---|---|

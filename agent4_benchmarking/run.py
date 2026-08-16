@@ -94,7 +94,6 @@ def run_benchmark(df: pd.DataFrame, weights: GuideScoreWeights) -> pd.DataFrame:
                 "recommended_score": result.recommended_score,
                 "sequence_efficacy": result.sequence_efficacy,
                 "accessibility": result.accessibility,
-                "specificity": result.specificity,
                 "passes_ito_rule": result.passes_ito_rule,
                 "deepspcas9_score": row.deepspcas9_score,
                 "chopchop_score": row.chopchop_score,
@@ -115,29 +114,19 @@ def _prf(predicted: pd.Series, actual: pd.Series) -> tuple[float, float, float, 
 
 
 def baseline_comparison(results: pd.DataFrame, weights: GuideScoreWeights) -> str:
-    """Compare combined_score against its own components in isolation, disclose the
-    *effective* weights actually used (specificity is unevaluated for this dataset — see
-    agent5_confidence_assessment/output/CONFIDENCE_REPORT.md finding 1 — so combined_score
-    is really a 2-component blend, not the advertised 3-component one), and check the Ito et
+    """Compare combined_score against its own components in isolation, and check the Ito et
     al. AND-gate rule (including its marginal contribution over sequence gates alone — Agent
-    5 finding: the accessibility gate *reduces* F1 relative to sequence gates alone)."""
-    lines = ["### Baseline comparison (component-only vs combined)\n"]
-
-    n_with_spec = int(results["specificity"].notna().sum())
-    if n_with_spec == 0:
-        eff_seq = weights.w_seq / (weights.w_seq + weights.w_atac)
-        eff_atac = weights.w_atac / (weights.w_seq + weights.w_atac)
-        lines.append(
-            f"**Effective weights**: specificity was unevaluated for all {len(results)} guides "
-            f"(no off-target data wired in for this benchmark) — `combined_score` is actually "
-            f"`{eff_seq:.3f} * sequence_efficacy + {eff_atac:.3f} * accessibility`, not the "
-            f"advertised w_seq={weights.w_seq}/w_atac={weights.w_atac}/w_spec={weights.w_spec}.\n"
-        )
-    elif n_with_spec < len(results):
-        lines.append(f"**Note**: specificity was only evaluated for {n_with_spec}/{len(results)} guides.\n")
-
-    lines.append("| Component | Spearman ρ vs indel% | p-value |")
-    lines.append("|---|---|---|")
+    5 finding: the accessibility gate *reduces* F1 relative to sequence gates alone). Two
+    components only (sequence_efficacy, accessibility) — specificity was removed from the
+    scoring library entirely (agent3_metric_construction/guide_scoring.py module docstring),
+    not just left unevaluated, since no real off-target data source was ever wired in."""
+    lines = [
+        "### Baseline comparison (component-only vs combined)\n",
+        f"`combined_score = {weights.w_seq}*sequence_efficacy + {weights.w_atac}*accessibility` "
+        "(renormalized when accessibility is unavailable for a guide).\n",
+        "| Component | Spearman ρ vs indel% | p-value |",
+        "|---|---|---|",
+    ]
     for col in ["sequence_efficacy", "accessibility", "combined_score", "recommended_score"]:
         rho, pval = spearmanr(results[col], results["indel_pct"])
         lines.append(f"| `{col}` | {rho:.3f} | {pval:.3g} |")
@@ -215,7 +204,7 @@ def main() -> None:
         "# Agent 4 — benchmark report" + (" (DEMO — synthetic data, not real Ito et al. 2024 numbers)" if args.demo else ""),
         "",
         f"- n = {len(results)} guides",
-        f"- weights: w_seq={weights.w_seq}, w_atac={weights.w_atac}, w_spec={weights.w_spec}",
+        f"- weights: w_seq={weights.w_seq}, w_atac={weights.w_atac}",
         f"- Spearman correlation (combined_score vs indel %): ρ = {rho:.3f}, p = {pval:.3g}",
         f"- results table: `{results_path.name}`",
         f"- scatter figure: `{fig_path.name}`",

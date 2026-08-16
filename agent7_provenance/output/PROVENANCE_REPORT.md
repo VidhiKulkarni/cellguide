@@ -16,19 +16,6 @@
 - **schep2024_chromatin_drugs** (`agent1_literature_search/output/related/schep2024_chromatin_drugs`)
   > # Agent 2 structured extraction — schep2024_chromatin_drugs  1. **Experimental design**: KO/cleavage — dCas9 + RNP reporter assay across chromatin states, screened against epigenetic drugs. 2. **Targe
 
-## `specificity`
-
-- **ito_2024** (`papers/ito_2024`)
-  > # Ito et al. 2024 — Nucleic Acids Research (PMC10783505, DOI 10.1093/nar/gkad1076)  **This is the plan's primary ground-truth paper — its method is what the hackathon re-implements.**  - 205 gRNAs / 1
-- **ozden2024_crispai_uncertainty** (`agent1_literature_search/output/related/ozden2024_crispai_uncertainty`)
-  > # Agent 2 structured extraction — ozden2024_crispai_uncertainty (crispAI)  1. **Experimental design**: Computational — off-target activity model trained on CHANGE-seq experimental off-target data, wit
-- **sari2025_crisprbert** (`agent1_literature_search/output/related/sari2025_crisprbert`)
-  > # Agent 2 structured extraction — sari2025_crisprbert  1. **Experimental design**: Computational — off-target activity prediction model (BiLSTM + BERT). 2. **Target genes**: 110 sgRNAs/13 loci (CHANGE
-- **schmidt2025_guidescan2** (`agent1_literature_search/output/related/schmidt2025_guidescan2`)
-  > # Agent 2 structured extraction — schmidt2025_guidescan2  1. **Experimental design**: Computational tool (GuideScan2) + applied KO screen. 2. **Target genes**: Genome-wide, plus an essentiality screen
-- **ursch2024_tcell_genomic_safety** (`agent1_literature_search/output/related/ursch2024_tcell_genomic_safety`)
-  > # Agent 2 structured extraction — ursch2024_tcell_genomic_safety  1. **Experimental design**: KO (RNP), with T-cell activation state treated as an experimental variable. 2. **Target genes**: Not gene-
-
 ## Per-guide provenance (199 guides)
 
 See `provenance.json` — every combined_score's three components are linked to the

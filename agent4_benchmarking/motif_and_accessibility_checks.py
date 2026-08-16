@@ -27,7 +27,7 @@ import pandas as pd
 from scipy.stats import spearmanr
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "agent3_metric_construction"))
-from guide_scoring import GuideScoreInputs, accessibility_score, passes_ito_thresholds, sequence_motif_score, score_guide, GuideScoreWeights  # noqa: E402
+from guide_scoring import accessibility_score, passes_ito_thresholds, sequence_motif_score  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FULL_TABLE = REPO_ROOT / "papers" / "ito_2024" / "table_s1_205_gRNAs.csv"
@@ -82,7 +82,6 @@ def check_averaged_atac(df: pd.DataFrame) -> str:
     df = df.copy()
     df["atac_avg"] = df[["atac_1", "atac_2"]].mean(axis=1)
 
-    weights = GuideScoreWeights()
     acc_scores, gate_passes = [], []
     for row in df.itertuples():
         acc_scores.append(accessibility_score(row.atac_avg, delivery="rnp"))

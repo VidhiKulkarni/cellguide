@@ -1,7 +1,7 @@
 {
   "score_components": {
     "sequence_efficacy": {
-      "spec_text": "`sequence_efficacy(g)` (on-target efficiency)\n\n- **Preferred inputs**: `deepspcas9_score` (0-100, native DeepSpCas9 scale) and/or `chopchop_score` (0-1, native CHOPCHOP/Doench scale) \u2014 the two tools Ito et al. 2024 found most predictive on their own 205-gRNA T-cell dataset (`papers/ito_2024/structured_extraction.md`). When both are given, they're averaged after normalizing to `[0,1]`.\n- **Fallback (no external scorer available)**: a transparent sequence heuristic \u2014 GC content (optimal ~50%, per `wang_2019_deephf`) and a poly-T penalty (U6 promoter terminates transcription on `TTTT+`, only applied when `delivery` indicates vector expression \u2014 see Component 2). This is the \"GC content, motif\" heuristic requested in `CLAUDE.md`. No separate seed-region GC term: it doubled-counted the (highly correlated, since the seed is a subset of the spacer) whole-spacer GC term and reused an unvalidated curve for a different window \u2014 dropped rather than kept as uncalibrated confidence.\n- **Not implemented, left pluggable**: DeepHF (`papers/wang_2019_deephf/`) \u2014 best Spearman 0.867 in its own lentiviral HEK293T assay, but trained on synthetic integrated targets, not endogenous primary-cell loci; treat as one more optional external score to wire in, not a ready-made drop-in.\n- **Caveat baked into the design**: `riesenberg2025_synthetic_grna` shows indel% can *underestimate* true cutting activity \u2014 this score is a ranking signal, not a calibrated probability of editing.",
+      "spec_text": "`sequence_efficacy(g)` (on-target efficiency)\n\n- **Preference order**: (1) `deepspcas9_score` (0-100, native DeepSpCas9 scale) and/or `chopchop_score` (0-1, native CHOPCHOP/Doench scale) \u2014 the two tools Ito et al. 2024 found most predictive on their own 205-gRNA T-cell dataset (`papers/ito_2024/structured_extraction.md`); averaged after normalizing to `[0,1]` when both given. (2) **`context_30mer` \u2192 Azimuth** (`azimuth_score()`) \u2014 a real trained model (Doench et al. 2016 Rule Set 2, [PMID 26780180](https://pubmed.ncbi.nlm.nih.gov/26780180/)), used only when neither of the above is available AND a full 30-mer genomic context (`[4nt upstream][20nt spacer][NGG PAM][3nt downstream]`) is supplied \u2014 a bare 20nt spacer is not sufficient, the model uses the flanking sequence as real features. This is what makes scoring possible for guides *outside* Ito's own 199-guide dataset (which already has deepspcas9/chopchop scores and so never reaches this tier). Runs in an isolated `azimuth` conda environment (`~/miniforge3/envs/azimuth` \u2014 see `agent3_metric_construction/README.md` for setup) because the model needs an old scikit-learn/biopython stack incompatible with this project's main Python 3.12 environment; `azimuth_available()` lets callers check first, and `azimuth_score()` returns `None` (not a guess) if the env isn't set up, the context isn't a real 30-mer, or the subprocess fails. **Known caveat**: the model was trained under scikit-learn 0.23.2 and is loaded under 0.24.1 (the closest combination we could get running) \u2014 sklearn itself warns this \"might lead to breaking code or invalid results\"; predictions land in a sane range in spot checks but haven't been independently re-validated against a known-answer set. (3) **Fallback (no external scorer available)**: a transparent sequence heuristic \u2014 GC content (optimal ~50%, per `wang_2019_deephf`) and a poly-T penalty (U6 promoter terminates transcription on `TTTT+`, only applied when `delivery` indicates vector expression \u2014 see Component 2). This is the \"GC content, motif\" heuristic requested in `CLAUDE.md`. No separate seed-region GC term: it double-counted the (highly correlated, since the seed is a subset of the spacer) whole-spacer GC term and reused an unvalidated curve for a different window \u2014 dropped rather than kept as uncalibrated confidence. **Tested against real data with deepspcas9/chopchop deliberately ignored, this fallback has no statistically significant signal on its own** (\u03c1=0.043, p=0.544, n=199 \u2014 see `agent4_benchmarking/output/MOTIF_AND_ACCESSIBILITY_CHECKS.md`): it's a reasonable-looking placeholder, not a validated predictor, and is now the last resort after Azimuth rather than the only fallback.\n- **Not implemented, left pluggable**: DeepHF (`papers/wang_2019_deephf/`) \u2014 best Spearman 0.867 in its own lentiviral HEK293T assay, but trained on synthetic integrated targets, not endogenous primary-cell loci; treat as one more optional external score to wire in, not a ready-made drop-in.\n- **Caveat baked into the design**: `riesenberg2025_synthetic_grna` shows indel% can *underestimate* true cutting activity \u2014 this score is a ranking signal, not a calibrated probability of editing.",
       "cited_papers": [
         "ito_2024",
         "wang_2019_deephf",
@@ -23,7 +23,7 @@
       }
     },
     "accessibility": {
-      "spec_text": "`accessibility(g, c)` (cell context)\n\n- **Input**: `atac_signal` \u2014 median ATAC-seq read count/signal over the guide's target window in the target cell type (plan \u00a73.1/\u00a74.1: GSE221788 for T cells, GSE137647 for K562).\n- **Normalization**: `min(1, atac_signal / 0.1)`, reusing Ito et al.'s own empirical ATAC \u2265 0.1 cutoff as the point where the term saturates at 1.0.\n- **Returns `None` (excluded from `combined`, not guessed) when no ATAC data is supplied**, so a missing accessibility measurement doesn't silently masquerade as \"inaccessible\" (it used to return `0`, which \u2014 combined with `specificity`'s old default of `1.0` for the opposite case \u2014 meant two missing-data situations were guessed in opposite directions; both now propagate as \"unknown\" instead).\n- **`delivery` gate**: `GuideScoreInputs.delivery` (`\"rnp\"` / `\"lentiviral\"` / `\"vector\"` / `\"stable\"` / `None`) \u2014 when it indicates lentiviral/vector/stable expression, `accessibility` returns `None` unconditionally, *even if `atac_signal` is given*. This encodes the caveat below as an actual guard instead of prose that nothing enforces.\n- **Important caveat, from `wang_2019_deephf`**: fine-tuning with DNase-I accessibility did *not* improve their model \u2014 accessibility only mattered in Ito et al.'s **transient RNP** delivery, not Wang's lentiviral-integration assay. `schep2024_chromatin_drugs` independently corroborates the RNP-context effect (chromatin state also shifts NHEJ:MMEJ repair balance).",
+      "spec_text": "`accessibility(g, c)` (cell context)\n\n- **Input**: `atac_signal` \u2014 median ATAC-seq read count/signal over the guide's target window in the target cell type (plan \u00a73.1/\u00a74.1: GSE221788 for T cells, GSE137647 for K562).\n- **Normalization**: `min(1, atac_signal / 0.1)`, reusing Ito et al.'s own empirical ATAC \u2265 0.1 cutoff as the point where the term saturates at 1.0.\n- **Returns `None` (excluded from `combined`, not guessed) when no ATAC data is supplied**, so a missing accessibility measurement doesn't silently masquerade as \"inaccessible.\"\n- **`delivery` gate**: `GuideScoreInputs.delivery` (`\"rnp\"` / `\"lentiviral\"` / `\"vector\"` / `\"stable\"` / `None`) \u2014 when it indicates lentiviral/vector/stable expression, `accessibility` returns `None` unconditionally, *even if `atac_signal` is given*. This encodes the caveat below as an actual guard instead of prose that nothing enforces.\n- **Important caveat, from `wang_2019_deephf`**: fine-tuning with DNase-I accessibility did *not* improve their model \u2014 accessibility only mattered in Ito et al.'s **transient RNP** delivery, not Wang's lentiviral-integration assay. `schep2024_chromatin_drugs` independently corroborates the RNP-context effect (chromatin state also shifts NHEJ:MMEJ repair balance).\n- **Correction (Agent 5 caught this)**: an earlier version of this file said the real n=199 benchmark showed accessibility \"has not demonstrated predictive value,\" based on a *marginal* ATAC-vs-indel correlation (\u03c1=0.084, n.s.) and an F1 comparison of the accessibility gate. Both were the wrong test. Ito et al.'s actual claim is conditional \u2014 accessibility predicts efficiency *among guides with above-median sequence scores*, not marginally \u2014 and F1 mechanically penalizes any added AND-gate regardless of whether it's useful, when the gate is a deliberate high-precision/low-recall filter. Tested correctly (`agent4_benchmarking/interaction_effect_check.py`), the conditional effect reproduces: \u03c1=0.232, p=0.008 on the above-median subset (n=131), and the gate's precision does rise (0.741\u21920.862) as designed. **Honest current state: accessibility has real conditional predictive value that the marginal test missed \u2014 but that conditional signal isn't yet folded into `recommended_score` correctly**, which is why `recommended_score` staying sequence-only is a reasonable default but not the final word. The underlying ATAC measurement is also unstable across replicates (`agent4_benchmarking/output/REPLICATE_SENSITIVITY_REPORT.md`), a real reason for caution independent of this correction.",
       "cited_papers": [
         "wang_2019_deephf",
         "schep2024_chromatin_drugs"
@@ -36,38 +36,6 @@
         "schep2024_chromatin_drugs": {
           "path": "agent1_literature_search/output/related/schep2024_chromatin_drugs",
           "evidence": "# Agent 2 structured extraction \u2014 schep2024_chromatin_drugs\n\n1. **Experimental design**: KO/cleavage \u2014 dCas9 + RNP reporter assay across chromatin states, screened against epigenetic drugs.\n2. **Target genes**: 19 integrated reporter sites (not endogenous genes).\n3. **Outcomes**: On-target \u2014 editing efficiency and NHEJ:MMEJ repair-pathway balance both shift with chromatin state; 58 of 160 tested e..."
-        }
-      }
-    },
-    "specificity": {
-      "spec_text": "`specificity(g)` (off-target / inverse risk)\n\n- **Gap this fills**: Ito et al. 2024 \u2014 the plan's primary ground-truth paper \u2014 reports **no off-target data at all** (`papers/ito_2024/structured_extraction.md`). The specificity term must come entirely from other sources.\n- **Preferred inputs (recommended, not yet wired to real data)**: `external_specificity_score` from crispAI (`agent1_literature_search/output/related/ozden2024_crispai_uncertainty/`) or CrisprBERT (`agent1_literature_search/output/related/sari2025_crisprbert/`) \u2014 both trained on the same CHANGE-seq 110-sgRNA/13-locus **primary human T-cell** off-target dataset that overlaps Ito et al.'s cell system, making them the closest-context specificity predictors available.\n- **Fallback**: a CFD (Cutting Frequency Determination)-style aggregate over an *enumerated* off-target site list (`OffTargetSite(mismatches, mismatch_positions, cfd_pam_score)`), using the standard Doench et al. 2016 position-weight table (PAM-proximal mismatches penalized far more than PAM-distal). An empty enumerated list (a search was run and found nothing) legitimately scores `1.0`. Off-target sites themselves are not enumerated by this module \u2014 plug in an external candidate generator (e.g. Cas-OFFinder, or `agent1_literature_search/output/related/schmidt2025_guidescan2/` GuideScan2, which also builds low-off-target guide libraries directly).\n- **Returns `None` (excluded from `combined`) when *neither* an external score *nor* an off-target list was supplied** \u2014 i.e. specificity was never actually assessed. This used to default to `1.0` (\"perfectly safe\"), which rewarded guides nobody had checked; every row in the old demo output had `specificity=1.0` purely from this default, silently padding 30% of the weight budget with zero real information.\n- **Not modeled**: `ursch2024_tcell_genomic_safety`'s finding that T-cell **activation state** (not sequence) drives large deletions/translocations/aneuploidy \u2014 a genomic-safety signal orthogonal to sequence-based off-target prediction. Flagged as a known gap, not folded into `specificity()`.",
-      "cited_papers": [
-        "ito_2024",
-        "ozden2024_crispai_uncertainty",
-        "sari2025_crisprbert",
-        "schmidt2025_guidescan2",
-        "ursch2024_tcell_genomic_safety"
-      ],
-      "sources": {
-        "ito_2024": {
-          "path": "papers/ito_2024",
-          "evidence": "# Ito et al. 2024 \u2014 Nucleic Acids Research (PMC10783505, DOI 10.1093/nar/gkad1076)\n\n**This is the plan's primary ground-truth paper \u2014 its method is what the hackathon re-implements.**\n\n- 205 gRNAs / 110 genes, electroporated individually (Cas9 RNP) into stimulated primary human CD8+ T cells; indel % measured via Sanger + ICE, in duplicate (L59, L44).\n- Tested 13 sequence-only tools against the 205..."
-        },
-        "ozden2024_crispai_uncertainty": {
-          "path": "agent1_literature_search/output/related/ozden2024_crispai_uncertainty",
-          "evidence": "# Agent 2 structured extraction \u2014 ozden2024_crispai_uncertainty (crispAI)\n\n1. **Experimental design**: Computational \u2014 off-target activity model trained on CHANGE-seq experimental off-target data, with calibrated uncertainty output.\n2. **Target genes**: 110 sgRNAs / 13 loci (same CHANGE-seq set used by sari2025_crisprbert).\n3. **Outcomes**: Off-target only \u2014 calibrated uncertainty estimates, beats..."
-        },
-        "sari2025_crisprbert": {
-          "path": "agent1_literature_search/output/related/sari2025_crisprbert",
-          "evidence": "# Agent 2 structured extraction \u2014 sari2025_crisprbert\n\n1. **Experimental design**: Computational \u2014 off-target activity prediction model (BiLSTM + BERT).\n2. **Target genes**: 110 sgRNAs/13 loci (CHANGE-seq) + 30 sgRNAs (DeepCRISPR set).\n3. **Outcomes**: Off-target only \u2014 beats prior state-of-the-art; argues cell-type-matched epigenomic features improve off-target prediction accuracy. No on-target/k..."
-        },
-        "schmidt2025_guidescan2": {
-          "path": "agent1_literature_search/output/related/schmidt2025_guidescan2",
-          "evidence": "# Agent 2 structured extraction \u2014 schmidt2025_guidescan2\n\n1. **Experimental design**: Computational tool (GuideScan2) + applied KO screen.\n2. **Target genes**: Genome-wide, plus an essentiality screen and mouse allele-specific design case study.\n3. **Outcomes**: Off-target-focused \u2014 flags low-specificity guides and constructs low-off-target guide libraries. On-target outcome only as a downstream s..."
-        },
-        "ursch2024_tcell_genomic_safety": {
-          "path": "agent1_literature_search/output/related/ursch2024_tcell_genomic_safety",
-          "evidence": "# Agent 2 structured extraction \u2014 ursch2024_tcell_genomic_safety\n\n1. **Experimental design**: KO (RNP), with T-cell activation state treated as an experimental variable.\n2. **Target genes**: Not gene-specific.\n3. **Outcomes**: On-target/safety \u2014 T-cell activation state affects rate of large deletions, translocations, and aneuploidy after cutting; pifithrin-\u03b1 (p53 inhibitor) mitigates these genomic..."
         }
       }
     }
@@ -98,16 +66,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -127,16 +85,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -158,16 +106,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -187,16 +125,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -218,16 +146,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -247,16 +165,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -278,16 +186,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -307,16 +205,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -338,16 +226,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -367,16 +245,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -398,16 +266,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -427,16 +285,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -458,16 +306,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -487,16 +325,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -518,16 +346,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -547,16 +365,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -578,16 +386,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -607,16 +405,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -638,16 +426,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -667,16 +445,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -698,16 +466,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -727,16 +485,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -758,16 +506,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -787,16 +525,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -818,16 +546,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -847,16 +565,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -878,16 +586,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -907,16 +605,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -938,16 +626,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -967,16 +645,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -998,16 +666,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1027,16 +685,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1058,16 +706,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1087,16 +725,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1118,16 +746,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1147,16 +765,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1178,16 +786,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1207,16 +805,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1238,16 +826,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1267,16 +845,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1298,16 +866,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1327,16 +885,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1358,16 +906,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1387,16 +925,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1418,16 +946,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1447,16 +965,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1478,16 +986,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1507,16 +1005,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1538,16 +1026,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1567,16 +1045,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1598,16 +1066,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1627,16 +1085,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1658,16 +1106,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1687,16 +1125,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1718,16 +1146,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1747,16 +1165,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1778,16 +1186,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1807,16 +1205,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1838,16 +1226,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1867,16 +1245,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1898,16 +1266,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1927,16 +1285,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -1958,16 +1306,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -1987,16 +1325,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2018,16 +1346,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2047,16 +1365,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2078,16 +1386,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2107,16 +1405,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2138,16 +1426,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2167,16 +1445,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2198,16 +1466,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2227,16 +1485,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2258,16 +1506,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2287,16 +1525,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2318,16 +1546,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2347,16 +1565,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2378,16 +1586,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2407,16 +1605,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2438,16 +1626,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2467,16 +1645,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2498,16 +1666,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2527,16 +1685,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2558,16 +1706,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2587,16 +1725,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2618,16 +1746,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2647,16 +1765,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2678,16 +1786,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2707,16 +1805,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2738,16 +1826,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2767,16 +1845,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2798,16 +1866,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2827,16 +1885,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2858,16 +1906,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2887,16 +1925,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2918,16 +1946,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -2947,16 +1965,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -2978,16 +1986,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3007,16 +2005,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3038,16 +2026,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3067,16 +2045,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3098,16 +2066,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3127,16 +2085,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3158,16 +2106,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3187,16 +2125,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3218,16 +2146,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3247,16 +2165,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3278,16 +2186,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3307,16 +2205,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3338,16 +2226,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3367,16 +2245,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3398,16 +2266,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3427,16 +2285,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3458,16 +2306,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3487,16 +2325,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3518,16 +2346,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3547,16 +2365,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3578,16 +2386,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3607,16 +2405,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3638,16 +2426,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3667,16 +2445,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3698,16 +2466,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3727,16 +2485,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3758,16 +2506,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3787,16 +2525,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3818,16 +2546,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3847,16 +2565,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3878,16 +2586,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3907,16 +2605,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3938,16 +2626,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -3967,16 +2645,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -3998,16 +2666,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4027,16 +2685,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4058,16 +2706,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4087,16 +2725,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4118,16 +2746,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4147,16 +2765,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4178,16 +2786,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4207,16 +2805,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4238,16 +2826,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4267,16 +2845,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4298,16 +2866,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4327,16 +2885,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4358,16 +2906,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4387,16 +2925,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4418,16 +2946,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4447,16 +2965,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4478,16 +2986,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4507,16 +3005,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4538,16 +3026,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4567,16 +3045,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4598,16 +3066,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4627,16 +3085,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4658,16 +3106,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4687,16 +3125,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4718,16 +3146,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4747,16 +3165,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4778,16 +3186,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4807,16 +3205,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4838,16 +3226,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4867,16 +3245,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4898,16 +3266,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4927,16 +3285,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -4958,16 +3306,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -4987,16 +3325,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5018,16 +3346,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5047,16 +3365,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5078,16 +3386,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5107,16 +3405,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5138,16 +3426,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5167,16 +3445,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5198,16 +3466,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5227,16 +3485,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5258,16 +3506,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5287,16 +3525,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5318,16 +3546,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5347,16 +3565,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5378,16 +3586,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5407,16 +3605,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5438,16 +3626,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5467,16 +3645,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5498,16 +3666,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5527,16 +3685,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5558,16 +3706,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5587,16 +3725,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5618,16 +3746,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5647,16 +3765,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5678,16 +3786,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5707,16 +3805,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5738,16 +3826,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5767,16 +3845,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5798,16 +3866,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5827,16 +3885,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5858,16 +3906,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5887,16 +3925,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5918,16 +3946,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -5947,16 +3965,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     },
@@ -5978,16 +3986,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -6008,16 +4006,6 @@
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
         ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
-        ]
       }
     },
     {
@@ -6037,16 +4025,6 @@
         "sources": [
           "wang_2019_deephf",
           "schep2024_chromatin_drugs"
-        ]
-      },
-      "specificity": {
-        "value": NaN,
-        "sources": [
-          "ito_2024",
-          "ozden2024_crispai_uncertainty",
-          "sari2025_crisprbert",
-          "schmidt2025_guidescan2",
-          "ursch2024_tcell_genomic_safety"
         ]
       }
     }

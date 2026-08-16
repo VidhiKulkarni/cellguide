@@ -133,10 +133,6 @@ def main() -> None:
                         "value": getattr(row, "accessibility", None),
                         "sources": list(components.get("accessibility", {}).get("sources", {}).keys()),
                     },
-                    "specificity": {
-                        "value": getattr(row, "specificity", None),
-                        "sources": list(components.get("specificity", {}).get("sources", {}).keys()),
-                    },
                 }
             )
     provenance["per_guide"] = per_guide

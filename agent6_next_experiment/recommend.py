@@ -12,9 +12,10 @@ Deterministic (no LLM). Two subcommands:
 Priority = recommended_score * uncertainty, where uncertainty prefers Agent 5's calibrated
 confidence (output/confidence.json, confidence_numeric) when available for that
 gene/cell_type, and otherwise falls back to a transparent proxy: the population standard
-deviation across the three score components (sequence_efficacy, accessibility,
-specificity) — guides where the three components disagree with each other are exactly the
-ones a single combined score is least trustworthy for, so they're worth testing first.
+deviation across the two score components (sequence_efficacy, accessibility — specificity
+was removed from the scoring library, see agent3_metric_construction/guide_scoring.py) —
+guides where the two components disagree with each other are exactly the ones a single
+combined score is least trustworthy for, so they're worth testing first.
 
 Already-tested (gene, cell_type, spacer) triples are excluded from `recommend`.
 
@@ -64,9 +65,10 @@ def uncertainty(row: pd.Series, confidence_by_gene: dict[tuple, float]) -> float
     key = (row.get("gene"), row.get("cell_type"))
     if key in confidence_by_gene:
         return 1.0 - confidence_by_gene[key]  # low Agent-5 confidence -> high uncertainty
-    components = [v for v in (row.get("sequence_efficacy"), row.get("accessibility"), row.get("specificity")) if pd.notna(v)]
+    components = [v for v in (row.get("sequence_efficacy"), row.get("accessibility")) if pd.notna(v)]
     if len(components) < 2:
-        return 0.5  # not enough signal to estimate disagreement — neutral prior
+        return 0.5  # accessibility unavailable for this guide — not enough signal to
+        # estimate disagreement, neutral prior
     return statistics.pstdev(components)
 
 
