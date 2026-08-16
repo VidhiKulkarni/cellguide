@@ -19,6 +19,7 @@ Usage:
     candidates = find_candidate_guides(seq, chromosome=gene["chromosome"], region_start=gene["start"])
 """
 
+import time
 from dataclasses import dataclass
 from typing import Optional
 
@@ -26,7 +27,31 @@ import requests
 
 ENSEMBL_REST = "https://rest.ensembl.org"
 _TIMEOUT = 30
+_RETRY_ATTEMPTS = 3
+_RETRY_BACKOFF_SECONDS = 2.0
 _COMPLEMENT = str.maketrans("ACGTacgt", "TGCAtgca")
+
+
+def _get_with_retry(url: str) -> Optional[requests.Response]:
+    """Ensembl's REST API is occasionally slow/flaky (observed: a first request timing out at
+    30s, then succeeding in under a second moments later) -- a single timeout there is a
+    transient network hiccup, not evidence the gene/sequence doesn't exist, so it must not be
+    reported the same way as a real 404. Retries only on timeout/connection errors; a real
+    404 is returned immediately (not retried) so callers can distinguish it from network
+    failure. Returns None only after every retry is exhausted."""
+    last_exc = None
+    for attempt in range(_RETRY_ATTEMPTS):
+        try:
+            r = requests.get(url, headers={"Content-Type": "application/json"}, timeout=_TIMEOUT)
+            if r.status_code == 404:
+                return r  # real "not found" -- caller handles this, no point retrying
+            r.raise_for_status()
+            return r
+        except requests.RequestException as exc:
+            last_exc = exc
+            if attempt < _RETRY_ATTEMPTS - 1:
+                time.sleep(_RETRY_BACKOFF_SECONDS * (attempt + 1))
+    return None
 
 
 @dataclass
@@ -53,18 +78,15 @@ class CandidateGuide:
 
 def lookup_gene(symbol: str, species: str = "homo_sapiens") -> Optional[GeneInfo]:
     """Real gene lookup via Ensembl REST — returns None (not a guess) if the symbol isn't
-    found, rather than raising or fabricating coordinates."""
+    found, rather than raising or fabricating coordinates. Retries on transient
+    network/timeout failures (see _get_with_retry) so a slow Ensembl response isn't
+    mistaken for "this gene doesn't exist"."""
+    r = _get_with_retry(f"{ENSEMBL_REST}/lookup/symbol/{species}/{symbol}")
+    if r is None or r.status_code == 404:
+        return None
     try:
-        r = requests.get(
-            f"{ENSEMBL_REST}/lookup/symbol/{species}/{symbol}",
-            headers={"Content-Type": "application/json"},
-            timeout=_TIMEOUT,
-        )
-        if r.status_code == 404:
-            return None
-        r.raise_for_status()
         data = r.json()
-    except requests.RequestException:
+    except ValueError:
         return None
 
     return GeneInfo(
@@ -82,16 +104,14 @@ def fetch_sequence(chromosome: str, start: int, end: int, species: str = "homo_s
     """Real sequence for a genomic region (1-based, inclusive, Ensembl convention), always
     on the + strand as Ensembl returns it — find_candidate_guides scans both strands from
     this single + strand sequence via reverse-complementation, so this is sufficient
-    regardless of the gene's own strand. Returns None (not a guess) on any failure."""
+    regardless of the gene's own strand. Returns None (not a guess) on any failure, after
+    retrying transient network/timeout failures (see _get_with_retry)."""
+    r = _get_with_retry(f"{ENSEMBL_REST}/sequence/region/{species}/{chromosome}:{start}-{end}")
+    if r is None:
+        return None
     try:
-        r = requests.get(
-            f"{ENSEMBL_REST}/sequence/region/{species}/{chromosome}:{start}-{end}",
-            headers={"Content-Type": "application/json"},
-            timeout=_TIMEOUT,
-        )
-        r.raise_for_status()
         return r.json()["seq"]
-    except (requests.RequestException, KeyError):
+    except (ValueError, KeyError):
         return None
 
 

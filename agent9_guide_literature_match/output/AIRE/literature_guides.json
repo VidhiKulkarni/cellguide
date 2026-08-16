@@ -1,0 +1,12 @@
+{
+  "gene": "AIRE",
+  "search_queries_tried": [
+    "paperclip skill (load command docs) - BLOCKED, tool permission not granted",
+    "search -s pmc \"AIRE CRISPR guide RNA knockout editing efficiency\" -n 10 - BLOCKED, tool permission not granted",
+    "local repo grep for '\\bAIRE\\b' across /Users/sherryxie/Desktop/cellguide - BLOCKED, read permission not granted",
+    "glob agent1_literature_search/output/related/*/meta.json - ran, returned no files (no cached corpus available)"
+  ],
+  "papers_found_relevant": [],
+  "reported_guides": [],
+  "notes": "NO SEARCH WAS ACTUALLY PERFORMED. Every call to the paperclip MCP tool (including the mandatory `paperclip skill` docs load and the first literature query) was rejected with 'Claude requested permissions to use mcp__paperclip__paperclip, but you haven't granted it yet.' A fallback attempt to grep the repository's locally cached literature (agent1/agent2 output, papers/) was likewise rejected for lack of read permission, and a glob of agent1_literature_search/output/related/*/meta.json returned no files. Therefore zero papers were retrieved and zero guide RNA spacer sequences for AIRE could be extracted. This empty result reflects tool unavailability, NOT evidence that no AIRE CRISPR guide sequences exist in the literature -- AIRE (autoimmune regulator, APS-1/APECED gene) is in fact a plausible target for published knockout work in thymic epithelial cell lines, iPSC-derived TECs, and mouse models, but nothing here has been verified against a source. To complete this task, re-run with the mcp__paperclip__paperclip tool permitted and, at minimum, try: 'AIRE CRISPR guide RNA knockout efficiency', 'AIRE sgRNA indel frequency', 'AIRE knockout thymic epithelial cell CRISPR', 'AIRE base editing APECED', 'Aire-/- CRISPR Cas9 mouse sgRNA sequence', plus supplementary-table lookups on any hits. No sequences, efficiencies, or biological contexts have been guessed or inferred."
+}

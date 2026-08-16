@@ -1,0 +1,89 @@
+{
+  "gene": "AIRE",
+  "scoring_status": "OK",
+  "scoring_messages": [
+    "NOTE: no --atac-signal given, so accessibility/passes_ito_rule can't be assessed for this cell type \u2014 sequence_efficacy alone is being used to rank.",
+    "Found 578 candidate guides in the fetched window, showing top 5."
+  ],
+  "literature_search_run": false,
+  "guides": [
+    {
+      "spacer": "TGTGTGGGTCTAGTACCCAG",
+      "chromosome": "21",
+      "pam_start": 44287266,
+      "strand": "-",
+      "assembly": "GRCh38",
+      "recommended_score": 0.7966778850813782,
+      "sequence_efficacy_source": "Azimuth (Doench et al. 2016) predictive model on real 30-mer genomic context \u2014 a real trained model, but not independently re-validated in this pipeline (see guide_scoring.README's sklearn-version caveat)",
+      "accessibility": null,
+      "accessibility_source": "unavailable: no ATAC signal was supplied for this guide/cell-type",
+      "passes_ito_rule": false,
+      "cell_type": null,
+      "previously_reported": null,
+      "literature_match": null
+    },
+    {
+      "spacer": "TACCCCTGGAGAAAACCCTG",
+      "chromosome": "21",
+      "pam_start": 44286944,
+      "strand": "+",
+      "assembly": "GRCh38",
+      "recommended_score": 0.7573410941168575,
+      "sequence_efficacy_source": "Azimuth (Doench et al. 2016) predictive model on real 30-mer genomic context \u2014 a real trained model, but not independently re-validated in this pipeline (see guide_scoring.README's sklearn-version caveat)",
+      "accessibility": null,
+      "accessibility_source": "unavailable: no ATAC signal was supplied for this guide/cell-type",
+      "passes_ito_rule": false,
+      "cell_type": null,
+      "previously_reported": null,
+      "literature_match": null
+    },
+    {
+      "spacer": "GTCCCCGGGGAAGTTCCAGG",
+      "chromosome": "21",
+      "pam_start": 44286211,
+      "strand": "+",
+      "assembly": "GRCh38",
+      "recommended_score": 0.7363967991361241,
+      "sequence_efficacy_source": "Azimuth (Doench et al. 2016) predictive model on real 30-mer genomic context \u2014 a real trained model, but not independently re-validated in this pipeline (see guide_scoring.README's sklearn-version caveat)",
+      "accessibility": null,
+      "accessibility_source": "unavailable: no ATAC signal was supplied for this guide/cell-type",
+      "passes_ito_rule": false,
+      "cell_type": null,
+      "previously_reported": null,
+      "literature_match": null
+    },
+    {
+      "spacer": "ATGAAGCGTCTCCTGCAGTG",
+      "chromosome": "21",
+      "pam_start": 44286546,
+      "strand": "-",
+      "assembly": "GRCh38",
+      "recommended_score": 0.7281093271311063,
+      "sequence_efficacy_source": "Azimuth (Doench et al. 2016) predictive model on real 30-mer genomic context \u2014 a real trained model, but not independently re-validated in this pipeline (see guide_scoring.README's sklearn-version caveat)",
+      "accessibility": null,
+      "accessibility_source": "unavailable: no ATAC signal was supplied for this guide/cell-type",
+      "passes_ito_rule": false,
+      "cell_type": null,
+      "previously_reported": null,
+      "literature_match": null
+    },
+    {
+      "spacer": "GGTCCACATCTGCAGCTCAG",
+      "chromosome": "21",
+      "pam_start": 44286964,
+      "strand": "-",
+      "assembly": "GRCh38",
+      "recommended_score": 0.7271081986483737,
+      "sequence_efficacy_source": "Azimuth (Doench et al. 2016) predictive model on real 30-mer genomic context \u2014 a real trained model, but not independently re-validated in this pipeline (see guide_scoring.README's sklearn-version caveat)",
+      "accessibility": null,
+      "accessibility_source": "unavailable: no ATAC signal was supplied for this guide/cell-type",
+      "passes_ito_rule": false,
+      "cell_type": null,
+      "previously_reported": null,
+      "literature_match": null
+    }
+  ],
+  "messages": [
+    "No literature search results found for AIRE \u2014 run `uv run agent9_guide_literature_match/search_literature.py AIRE` first. Azimuth scores below are real, but 'previously reported' status is UNKNOWN, not 'no' \u2014 that distinction matters, so it's kept explicit rather than defaulting every guide to 'not found'."
+  ]
+}
