@@ -189,19 +189,21 @@ predictive value that the first test missed, but it isn't correctly folded into 
 score yet** — a more defensible (and more interesting) position than either "it clearly
 works" or "it clearly doesn't."
 
-**Open, in progress**: the ρ=0.441 number above comes entirely from Ito's own precomputed
-DeepSpCas9/CHOPCHOP scores — not Azimuth, the model Track B's `score_new_gene.py` actually
-uses for genes outside Ito's 199. Conflating the two would be the same kind of
-unearned-credibility mistake as the specificity fallback, so we're separately validating
-Azimuth in-context: reconstructing real genomic 30-mer context for Ito's own guides (gene
-lookup → real sequence → real PAM scan → exact spacer match, no fabrication) and running
-Azimuth on them directly, to get a real number for that specific path. This is a
-multi-minute batch job (real Ensembl lookups for ~75 genes) and wasn't finished as of this
-writing — check
-[`agent4_benchmarking/output/AZIMUTH_VALIDATION_CHECK.md`](agent4_benchmarking/output/AZIMUTH_VALIDATION_CHECK.md)
-for whether it's since completed before citing a number from it (an early n=4 smoke-test
-version of this file exists and is not the real result — check the `n` in its table before
-trusting it).
+**Azimuth (Track B's model) validated separately, in-context**: the ρ=0.441 number above
+comes entirely from Ito's own precomputed DeepSpCas9/CHOPCHOP scores — not Azimuth, the
+model `score_new_gene.py` actually uses for genes outside Ito's 199. Conflating the two
+would be the same kind of unearned-credibility mistake as the specificity fallback, so we
+separately validated Azimuth in-context: reconstructing real genomic 30-mer context for
+Ito's own guides (gene lookup → real sequence → real PAM scan → exact spacer match, no
+fabrication) and running Azimuth on them directly. Result
+([`agent4_benchmarking/output/AZIMUTH_VALIDATION_CHECK.md`](agent4_benchmarking/output/AZIMUTH_VALIDATION_CHECK.md)):
+context was only reconstructable for 89/199 guides (Ensembl lookup/fetch failed for the
+other 110, across 41 genes — see the report for which ones), but on those 89, **Azimuth
+correlates with real indel% at ρ=0.346, p=0.0009** — real and statistically significant,
+though visibly weaker than DeepSpCas9/CHOPCHOP on the same 89-guide subset (ρ=0.518). So
+Track B's guides do inherit *some* real validated signal, just a weaker one than Track A's
+headline number implies — worth saying explicitly rather than letting ρ=0.441 get quoted
+for both paths.
 
 Full numbers: [`agent4_benchmarking/output/REPORT.md`](agent4_benchmarking/output/REPORT.md)
 and [`agent4_benchmarking/output/REPLICATE_SENSITIVITY_REPORT.md`](agent4_benchmarking/output/REPLICATE_SENSITIVITY_REPORT.md).
@@ -220,6 +222,7 @@ keep finding new ways it might be wrong.
 | Accessibility has **no** marginal effect (naive test) | ρ = 0.084, p = 0.24, n.s. | same |
 | Accessibility **does** have a real conditional effect (correct test, Ito's actual claim) | ρ = 0.232, p = 0.008, n = 131 (above-median-sequence subset) | `INTERACTION_EFFECT_CHECK.md` |
 | Our own GC/motif fallback heuristic has no real signal | ρ = 0.043, p = 0.54, n.s. | `MOTIF_AND_ACCESSIBILITY_CHECKS.md` |
+| Track B's model (Azimuth) predicts real editing efficiency too, but weaker than Track A's tools | ρ = 0.346, p = 0.0009, n = 89 (context reconstructable for 89/199 Ito guides) | `AZIMUTH_VALIDATION_CHECK.md` |
 | Off-target/specificity assessment | **not implemented** — tried, no real data source, removed | `agent3_metric_construction/SPEC.md` |
 | ATAC measurement is replicate-sensitive | passing-guide set changes between the two real replicates | `REPLICATE_SENSITIVITY_REPORT.md` |
 
@@ -239,8 +242,8 @@ still doesn't work.
   "it works."
 - Track B (score a real new gene) is real and runnable, but its Azimuth-scored guides for
   genes outside Ito's 199 are **not** covered by the ρ=0.441 number — that path's own
-  in-context validation is a separate, still-running check (see the paragraph above);
-  don't imply Track B inherits Track A's validated accuracy until that finishes.
+  in-context validation came in weaker (ρ=0.346, see the paragraph above). Say "ρ=0.346"
+  for Track B, not "ρ=0.441" — they're genuinely different numbers for different models.
 
 ## Dashboard
 

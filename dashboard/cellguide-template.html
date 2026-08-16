@@ -152,8 +152,9 @@ h1.title em{font-style:italic;color:var(--accent-ink);}
 @media (prefers-reduced-motion:reduce){.rail-node.active .rail-dot{animation:none;}}
 
 .console{background:#0B1210;border-radius:var(--radius);padding:18px 20px;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#B9E8DD;max-height:320px;overflow-y:auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);}
+.console .plain{font-family:var(--sans);font-size:var(--fs-sm);font-weight:600;color:#F2F5F3;padding-top:4px;}
 .console .cmd::before{content:"$ ";color:#4C6F68;}
-.console .cmd{color:#7EE7D6;}
+.console .cmd{color:#4C6F68;font-size:11px;}
 .console .out{color:#B9E8DD;padding-left:14px;}
 .console .ok{color:#6FDB8F;}
 .console .warn{color:#F0C37F;}
@@ -243,6 +244,10 @@ td.num{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-num
 .checklist{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
 .checklist li{display:flex;gap:10px;align-items:flex-start;font-size:var(--fs-sm);color:var(--ink-700);}
 .checklist .box{flex:none;width:15px;height:15px;border:1.5px solid var(--ink-300);border-radius:4px;margin-top:2px;}
+.checklist .box.checked{background:var(--cat-seq);border-color:var(--cat-seq);position:relative;}
+.checklist .box.checked::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;}
+.checklist li.done{color:var(--ink-500);}
+.checklist li.done span:last-child{text-decoration:line-through;text-decoration-color:var(--ink-300);}
 
 /* ---- next pick ---- */
 .pick-list{display:flex;flex-direction:column;gap:10px;}
@@ -286,7 +291,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
     <div class="hero-row">
       <h1 class="title">Cell<em>Guide</em> Bench</h1>
     </div>
-    <p class="tagline">Ranks CRISPR guide RNAs by sequence, chromatin accessibility, and specificity — benchmarked live against Ito et al. 2024's primary T-cell dataset, with a built-in skeptic that keeps the score honest.</p>
+    <p class="tagline">Ranks CRISPR guide RNAs by sequence efficacy and chromatin accessibility — benchmarked against Ito et al. 2024's primary T-cell dataset, with a built-in skeptic that keeps the score honest. Does <strong>not</strong> assess off-target risk / specificity — see the warning banner below.</p>
   </div>
   <div class="ruler">
     <div class="wrap" style="padding:0;">
@@ -297,6 +302,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
         <button class="tab" role="tab" aria-selected="false" data-tab="skeptic"><span class="n">04</span>Skeptic Review<span class="tab-dot" id="dot-skeptic"></span></button>
         <button class="tab" role="tab" aria-selected="false" data-tab="nextpick"><span class="n">05</span>Next Pick<span class="tab-dot" id="dot-nextpick"></span></button>
         <button class="tab" role="tab" aria-selected="false" data-tab="literature"><span class="n">06</span>Literature<span class="tab-dot" id="dot-literature"></span></button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="scoregene"><span class="n">07</span>Score a Gene</button>
       </nav>
     </div>
     <div class="ruler-ticks"></div>
@@ -307,19 +313,28 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
 
   <!-- ================= OVERVIEW ================= -->
   <section class="panel active" id="panel-overview">
+    <details class="callout" id="global-warning" style="margin-bottom:20px;">
+      <summary style="cursor:pointer;font-family:var(--mono);font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--status-warn-ink);font-weight:600;">⚠ 3 things to know before trusting these numbers</summary>
+      <ul style="margin-top:10px;padding-left:18px;color:var(--ink-700);font-size:var(--fs-sm);line-height:1.6;">
+        <li><strong>No off-target/specificity assessment</strong> — tried, no real data source, removed (see <code style="font-family:var(--mono);">agent3_metric_construction/SPEC.md</code>).</li>
+        <li><strong>Single-paper validation</strong> — ρ=0.441 is against Ito et al. 2024 only (n=199), no independent replication; some thresholds are derived from this same data.</li>
+        <li><strong>Every score is source-labeled</strong> — real tool, real model, or fallback heuristic (the heuristic alone has no real signal, ρ=0.043, n.s.) — treat unlabeled/heuristic scores as placeholders.</li>
+      </ul>
+    </details>
+
     <div class="grid stats" id="overview-stats"></div>
 
     <div class="callout" id="headline-callout" hidden>
       <div class="kicker">Headline finding</div>
       <h3>The combined score currently underperforms its own sequence-only component</h3>
-      <p>On 199 real Ito et al. 2024 guides, blending in accessibility and specificity at the current untuned weights (0.4 / 0.3 / 0.3) makes ranking <em>worse</em>, not better, than sequence alone. See Skeptic Review for the full audit.</p>
+      <p>On 199 real Ito et al. 2024 guides, blending in accessibility at the current untuned weights (0.4 / 0.3) makes ranking <em>worse</em>, not better, than sequence alone (ρ 0.315 vs 0.441) — which is why <code style="font-family:var(--mono);">recommended_score</code> is sequence-only, with accessibility checked separately as a gate. See Skeptic Review for the full audit.</p>
       <div class="rows" id="overview-callout-rows"></div>
     </div>
 
-    <h3 class="section-title" style="margin-top:8px;">Pipeline run</h3>
-    <p class="section-sub">The real sequence, per <code style="font-family:var(--mono);">CLAUDE.md</code> — each agent's output feeds the next, and the tabs above fill in live as each one finishes.</p>
+    <h3 class="section-title" style="margin-top:8px;">Pipeline run (replay)</h3>
+    <p class="section-sub">⚠ <strong>This is a scripted replay of a real prior run's output, not a live re-execution.</strong> Clicking the button does not call any agent script — the commands, timings, and results below are canned text illustrating the real sequence from <code style="font-family:var(--mono);">CLAUDE.md</code>. To actually run a stage, use the real command shown on each line from a terminal (see each folder's own <code style="font-family:var(--mono);">README.md</code>).</p>
     <div class="runner-bar">
-      <button class="run-btn" id="run-btn">▶ Run pipeline</button>
+      <button class="run-btn" id="run-btn">▶ Replay pipeline run</button>
       <span class="run-status" id="run-status">idle</span>
     </div>
     <div class="rail" id="rail"></div>
@@ -366,7 +381,6 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
             <th data-key="c">Combined</th>
             <th data-key="e">Sequence</th>
             <th data-key="a">Accessibility</th>
-            <th data-key="p">Specificity</th>
             <th data-key="r">Ito gate</th>
           </tr></thead>
           <tbody id="guide-tbody"></tbody>
@@ -429,7 +443,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
   <section class="panel" id="panel-literature">
     <h3 class="section-title">Literature corpus</h3>
     <p class="section-sub" id="lit-count">waiting on Agent 1 — Literature search…</p>
-    <div class="lit-synth" id="lit-synth" hidden><b>Cross-paper synthesis.</b> Sequence-only guide scores do not transfer across cell contexts, and chromatin accessibility is the most reusable context feature found — but the same openness that raises on-target efficiency also raises off-target risk, which is why CellGuide needs a two-term (efficiency × specificity) metric rather than a single accessibility bonus.</div>
+    <div class="lit-synth" id="lit-synth" hidden><b>Cross-paper synthesis.</b> Sequence-only guide scores do not transfer across cell contexts, and chromatin accessibility is the most reusable context feature found in the corpus — but only <em>conditionally</em> (see the Guide Tracks tab): it adds real signal among guides that already have a decent sequence score, not as a standalone bonus. A specificity/off-target term was also motivated by this corpus (the same open-chromatin regions that raise on-target efficiency can also raise off-target risk) but was never built — no off-target dataset in the corpus was directly usable without API access we don't have. This tool does not assess off-target risk.</div>
 
     <div class="gate" id="gate-literature">
       <div><span class="gdot"></span><span class="gtitle">Waiting on Agent 1 — Literature search</span></div>
@@ -441,6 +455,49 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
       </div>
       <div class="chips" id="lit-chips"></div>
       <div class="paper-grid" id="paper-grid"></div>
+    </div>
+  </section>
+
+  <!-- ================= SCORE A GENE (Track B) ================= -->
+  <section class="panel" id="panel-scoregene">
+    <h3 class="section-title">Score a gene on demand — a separate workflow from the run above</h3>
+    <p class="section-sub">
+      Everything above (tabs 01-06) is <strong>Track A</strong> — how the scoring formula
+      itself was built and validated, against Ito et al. 2024's 199 fixed guides. This tab is
+      <strong>Track B</strong>: the actual "type in a gene name" product workflow, for genes
+      that aren't in that fixed dataset at all. It doesn't depend on Track A having been
+      (re-)run. See <code style="font-family:var(--mono);">CLAUDE.md</code>, "Two workflows,
+      one shared codebase."
+    </p>
+    <p class="section-sub">
+      ⚠ <strong>Static demo, not live.</strong> This page has no backend — the tables below
+      are the real output of two real commands, run once and pasted in here, not something
+      you can re-trigger by clicking anything on this tab.
+    </p>
+    <p class="section-sub">
+      ⚠ <strong>Different model, different validated number.</strong> The sequence score
+      below comes from Azimuth (Doench 2016), not the DeepSpCas9/CHOPCHOP tools behind this
+      page's headline ρ=0.441. Validated in-context separately: ρ=0.346, p=0.0009, n=89 —
+      real and significant, but weaker. Don't quote ρ=0.441 for these guides.
+    </p>
+
+    <h3 class="section-title" style="margin-top:24px;">Step 1 — real Azimuth scoring for a gene outside the benchmark set</h3>
+    <p class="section-sub"><code style="font-family:var(--mono);">uv run agent3_metric_construction/score_new_gene.py BCL11A --top 5</code></p>
+    <p class="section-sub">Real Ensembl lookup (chr2:60,450,520-60,554,467, GRCh38) → real fetched sequence → real NGG PAM scan (198 candidates found in a 2001bp window) → batched real Azimuth (Doench 2016) scoring. No ATAC signal was supplied, so <code style="font-family:var(--mono);">accessibility</code> is correctly <code style="font-family:var(--mono);">null</code> and <code style="font-family:var(--mono);">passes_ito_rule</code> is <code style="font-family:var(--mono);">false</code> for every row below — not omitted, not guessed.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Spacer</th><th>Strand</th><th>PAM start (chr2)</th><th>recommended_score</th><th>sequence_efficacy_source</th><th>accessibility</th></tr></thead>
+        <tbody id="scoregene-tbody"></tbody>
+      </table>
+    </div>
+
+    <h3 class="section-title" style="margin-top:28px;">Step 2 — literature cross-reference (Agent 9)</h3>
+    <p class="section-sub"><code style="font-family:var(--mono);">uv run agent9_guide_literature_match/search_literature.py AIRE</code></p>
+    <div class="callout" style="margin-top:12px;">
+      <div class="kicker">⚠ Real honest-failure output, shown deliberately</div>
+      <p style="margin-top:8px;">This is a real, unedited result from running Agent 9's search step — not a "no guides found" result. In the environment this was run in, the paperclip literature-search tool itself could not be authorized, so <strong>zero papers were searched</strong>. The script's actual JSON output below shows exactly what it wrote instead of silently returning an empty result or guessing:</p>
+      <pre id="scoregene-honest-json" style="margin-top:12px;background:var(--surface-2);border-radius:var(--radius-sm);padding:14px;font-family:var(--mono);font-size:11px;line-height:1.6;overflow-x:auto;white-space:pre-wrap;"></pre>
+      <p style="margin-top:10px;"><strong>The distinction that matters</strong>: <code style="font-family:var(--mono);">match_guides.py</code> (step 3, deterministic, no LLM) marks every candidate's "previously reported?" status as <strong>unknown</strong> when this happens — never "not found." Those are different claims, and this pipeline does not collapse "we couldn't check" into "we checked and it's clean."</p>
     </div>
   </section>
 
@@ -473,6 +530,7 @@ const STAT_DEFS = [
   {key:'papers', label:'Papers in corpus'},
   {key:'guides', label:'Guides benchmarked'},
   {key:'rho', label:'Combined ρ'},
+  {key:'gate', label:'Ito gate precision'},
   {key:'xcontext', label:'Cross-context match'},
 ];
 const statEls = {};
@@ -508,7 +566,7 @@ function unlitDot(key){ const d=document.getElementById('dot-'+key); if (d) d.cl
 function renderCalloutRows(){
   const rows = [
     {label:'Sequence-only',ρ:0.441,color:'var(--cat-seq)'},
-    {label:'Accessibility-only',ρ:0.084,color:'var(--cat-acc)'},
+    {label:'Accessibility (marginal)',ρ:0.084,color:'var(--cat-acc)'},
     {label:'Combined (shipped)',ρ:0.315,color:'var(--combined)'},
   ];
   const rc = document.getElementById('overview-callout-rows');
@@ -523,8 +581,9 @@ function renderCalloutRows(){
 function renderComponentChart(){
   const rows = [
     {label:'Sequence-only',sub:'DeepSpCas9 + CHOPCHOP',ρ:0.441,color:'var(--cat-seq)'},
-    {label:'Accessibility-only',sub:'ATAC · p = 0.24, n.s.',ρ:0.084,color:'var(--cat-acc)'},
-    {label:'Combined score',sub:'w = 0.4 / 0.3 / 0.3',ρ:0.315,color:'var(--combined)'},
+    {label:'Accessibility (marginal)',sub:'ATAC vs indel%, all guides · p = 0.24, n.s.',ρ:0.084,color:'var(--cat-acc)'},
+    {label:'Accessibility (conditional)',sub:'above-median seq. score only, n = 131 · p = 0.008 — Ito’s actual claim',ρ:0.232,color:'var(--cat-acc)'},
+    {label:'Combined score',sub:'w = 0.4 / 0.3 — underperforms sequence alone',ρ:0.315,color:'var(--combined)'},
   ];
   const el = document.getElementById('component-chart');
   el.innerHTML = '';
@@ -536,6 +595,11 @@ function renderComponentChart(){
     el.appendChild(d);
     requestAnimationFrame(()=>{ d.querySelector('.bfill').style.width = (r.ρ/0.5*100)+'%'; });
   });
+  const note = document.createElement('p');
+  note.className = 'section-sub';
+  note.style.marginTop = '10px';
+  note.innerHTML = 'The marginal accessibility test is what an earlier version of this dashboard reported as "no value" — that was the wrong test. Ito et al.’s actual claim is conditional (see <code style="font-family:var(--mono);">agent4_benchmarking/output/INTERACTION_EFFECT_CHECK.md</code>): tested correctly, accessibility does show a real, significant effect among above-median-sequence-score guides — it just isn’t folded into <code style="font-family:var(--mono);">recommended_score</code> yet.';
+  el.appendChild(note);
 }
 
 function renderScatter(){
@@ -600,7 +664,6 @@ function renderGuideTable(){
       <td class="num">${d.c.toFixed(3)}</td>
       <td class="num">${bar(d.e,'var(--cat-seq)')}${d.e.toFixed(2)}</td>
       <td class="num">${bar(d.a,'var(--cat-acc)')}${d.a.toFixed(2)}</td>
-      <td class="num">${bar(d.p,'var(--cat-spec)')}${d.p.toFixed(2)}</td>
       <td>${d.r?'<span class="pill-badge pill-pass">Pass</span>':'<span class="pill-fail">—</span>'}</td>
     </tr>`;
   }).join('');
@@ -639,8 +702,8 @@ function renderCrossContext(){
 
 function renderSkeptic(){
   document.getElementById('skeptic-intro').innerHTML =
-    '<strong>The assigned results file is synthetic, and it showcases exactly the effect that Agent 4\'s real-data run failed to reproduce.</strong> ' +
-    'All four scored gene/cell-type rows land at LOW confidence — not because the biology is implausible, but because the demo outcome values are fabricated, the specificity term is a constant placeholder, the weights are unfit, and the combined score is empirically worse than a component it already contains.';
+    '<strong>Historical review — cards below are Agent 5\'s original critique of an early, synthetic-data version of the scoring pipeline, kept for the record. Most of what it flagged has since been fixed (see the checklist\'s ✓ items); it is not a live assessment of the current codebase.</strong> ' +
+    'All four scored gene/cell-type rows land at LOW confidence — not because the biology is implausible, but because the demo outcome values were fabricated, the specificity term was a constant placeholder (since removed entirely), the weights were unfit, and the combined score was empirically worse than a component it already contains (still true — see the Overview warning banner).';
 
   const el = document.getElementById('sk-cards');
   el.innerHTML = '';
@@ -656,20 +719,22 @@ function renderSkeptic(){
   });
 
   const checklist = [
-    'Re-run against results.csv (real, n=199), not demo_results.csv',
-    'Fix the specificity term or drop its weight to zero until off-target data is wired in',
-    'Make missing-data direction consistent across accessibility / specificity / Ito-rule',
-    'Add a delivery field and hard-gate accessibility to RNP contexts',
-    'Adopt Agent 4\'s recommendation: sequence_efficacy gated by passes_ito_thresholds()',
-    'Address Xu et al. 2018\'s delivery-artifact critique head-on in SPEC.md',
-    'Attach per-guide uncertainty (Ozden 2024 / Schmitz 2025 already in corpus)',
-    'Report a null/negative-control panel, not just the two textbook examples',
+    {t:'Re-run against results.csv (real, n=199), not demo_results.csv', done:true},
+    {t:'Fix the specificity term or drop its weight to zero until off-target data is wired in', done:true, note:'removed entirely, not just zeroed — see SPEC.md'},
+    {t:'Make missing-data direction consistent across accessibility / specificity / Ito-rule', done:true},
+    {t:'Add a delivery field and hard-gate accessibility to RNP contexts', done:true},
+    {t:'Adopt Agent 4\'s recommendation: sequence_efficacy gated by passes_ito_thresholds()', done:true, note:'recommended_score is sequence-only; passes_ito_rule tracked separately'},
+    {t:'Address Xu et al. 2018\'s delivery-artifact critique head-on in SPEC.md', done:true},
+    {t:'Attach per-guide uncertainty (Ozden 2024 / Schmitz 2025 already in corpus)', done:false, note:'still open — Agent 6 uses a component-disagreement proxy, not a calibrated per-guide uncertainty model'},
+    {t:'Report a null/negative-control panel, not just the two textbook examples', done:false, note:'still open'},
   ];
   const cl = document.getElementById('sk-checklist');
   cl.innerHTML = '';
   checklist.forEach(item=>{
     const li=document.createElement('li');
-    li.innerHTML = `<span class="box"></span><span>${item}</span>`;
+    if (item.done) li.className = 'done';
+    const noteHtml = item.note ? ` <em style="opacity:.75;">— ${item.note}</em>` : '';
+    li.innerHTML = `<span class="box${item.done?' checked':''}"></span><span>${item.t}${noteHtml}</span>`;
     cl.appendChild(li);
   });
 }
@@ -738,12 +803,13 @@ function unlockSummaries(){
 }
 function unlockFormula(){
   const f = document.getElementById('guide-formula');
-  f.textContent = 'score(g,c) = 0.4 · sequence_efficacy + 0.3 · accessibility + 0.3 · specificity — untuned weights, see SPEC.md';
+  f.textContent = 'score(g,c) = 0.4 · sequence_efficacy + 0.3 · accessibility — untuned weights, no specificity term, see SPEC.md';
   reveal(f);
 }
 function unlockBenchmark(){
   setStat('guides','199','real Ito et al. 2024 primary-T-cell data');
   setStat('rho','0.315','vs 0.441 sequence-only — see callout');
+  setStat('gate','0.741→0.862','precision, sequence-only gate vs + ATAC≥0.1 gate (n=199, recall drops — by design, see Guide Tracks)');
   setStat('xcontext','11/11','genes where accessibility flips correctly');
 
   reveal(document.getElementById('headline-callout'));
@@ -793,31 +859,68 @@ function resetUI(){
   ['guides','crosscontext','skeptic','nextpick','literature'].forEach(unlitDot);
 }
 
+/* ---------- Score a Gene (Track B static demo) ---------- */
+(function renderScoreGeneDemo(){
+  const SCOREGENE_RESULTS = [
+    {s:'AGGACTCTGTCTTCGCACAA', strand:'+', pam:60452462, score:0.7331},
+    {s:'ACAGGCCGTGAACCTAAGTG', strand:'-', pam:60451279, score:0.7323},
+    {s:'ATAGAATGTATAGAAACAAG', strand:'+', pam:60452231, score:0.7241},
+    {s:'ACTCTTTCTAGGCATCAGCA', strand:'+', pam:60450565, score:0.7092},
+    {s:'TGTTCACAGACACACACATG', strand:'-', pam:60450882, score:0.7075},
+  ];
+  const tbody = document.getElementById('scoregene-tbody');
+  if (tbody){
+    tbody.innerHTML = SCOREGENE_RESULTS.map(r => `<tr>
+      <td class="spacer">${r.s}</td>
+      <td class="num">${r.strand}</td>
+      <td class="num">${r.pam.toLocaleString()}</td>
+      <td class="num">${r.score.toFixed(4)}</td>
+      <td style="font-size:11px;color:var(--ink-500);max-width:260px;">Azimuth (Doench 2016) on real 30-mer context — validated in-context separately at ρ=0.346, p=0.0009 (n=89)</td>
+      <td class="num" style="color:var(--ink-300);">null</td>
+    </tr>`).join('');
+  }
+
+  const honestJson = {
+    gene: "AIRE",
+    search_queries_tried: [
+      "paperclip skill (load command docs) - BLOCKED, tool permission not granted",
+      "search -s pmc \"AIRE CRISPR guide RNA knockout editing efficiency\" -n 10 - BLOCKED, tool permission not granted",
+      "local repo grep for '\\bAIRE\\b' across the repo - BLOCKED, read permission not granted",
+      "glob agent1_literature_search/output/related/*/meta.json - ran, returned no files (no cached corpus available)"
+    ],
+    papers_found_relevant: [],
+    reported_guides: [],
+    notes: "NO SEARCH WAS ACTUALLY PERFORMED. Every call to the paperclip MCP tool was rejected with a permission error. A fallback attempt to grep the repo's locally cached literature was likewise rejected, and a glob for cached papers returned no files. Therefore zero papers were retrieved and zero guide RNA spacer sequences for AIRE could be extracted. This empty result reflects tool unavailability, NOT evidence that no AIRE CRISPR guide sequences exist in the literature. No sequences, efficiencies, or biological contexts have been guessed or inferred."
+  };
+  const pre = document.getElementById('scoregene-honest-json');
+  if (pre) pre.textContent = JSON.stringify(honestJson, null, 2);
+})();
+
 /* ---------- pipeline runner ---------- */
 (function(){
   const STAGES = [
-    {n:1, name:'Literature search', cmd:'uv run agent1_literature_search/run.py "CRISPRi + chromatin accessibility"',
+    {n:1, name:'Literature search', plain:'Go find relevant scientific papers on the topic.', cmd:'uv run agent1_literature_search/run.py "CRISPRi + chromatin accessibility"',
      running:'searching biomedical literature via paperclip…',
      result:[{t:'38 papers saved → agent1_literature_search/output/related/', cls:'ok'}], status:'done', ms:1700, onDone:unlockPapers},
-    {n:2, name:'Summarization', cmd:'uv run agent2_literature_summarization/run.py',
+    {n:2, name:'Summarization', plain:'Read those papers and pull out the useful facts.', cmd:'uv run agent2_literature_summarization/run.py',
      running:'extracting design / genes / outcomes / cell type…',
      result:[{t:'38/38 papers summarized → output/SUMMARY.md', cls:'ok'}], status:'done', ms:1500, onDone:unlockSummaries},
-    {n:3, name:'Metric spec', cmd:'review agent3_metric_construction/guide_scoring.py',
-     running:'building score(g,c) = w_seq·seq + w_atac·acc + w_spec·spec…',
-     result:[{t:'3 components defined · weights 0.4 / 0.3 / 0.3 (untuned)', cls:'ok'}], status:'done', ms:1100, onDone:unlockFormula},
-    {n:4, name:'Benchmarking', cmd:'uv run agent4_benchmarking/run.py --data papers/ito_2024/table_s1_for_agent4.csv',
+    {n:3, name:'Metric spec', plain:'Turn all that literature into an actual scoring formula.', cmd:'review agent3_metric_construction/guide_scoring.py',
+     running:'building score(g,c) = w_seq·seq + w_atac·acc…',
+     result:[{t:'2 components defined · weights 0.4 / 0.3 (untuned) — specificity tried, removed, no real off-target data source', cls:'ok'}], status:'done', ms:1100, onDone:unlockFormula},
+    {n:4, name:'Benchmarking', plain:'Check if the formula actually works, against real data.', cmd:'uv run agent4_benchmarking/run.py --data papers/ito_2024/table_s1_for_agent4.csv',
      running:'scoring 199 guides against measured indel%…',
      result:[{t:'ρ = 0.315 combined  ·  ρ = 0.441 sequence-only', cls:'warn'},{t:'combined underperforms its own sequence component', cls:'warn'}], status:'done', ms:1600, onDone:unlockBenchmark},
-    {n:5, name:'Confidence review', cmd:'uv run agent5_confidence_assessment/run.py --results agent4_benchmarking/output/demo_results.csv',
+    {n:5, name:'Confidence review', plain:'Play devil\'s advocate on everything above.', cmd:'uv run agent5_confidence_assessment/run.py --results agent4_benchmarking/output/demo_results.csv',
      running:'running adversarial review of metric + benchmark…',
      result:[{t:'4/4 rows flagged LOW confidence → CONFIDENCE_REPORT.md', cls:'warn'}], status:'done', ms:1400, onDone:unlockSkepticPanel},
-    {n:6, name:'Next experiment', cmd:'uv run agent6_next_experiment/recommend.py recommend --top 3',
+    {n:6, name:'Next experiment', plain:'Decide what to test next in the lab.', cmd:'uv run agent6_next_experiment/recommend.py recommend --top 3',
      running:'ranking untested candidates by priority…',
      result:[{t:'top pick: DPH1 (priority 0.276)', cls:'ok'}], status:'done', ms:1000, onDone:unlockNextPickPanel},
-    {n:7, name:'Provenance', cmd:'uv run agent7_provenance/build.py --results agent4_benchmarking/output/results.csv',
+    {n:7, name:'Provenance', plain:'Keep an audit trail of where every number came from.', cmd:'uv run agent7_provenance/build.py --results agent4_benchmarking/output/results.csv',
      running:'linking score components back to source papers…',
      result:[{t:'provenance.json written — new this pull, not yet reviewed', cls:'ok'}], status:'new', ms:1000, onDone:null},
-    {n:8, name:'Benchling sync', cmd:'uv run agent8_benchling_sync/run.py --tenant your-org --schema-id <id>',
+    {n:8, name:'Benchling sync', plain:'Connect to the real lab notebook system (Benchling).', cmd:'uv run agent8_benchling_sync/run.py --tenant your-org --schema-id <id>',
      running:'connecting to Benchling…',
      result:[{t:'NotImplementedError — no tenant / results schema configured', cls:'skip'}], status:'stub', ms:900, onDone:null},
   ];
@@ -854,6 +957,8 @@ function resetUI(){
       node.classList.add('active');
       const fill = node.querySelector('.fill'); if (fill) fill.style.width='100%';
 
+      const plainLine = document.createElement('div'); plainLine.className='plain'; plainLine.textContent = `Step ${stage.n} — ${stage.plain || stage.name}`;
+      consoleEl.appendChild(plainLine);
       const cmdLine = document.createElement('div'); cmdLine.className='cmd'; cmdLine.textContent = stage.cmd;
       consoleEl.appendChild(cmdLine);
       const runLine = document.createElement('div'); runLine.className='out';
@@ -891,7 +996,7 @@ function resetUI(){
     }
     statusEl.textContent = '6 live · 1 new · 1 stub';
     btn.disabled = false;
-    btn.textContent = '↻ Run again';
+    btn.textContent = '↻ Replay again';
     running = false;
   }
 
