@@ -42,14 +42,15 @@ been run). Two steps:
 | B1 | [`agent3_metric_construction/score_new_gene.py`](agent3_metric_construction/score_new_gene.py) | Gene symbol | Deterministic (no LLM): real Ensembl coordinate lookup → real genomic sequence → real NGG PAM scan (both strands) → batched real Azimuth on-target scoring. Every result/failure reported in plain language (`status`, `messages`) — this is the "honest UI" entry point | ranked candidate guides with `recommended_score` + `sequence_efficacy_source` |
 | B2 | [`agent9_guide_literature_match/`](agent9_guide_literature_match/) | B1's top-scoring guides | Two sub-steps: `search_literature.py` (LLM, paperclip — searches **by gene name**, not by raw sequence, extracts any explicitly-reported guide sequences/efficiency/context); `match_guides.py` (deterministic — exact sequence match, forward + reverse complement, against B1's candidates; never collapses "search not run" into "not found") | `output/<gene>/literature_guides.json`, `match_result.json`, `MATCH_REPORT.md` |
 
-### Shared — experiment loop (agents 6, 8)
+### Shared — experiment loop (agents 6, 8, 10)
 
 Consumes candidate scores from **either** track and closes the loop with real wet-lab results.
 
 | # | Folder | Input | Task | Output |
 |---|---|---|---|---|
 | 6 | [`agent6_next_experiment/`](agent6_next_experiment/) | Candidate guide scores (from Track A's benchmark set or Track B's `score_new_gene.py` output) + Agent 5's confidence (or a component-disagreement proxy) | Deterministic script; ranks untested guides by `combined_score x uncertainty` and recommends what to test next; `record` ingests a real result and re-ranks | `output/recommendations.csv`, `state/experiment_log.csv` |
-| 8 | [`agent8_benchling_sync/`](agent8_benchling_sync/) | Benchling experiment results (Hackathon26 / AIFG folder) | Real implementation via the official `benchling-sdk` — pushes Agent 6's top recommendation to Benchling as the next experiment, pulls back recorded results and feeds them into Agent 6's `record`. **Not runnable yet**: needs a tenant URL + two Result schema IDs created in Benchling first (see the folder's README) | n/a until Benchling schemas exist |
+| 8 | [`agent8_benchling_sync/`](agent8_benchling_sync/) | Benchling experiment results (Hackathon26 / AIFG folder) | Real implementation via the official `benchling-sdk` — pushes Agent 6's top recommendation to Benchling as the next experiment, pulls back recorded results and feeds them into Agent 6's `record`. Live and tested end-to-end against the real Hackathon26 tenant; needs the same real credentials/schema IDs in `.env` on any other machine (see the folder's README) | Real pushes to Benchling; confirmed via `list_resources.py` |
+| 10 | `agent10_proto_design/` (folder not yet in this repo) | Agent 3's candidate pool (either track) | Filters candidates through hard gates (efficacy, GC, specificity), ranks by paired ATAC advantage, balances selection across target genes (three guides/target) | Ranked CSV + design report — see `CellGuide_AI_Proto_Virtual_Test_Deck.pptx` for the partial virtual-test results (T cell / K562) shown in the dashboard's "Proto Design" tab |
 
 **Containment**: agents 1/2/5/9 (and any future LLM-driven stage) must set `cwd` to their own
 folder, `add_dirs` for read-only access to specific sibling folders they need, an explicit
@@ -62,6 +63,7 @@ agents' folders. See [`agent1_literature_search/README.md`](agent1_literature_se
 
 - `docs/` — planning documents (hackathon plan PDF, etc.)
 - `agent1_literature_search/`, `agent2_literature_summarization/`, `agent3_metric_construction/`, `agent4_benchmarking/`, `agent5_confidence_assessment/`, `agent6_next_experiment/`, `agent7_provenance/`, `agent8_benchling_sync/`, `agent9_guide_literature_match/` — pipeline stage code + that stage's output, per the tracks above (folder numbers = build order, not flow order — see "Two workflows" above for which track each one belongs to)
+- `agent10_proto_design/` — planned; not yet a folder in this repo. Documented in the Shared table above from `CellGuide_AI_Proto_Virtual_Test_Deck.pptx`'s description — build it here, matching the same containment/README conventions as agents 1-9, before treating its numbers as reproducible
 - `papers/` — **core reference corpus only** (the plan's explicitly-cited papers, fetched via Paperclip), one folder per paper: `meta.json`, `fulltext.txt`, `SUMMARY.md`, `structured_extraction.md`
   - `papers/ito_2024/` — primary benchmark dataset (Agent 4's ground truth)
   - `papers/MANIFEST.md` — fetch status log for the core cited papers

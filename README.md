@@ -1,4 +1,4 @@
-# CellGuide AI
+# GuideRail
 
 Cell-context-aware CRISPR guide RNA scoring, validated against real experimental data.
 
@@ -11,7 +11,7 @@ in the target cell type's chromatin state — a property no sequence-only score 
 same guide can perform well in one cell type and poorly in another purely because of
 chromatin accessibility, not sequence.
 
-CellGuide scores guides on sequence efficacy **and** cell-type-specific chromatin
+GuideRail scores guides on sequence efficacy **and** cell-type-specific chromatin
 accessibility (ATAC-seq signal), and validates the resulting formula against Ito et al. 2024
 (*Nucleic Acids Research* 52(1):141-154) — 199 real guides tested in two cell types (primary
 human T cells, K562) with measured editing outcomes.
@@ -55,6 +55,7 @@ Independent of Track A's run order; only requires Agent 3's library code.
 |---|---|---|---|---|
 | 6 | Next experiment | Candidates (either track) + confidence | Ranks untested guides by expected value × uncertainty; ingests real results and re-ranks | `agent6_next_experiment/output/` |
 | 8 | Benchling sync | Agent 6's top recommendation | Pushes to Benchling; retrieves recorded results | Benchling + Agent 6 state |
+| 10 | Proto design (planned — folder not yet in this repo) | Agent 3's candidate pool | Hard-gates candidates (efficacy, GC, specificity), ranks by paired ATAC advantage, balances selection across target genes | Ranked panel (CSV + design report) |
 
 Each component's folder has its own README with exact commands. Full technical spec —
 containment rules, cost limits, and why they exist — in [`CLAUDE.md`](CLAUDE.md).
@@ -101,8 +102,8 @@ Sources: [`agent4_benchmarking/output/REPORT.md`](agent4_benchmarking/output/REP
 | Off-target/specificity assessment | not implemented — no real data source, removed | `SPEC.md` |
 | ATAC measurement is replicate-sensitive | passing-guide set changes between the two real replicates | `REPLICATE_SENSITIVITY_REPORT.md` |
 
-**Claims to avoid overstating**: CellGuide does not assess off-target risk. ρ=0.441 is
-DeepSpCas9/CHOPCHOP's validated accuracy, not CellGuide's own model. The accessibility
+**Claims to avoid overstating**: GuideRail does not assess off-target risk. ρ=0.441 is
+DeepSpCas9/CHOPCHOP's validated accuracy, not GuideRail's own model. The accessibility
 result is a real conditional signal not yet folded into the shipped score, not a clean
 win. Track B's guides validate at ρ=0.346, not ρ=0.441.
 

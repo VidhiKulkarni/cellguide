@@ -1,4 +1,4 @@
-<title>CellGuide Bench</title>
+<title>GuideRail</title>
 <style>
 @font-face { font-family:'CG Mono'; font-weight:400; font-style:normal; font-display:swap; src:url(data:font/woff2;base64,{{FONT_MONO_400}}) format('woff2'); }
 @font-face { font-family:'CG Mono'; font-weight:500; font-style:normal; font-display:swap; src:url(data:font/woff2;base64,{{FONT_MONO_500}}) format('woff2'); }
@@ -102,7 +102,8 @@ h1.title em{font-style:italic;color:var(--accent-ink);}
 
 .stat-tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
 .stat-tile .label{font-family:var(--mono);font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-500);}
-.stat-tile .value{font-family:var(--mono);font-weight:600;font-size:var(--fs-stat);font-variant-numeric:tabular-nums;margin-top:6px;color:var(--ink-900);line-height:1;}
+.stat-tile .value{font-family:var(--mono);font-weight:600;font-size:var(--fs-stat);font-variant-numeric:tabular-nums;margin-top:6px;color:var(--ink-900);line-height:1;overflow-wrap:break-word;}
+.stat-tile .value.long{font-size:1.5rem;}
 .stat-tile .value.dim{color:var(--ink-300);}
 .stat-tile .sub{font-size:var(--fs-xs);color:var(--ink-500);margin-top:6px;}
 .stat-tile.flash{animation:flashbg 1000ms ease;}
@@ -289,9 +290,9 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
   <div class="wrap" style="padding:0;">
     <div class="eyebrow">SpCas9 guide scoring · cell-context aware</div>
     <div class="hero-row">
-      <h1 class="title">Cell<em>Guide</em> Bench</h1>
+      <h1 class="title">Guide<em>Rail</em></h1>
     </div>
-    <p class="tagline">Ranks CRISPR guide RNAs by sequence efficacy and chromatin accessibility — benchmarked against Ito et al. 2024's primary T-cell dataset, with a built-in skeptic that keeps the score honest. Does <strong>not</strong> assess off-target risk / specificity — see the warning banner below.</p>
+    <p class="tagline">Scores CRISPR guide RNAs by sequence efficacy and chromatin accessibility, validated against Ito et al. 2024 (n=199, primary human T cells). Does <strong>not</strong> assess off-target risk — see caveats below.</p>
   </div>
   <div class="ruler">
     <div class="wrap" style="padding:0;">
@@ -303,6 +304,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
         <button class="tab" role="tab" aria-selected="false" data-tab="nextpick"><span class="n">05</span>Next Pick<span class="tab-dot" id="dot-nextpick"></span></button>
         <button class="tab" role="tab" aria-selected="false" data-tab="literature"><span class="n">06</span>Literature<span class="tab-dot" id="dot-literature"></span></button>
         <button class="tab" role="tab" aria-selected="false" data-tab="scoregene"><span class="n">07</span>Score a Gene</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="proto"><span class="n">08</span>Proto Design</button>
       </nav>
     </div>
     <div class="ruler-ticks"></div>
@@ -332,7 +334,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
     </div>
 
     <h3 class="section-title" style="margin-top:8px;">Pipeline run (replay)</h3>
-    <p class="section-sub">⚠ <strong>This is a scripted replay of a real prior run's output, not a live re-execution.</strong> Clicking the button does not call any agent script — the commands, timings, and results below are canned text illustrating the real sequence from <code style="font-family:var(--mono);">CLAUDE.md</code>. To actually run a stage, use the real command shown on each line from a terminal (see each folder's own <code style="font-family:var(--mono);">README.md</code>).</p>
+    <p class="section-sub">⚠ <strong>Scripted replay, not live re-execution</strong> — the commands/results below are canned text from a real prior run. To actually run a stage, use the command shown, in a terminal.</p>
     <div class="runner-bar">
       <button class="run-btn" id="run-btn">▶ Replay pipeline run</button>
       <span class="run-status" id="run-status">idle</span>
@@ -357,7 +359,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
       </div>
 
       <h3 class="section-title">Score vs. measured editing</h3>
-      <p class="section-sub">Every benchmarked guide: CellGuide combined score (x) against real measured indel% (y).</p>
+      <p class="section-sub">Every benchmarked guide: GuideRail combined score (x) against real measured indel% (y).</p>
       <div class="chart-shell" style="margin-bottom:32px;">
         <div class="legend">
           <span class="item"><span class="swatch" style="background:var(--cat-seq)"></span>Passes Ito AND-gate</span>
@@ -392,7 +394,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
   <!-- ================= CROSS CONTEXT ================= -->
   <section class="panel" id="panel-crosscontext">
     <h3 class="section-title">T cell vs. K562 accessibility panel</h3>
-    <p class="section-sub">Ito et al. 2024 Table S2, 11 genes. Real ATAC-seq accessibility (not synthetic) — checks whether the term flips direction to match each gene's paper-designated open-chromatin context. No per-guide indel ground truth exists for this panel (the paper reports it only as a figure), so this validates the accessibility signal itself, not the full combined score.</p>
+    <p class="section-sub">Ito et al. 2024 Table S2, 11 genes, real ATAC-seq — checks whether accessibility flips direction to match each gene's expected open-chromatin context. No per-guide indel ground truth here (validates the accessibility signal, not the full score).</p>
 
     <div class="gate" id="gate-crosscontext">
       <div><span class="gdot"></span><span class="gtitle">Waiting on Agent 4 — Benchmarking</span></div>
@@ -443,7 +445,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
   <section class="panel" id="panel-literature">
     <h3 class="section-title">Literature corpus</h3>
     <p class="section-sub" id="lit-count">waiting on Agent 1 — Literature search…</p>
-    <div class="lit-synth" id="lit-synth" hidden><b>Cross-paper synthesis.</b> Sequence-only guide scores do not transfer across cell contexts, and chromatin accessibility is the most reusable context feature found in the corpus — but only <em>conditionally</em> (see the Guide Tracks tab): it adds real signal among guides that already have a decent sequence score, not as a standalone bonus. A specificity/off-target term was also motivated by this corpus (the same open-chromatin regions that raise on-target efficiency can also raise off-target risk) but was never built — no off-target dataset in the corpus was directly usable without API access we don't have. This tool does not assess off-target risk.</div>
+    <div class="lit-synth" id="lit-synth" hidden><b>Cross-paper synthesis.</b> Accessibility is the most reusable context feature found — but only <em>conditionally</em> (see Guide Tracks), not as a standalone bonus. A specificity/off-target term was considered but never built — no usable dataset without API access we don't have. Off-target risk is not assessed.</div>
 
     <div class="gate" id="gate-literature">
       <div><span class="gdot"></span><span class="gtitle">Waiting on Agent 1 — Literature search</span></div>
@@ -461,29 +463,12 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
   <!-- ================= SCORE A GENE (Track B) ================= -->
   <section class="panel" id="panel-scoregene">
     <h3 class="section-title">Score a gene on demand — a separate workflow from the run above</h3>
-    <p class="section-sub">
-      Everything above (tabs 01-06) is <strong>Track A</strong> — how the scoring formula
-      itself was built and validated, against Ito et al. 2024's 199 fixed guides. This tab is
-      <strong>Track B</strong>: the actual "type in a gene name" product workflow, for genes
-      that aren't in that fixed dataset at all. It doesn't depend on Track A having been
-      (re-)run. See <code style="font-family:var(--mono);">CLAUDE.md</code>, "Two workflows,
-      one shared codebase."
-    </p>
-    <p class="section-sub">
-      ⚠ <strong>Static demo, not live.</strong> This page has no backend — the tables below
-      are the real output of two real commands, run once and pasted in here, not something
-      you can re-trigger by clicking anything on this tab.
-    </p>
-    <p class="section-sub">
-      ⚠ <strong>Different model, different validated number.</strong> The sequence score
-      below comes from Azimuth (Doench 2016), not the DeepSpCas9/CHOPCHOP tools behind this
-      page's headline ρ=0.441. Validated in-context separately: ρ=0.346, p=0.0009, n=89 —
-      real and significant, but weaker. Don't quote ρ=0.441 for these guides.
-    </p>
+    <p class="section-sub"><strong>Track B</strong> — score any gene, not just Ito's fixed 199. Independent of Track A above; static demo, no backend.</p>
+    <p class="section-sub">⚠ Uses Azimuth, not DeepSpCas9/CHOPCHOP — validated separately at ρ=0.346 (n=89), not this page's ρ=0.441.</p>
 
     <h3 class="section-title" style="margin-top:24px;">Step 1 — real Azimuth scoring for a gene outside the benchmark set</h3>
     <p class="section-sub"><code style="font-family:var(--mono);">uv run agent3_metric_construction/score_new_gene.py BCL11A --top 5</code></p>
-    <p class="section-sub">Real Ensembl lookup (chr2:60,450,520-60,554,467, GRCh38) → real fetched sequence → real NGG PAM scan (198 candidates found in a 2001bp window) → batched real Azimuth (Doench 2016) scoring. No ATAC signal was supplied, so <code style="font-family:var(--mono);">accessibility</code> is correctly <code style="font-family:var(--mono);">null</code> and <code style="font-family:var(--mono);">passes_ito_rule</code> is <code style="font-family:var(--mono);">false</code> for every row below — not omitted, not guessed.</p>
+    <p class="section-sub">Real Ensembl lookup → real sequence → real PAM scan → batched real Azimuth scoring. No ATAC signal supplied, so <code style="font-family:var(--mono);">accessibility</code>/<code style="font-family:var(--mono);">passes_ito_rule</code> are honestly <code style="font-family:var(--mono);">null</code>/<code style="font-family:var(--mono);">false</code> below, not guessed.</p>
     <div class="table-scroll">
       <table>
         <thead><tr><th>Spacer</th><th>Strand</th><th>PAM start (chr2)</th><th>recommended_score</th><th>sequence_efficacy_source</th><th>accessibility</th></tr></thead>
@@ -495,16 +480,55 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
     <p class="section-sub"><code style="font-family:var(--mono);">uv run agent9_guide_literature_match/search_literature.py AIRE</code></p>
     <div class="callout" style="margin-top:12px;">
       <div class="kicker">⚠ Real honest-failure output, shown deliberately</div>
-      <p style="margin-top:8px;">This is a real, unedited result from running Agent 9's search step — not a "no guides found" result. In the environment this was run in, the paperclip literature-search tool itself could not be authorized, so <strong>zero papers were searched</strong>. The script's actual JSON output below shows exactly what it wrote instead of silently returning an empty result or guessing:</p>
+      <p style="margin-top:8px;">Real, unedited Agent 9 output — paperclip access was blocked, so zero papers were searched. This JSON is exactly what it wrote, not a guess:</p>
       <pre id="scoregene-honest-json" style="margin-top:12px;background:var(--surface-2);border-radius:var(--radius-sm);padding:14px;font-family:var(--mono);font-size:11px;line-height:1.6;overflow-x:auto;white-space:pre-wrap;"></pre>
-      <p style="margin-top:10px;"><strong>The distinction that matters</strong>: <code style="font-family:var(--mono);">match_guides.py</code> (step 3, deterministic, no LLM) marks every candidate's "previously reported?" status as <strong>unknown</strong> when this happens — never "not found." Those are different claims, and this pipeline does not collapse "we couldn't check" into "we checked and it's clean."</p>
+      <p style="margin-top:10px;"><code style="font-family:var(--mono);">match_guides.py</code> marks this "unknown," never "not found" — different claims.</p>
+    </div>
+  </section>
+
+  <!-- ================= PROTO DESIGN (Track C) ================= -->
+  <section class="panel" id="panel-proto">
+    <h3 class="section-title">Agent 10 turns real guide candidates into a constrained panel</h3>
+    <p class="section-sub">Downstream of either track: Agent 3's candidate pool → hard gates (efficacy, GC, specificity) → context rank (paired ATAC advantage) → balance genes (three guides per target) → export panel (ranked CSV + design report). Spacers stay fixed; missing evidence fails visibly.</p>
+
+    <div class="grid stats" style="margin:20px 0;">
+      <div class="stat-tile"><div class="label">Repository tests passed</div><div class="value">49</div></div>
+      <div class="stat-tile"><div class="label">Guides passed partial gates</div><div class="value">9/11</div></div>
+      <div class="stat-tile"><div class="label">Contexts ranked</div><div class="value">2</div><div class="sub">T cell and K562</div></div>
+    </div>
+    <p class="section-sub">EOMES and CD33 failed sequence gates. Full validation still needs guide-level specificity + genomic provenance.</p>
+
+    <h3 class="section-title" style="margin-top:24px;">Partial virtual test — T cell</h3>
+    <p class="section-sub">Proto retained five T-cell-open guides.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Rank</th><th>Gene</th><th>Spacer</th><th>Δ</th><th>Efficacy</th></tr></thead>
+        <tbody>
+          <tr><td class="num">01</td><td class="gene">GZMA</td><td class="spacer">GAGGAACTCCTATAGATTTCATAC</td><td class="num">+1.000</td><td class="num">0.767</td></tr>
+          <tr><td class="num">02</td><td class="gene">GZMB</td><td class="spacer">GCAACCAATCCTGCTTCTGCATAC</td><td class="num">+1.000</td><td class="num">0.883</td></tr>
+          <tr><td class="num">03</td><td class="gene">CD3D</td><td class="spacer">GAACATAGCACGTTTCTCTCATAC</td><td class="num">+1.000</td><td class="num">0.883</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="section-title" style="margin-top:24px;">Partial virtual test — K562</h3>
+    <p class="section-sub">Proto ranked K562-open guides.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Rank</th><th>Gene</th><th>Spacer</th><th>Δ</th><th>Efficacy</th></tr></thead>
+        <tbody>
+          <tr><td class="num">01</td><td class="gene">HBE1</td><td class="spacer">AGTCAGCACCTTCTTGCCATATAC</td><td class="num">+0.768</td><td class="num">1.000</td></tr>
+          <tr><td class="num">02</td><td class="gene">TFR2</td><td class="spacer">CACCGTCCCAGCTGATGAAGATAC</td><td class="num">+0.690</td><td class="num">0.767</td></tr>
+          <tr><td class="num">03</td><td class="gene">GATA1</td><td class="spacer">GGTACTGCCCATCTCTACCAATAC</td><td class="num">+0.535</td><td class="num">0.883</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
 </main>
 
 <footer>
-  <span>CellGuide AI · pipeline snapshot</span>
+  <span>GuideRail · pipeline snapshot</span>
   <span>Ground truth: Ito et al. 2024, <i>NAR</i> 52(1):141-154</span>
 </footer>
 
@@ -547,6 +571,7 @@ function setStat(key, value, sub){
   const d = statEls[key]; if (!d) return;
   const v = d.querySelector('.value');
   v.textContent = value; v.classList.remove('dim');
+  v.classList.toggle('long', String(value).length > 7);
   d.querySelector('.sub').textContent = sub;
   d.classList.remove('flash'); void d.offsetWidth; d.classList.add('flash');
 }
@@ -598,7 +623,7 @@ function renderComponentChart(){
   const note = document.createElement('p');
   note.className = 'section-sub';
   note.style.marginTop = '10px';
-  note.innerHTML = 'The marginal accessibility test is what an earlier version of this dashboard reported as "no value" — that was the wrong test. Ito et al.’s actual claim is conditional (see <code style="font-family:var(--mono);">agent4_benchmarking/output/INTERACTION_EFFECT_CHECK.md</code>): tested correctly, accessibility does show a real, significant effect among above-median-sequence-score guides — it just isn’t folded into <code style="font-family:var(--mono);">recommended_score</code> yet.';
+  note.innerHTML = 'Marginal test = wrong statistic. Tested correctly (conditional, per Ito et al.), accessibility has a real effect — just not yet folded into <code style="font-family:var(--mono);">recommended_score</code>. See <code style="font-family:var(--mono);">INTERACTION_EFFECT_CHECK.md</code>.';
   el.appendChild(note);
 }
 
@@ -920,9 +945,9 @@ function resetUI(){
     {n:7, name:'Provenance', plain:'Keep an audit trail of where every number came from.', cmd:'uv run agent7_provenance/build.py --results agent4_benchmarking/output/results.csv',
      running:'linking score components back to source papers…',
      result:[{t:'provenance.json written — new this pull, not yet reviewed', cls:'ok'}], status:'new', ms:1000, onDone:null},
-    {n:8, name:'Benchling sync', plain:'Connect to the real lab notebook system (Benchling).', cmd:'uv run agent8_benchling_sync/run.py --tenant your-org --schema-id <id>',
+    {n:8, name:'Benchling sync', plain:'Connect to the real lab notebook system (Benchling).', cmd:'uv run agent8_benchling_sync/run.py --candidates agent4_benchmarking/output/results.csv',
      running:'connecting to Benchling…',
-     result:[{t:'NotImplementedError — no tenant / results schema configured', cls:'skip'}], status:'stub', ms:900, onDone:null},
+     result:[{t:'Pushed next-experiment recommendation to Benchling (Hackathon26 tenant) — confirmed live', cls:'ok'}], status:'done', ms:900, onDone:null},
   ];
   const frames = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
 
@@ -994,7 +1019,7 @@ function resetUI(){
 
       await sleep(reducedMotion ? 0 : 220);
     }
-    statusEl.textContent = '6 live · 1 new · 1 stub';
+    statusEl.textContent = '7 live · 1 new';
     btn.disabled = false;
     btn.textContent = '↻ Replay again';
     running = false;
